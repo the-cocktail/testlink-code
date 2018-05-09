@@ -78,7 +78,7 @@ p.important {
 table.tc, table.tc td, table.tc th, 
 table.req, table.req td, table.req th,
 table.req_spec, table.req_spec td, table.req_spec th {
-	border: 			1px solid #DDD;
+	border: 			1px solid #EFE;
 	border-collapse:	collapse;
 	font-size:			11px;
 	padding:			2px;
@@ -95,19 +95,19 @@ table.req {
 
 table.tc th, table.req th, table.req_spec th {
 	font-weight:    	bold;
-	background:     	#EEE;
+	background:     	#EFE;
 	text-align:			left;
 }
 
 div.pageheader {
-	border-bottom: 		1px solid #DDD; 
+	border-bottom: 		1px solid #EFE; 
 	font-size: 			110%; 
 	font-weight: 		bold;
 	padding: 			5px; 
 }
 
 div.pagefooter {
-	border: 			1px solid #DDD;
+	border: 			1px solid #EFE;
 	font-size: 			90%; 
 }
 
@@ -139,7 +139,7 @@ a:hover   {
 
 /* For Custom Fields */
 table.cf, table.cf td {
-	border: 			1px solid #DDD;
+	border: 			1px solid #EFE;
 	border-collapse:	collapse;
 	font-size:			11px;
 	padding:			2px;
@@ -147,6 +147,6 @@ table.cf, table.cf td {
 
 td.labelHolder {
 	font-weight:    	bold;
-	background:     	#EEE;
+	background:     	#EFE;
 	text-align:			left;
 }

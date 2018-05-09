@@ -8,7 +8,7 @@ Purpose: Default TestLink CSS
 
 /* ***** GLOBAL HTML ***************************************************************** */
 body, body.testlink {
-	background:  	#EEE!important; 
+	background:  	#EFE!important; 
 	font-family: 	'Trebuchet MS', Arial, Verdana, sans-serif;
 	font-size: 		small;
 	margin:			0px;
@@ -116,7 +116,7 @@ div.menu_bar {
 }
 
 select.menu_combo {
-	background: 	#EEE;
+	background: 	#EFE;
 	border-style:	none;
 	font-size:	 	smaller;
 	font-weight:    bold;
@@ -190,7 +190,7 @@ span.form_label {
 
 /* for tree menu */
 div.tree {
-	background: 	#EEE;
+	background: 	#EFE;
 	padding: 		3px;
 	border: 		1px solid #808080;
 	margin:			3px;
@@ -202,7 +202,7 @@ div.groupBtn {
 }
 
 div.vertical_menu {
-	background: 	#EEE;
+	background: 	#EFE;
 	font-size:      90%;
 	margin: 		3px;
 	padding: 		2px;
@@ -442,7 +442,7 @@ span.unselected a, span.unselected a:visited {
 
 /* ***** Common ********************* */
 table.common {
-	background:     #EEE;
+	background:     #EFE;
 	border: 		1px solid black;
 	margin-bottom:	20px;
 	min-width:		50%;
@@ -483,7 +483,7 @@ table.common caption, table.smallGrey caption {
 
 /* ***** Simple Table (often used to show data) ***************** */
 table.simple, table.simple_tableruler {
-	background:     #EEE;
+	background:     #EFE;
 	border: 		thin solid black;
 	font-size:		90%;
 	margin:			5px;
@@ -507,7 +507,7 @@ table.tableruler tbody tr:hover{
 
 /* Used for filters and options settings */
 table.smallGrey {
-	background:     #EEE;
+	background:     #EFE;
 	border: 		1px solid black;
 	font-size:		smaller;
 	margin-bottom:	10px;
@@ -523,7 +523,7 @@ table.invisible {
 }
 
 table.mainTable{
-	background: 	#EEE;
+	background: 	#EFE;
 	border: 		1px double black;
 	min-width:		200px;
 }
@@ -537,7 +537,7 @@ table.mainTable th {
 }
 
 table.link_and_exec {
-	background:     #EEE;
+	background:     #EFE;
 	border: 		1px solid black;
 	margin-bottom:	10px;
 	margin-right:	0px;
@@ -549,7 +549,7 @@ table.link_and_exec th {
 
 /* *****  Table Execution History ********* */
 table.exec_history {
-	background:     #EEE;
+	background:     #EFE;
 	border: 		thin solid black;
 	font-size:		90%;
 	margin:			20px;

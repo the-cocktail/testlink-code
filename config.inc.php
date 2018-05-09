@@ -563,7 +563,7 @@ $tlCfg->api->id_format = "[ID: %s ]";
 /* [GUI LAYOUT] */
 
 /** Company logo (used by navigation bar and login page page) */
-$tlCfg->logo_login = 'tl-logo-transparent-25.png';
+$tlCfg->logo_login = 'the-cocktail.svg';
 $tlCfg->logo_navbar = 'tl-logo-transparent-12.5.png';
 
 /** Height of the navbar always displayed  */
@@ -849,7 +849,7 @@ $tlCfg->metrics_dashboard->show_test_plan_status = false;
  * Image is expected in directory <testlink_root>/gui/themes/<your_theme>/images/
  * Leave text values empty if you would like to hide parameters.
  */
-$tlCfg->document_generator->company_name = 'TestLink Community [configure $tlCfg->document_generator->company_name]';
+$tlCfg->document_generator->company_name = 'Informe de Proceso de Calidad';
 $tlCfg->document_generator->company_copyright = '2012 &copy; TestLink Community';
 $tlCfg->document_generator->confidential_msg = '';
 
