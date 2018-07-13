@@ -18,13 +18,13 @@ title bar + menu
 {include file="inc_head.tpl" openHead="yes"}
 </head>
 <body style="min-width: 800px;">
-<div style="float:left; height: 100%;">
+<div style="width: 100%; text-align: center; padding-top: 8px;">
   <a href="index.php" target="_parent">
-  <img alt="Company logo" title="logo" src="{$smarty.const.TL_THEME_IMG_DIR}{$tlCfg->logo_navbar}" /></a>
+    <img alt="The Cocktail Logo" title="logo" src="{$smarty.const.TL_THEME_IMG_DIR}{$tlCfg->logo_navbar}" />
+  </a>
 </div>
-  
-<div class="menu_title">
 
+<div class="menu_title">
   <span class="bold">{$gui->whoami|escape}</span>
   <span>&nbsp;&nbsp;&nbsp;<a href='lib/usermanagement/userInfo.php' target="mainframe" accesskey="i"
           tabindex="6"><img src="{$tlImages.account}" title="{$labels.title_edit_personal_data}"></a>
@@ -34,7 +34,7 @@ title bar + menu
   <span style="float:right;">TestLink {$tlVersion|escape}</span>
 </div>
 
-<div class="menu_bar" style="margin: 0px 5px 0px 135px;">
+<div class="menu_bar" style="margin: 0px 0px 0px 0px;">
 {if $gui->TestProjects != ""}
   <div style="display: inline; float: right;">
     <form style="display:inline" name="productForm" action="lib/general/navBar.php?viewer={$gui->viewer}" method="get">
@@ -49,6 +49,7 @@ title bar + menu
     </form>
   </div>
 {/if}
+
 {$session.testprojectTopMenu}
 
 {if $gui->tprojectID}
@@ -65,7 +66,7 @@ title bar + menu
     <input type="hidden" id="caller" name="caller" value="navBar" />
     <img src="{$tlImages.magnifier}"
          title="{$labels.search_testcase}" alt="{$labels.search_testcase}"
-         onclick="document.getElementById('searchTC').submit()" class="clickable" 
+         onclick="document.getElementById('searchTC').submit()" class="clickable"
          style="position:relative; top:2px;" />
     <input type="hidden" name="edit" value="testcase"/>
     <input type="hidden" name="allow_edit" value="0"/>
@@ -73,6 +74,11 @@ title bar + menu
   {/if}
 {/if}
 </div>
+
+
+
+
+
 
 {if $gui->updateMainPage == 1}
   <script type="text/javascript">
