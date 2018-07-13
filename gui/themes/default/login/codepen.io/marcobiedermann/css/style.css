@@ -72,13 +72,13 @@ input {
   background-color: #c3d1e1; /* #434A52; */
 }
 .form--login input[type="submit"] {
-  background-color: #008899; /* #ea4c88; */
-  color: #eee;
+  background-color: #90AC2B;
+  color: #efe;
   font-weight: bold;
   /* text-transform: uppercase; */
 }
 .form--login input[type="submit"]:focus, .form--login input[type="submit"]:hover {
-  background-color: #009999; /* #d44179; */
+  background-color: #608C0B; 
 }
 .form__field {
   display: -webkit-box;
