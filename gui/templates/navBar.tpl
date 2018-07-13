@@ -18,27 +18,26 @@ title bar + menu
 {include file="inc_head.tpl" openHead="yes"}
 </head>
 <body style="min-width: 800px;">
-<div style="width: 100%; text-align: center; padding-top: 8px;">
-  <a href="index.php" target="_parent">
-    <img alt="The Cocktail Logo" title="logo" src="{$smarty.const.TL_THEME_IMG_DIR}{$tlCfg->logo_navbar}" />
-  </a>
-</div>
-
 <div class="menu_title">
-  <span class="bold">{$gui->whoami|escape}</span>
-  <span>&nbsp;&nbsp;&nbsp;<a href='lib/usermanagement/userInfo.php' target="mainframe" accesskey="i"
+  <span><a href='lib/usermanagement/userInfo.php' target="mainframe" accesskey="i"
           tabindex="6"><img src="{$tlImages.account}" title="{$labels.title_edit_personal_data}"></a>
         <a href="logout.php?viewer={$gui->viewer}" target="_parent" accesskey="q">
         <img src="{$tlImages.logout}" title="{$labels.link_logout}"></a>
   </span>
-  <span style="float:right;">TestLink {$tlVersion|escape}</span>
+  <span>{$gui->whoami|escape}</span>
+</div>
+
+<div style="width: 100%; padding: 4px;">
+  <a href="index.php" target="_parent">
+    <img alt="The Cocktail Logo" title="logo" src="{$smarty.const.TL_THEME_IMG_DIR}{$tlCfg->logo_navbar}" />
+  </a>
 </div>
 
 <div class="menu_bar" style="margin: 0px 0px 0px 0px;">
 {if $gui->TestProjects != ""}
   <div style="display: inline; float: right;">
     <form style="display:inline" name="productForm" action="lib/general/navBar.php?viewer={$gui->viewer}" method="get">
-       {$labels.testproject}
+      Proyecto:
       <select style="font-size: 80%;position:relative; top:-1px;" name="testproject" onchange="this.form.submit();">
           {foreach key=tproject_id item=tproject_name from=$gui->TestProjects}
           <option value="{$tproject_id}" title="{$tproject_name|escape}"

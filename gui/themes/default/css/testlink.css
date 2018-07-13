@@ -108,8 +108,9 @@ a:hover   {
 
 /* ***** Menu bar specific ******************************************* */
 div.menu_title {
+	float: right;
 	margin-left:	1px;
-	padding:		3px;
+	padding: 14px;
 }
 
 div.menu_bar {
