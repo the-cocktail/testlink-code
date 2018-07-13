@@ -213,7 +213,7 @@ $tlCfg->log_path = '/var/testlink/logs/'; /* unix example */
  *         user will receive a message on screen.
  * 'SILENT': same that FILE, but user will not receive message on screen.
  */
-$tlCfg->config_check_warning_mode = 'FILE';
+$tlCfg->config_check_warning_mode = 'SILENT';
 
 /**
  * ONCE_FOR_SESSION
