@@ -92,9 +92,6 @@
      {lang_get s='help' var='common_prefix'}
      {lang_get s='test_plan' var="xx_alt"}
      {$text_hint="$common_prefix: $xx_alt"}
-     {include file="inc_help.tpl" helptopic="hlp_testPlan" show_help_icon=true 
-              inc_help_alt="$text_hint" inc_help_title="$text_hint"  
-              inc_help_style="float: right;vertical-align: top;"}
 
  	   <form name="testplanForm" action="lib/general/mainPage.php">
        {if $gui->countPlans > 0}
