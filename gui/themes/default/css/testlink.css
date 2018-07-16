@@ -259,6 +259,7 @@ button {
    -moz-border-radius: 3px;
    -webkit-border-radius: 3px;
    border-radius: 3px;
+   padding: 6px;
 }
 
 /* Reset to flat background */
@@ -1092,5 +1093,9 @@ th.testlink, td.testlink, tr.testlink td {
 
 #filter_panel_form .x-tool {
 	display: none;
+}
+
+#filters {
+  padding: 6px;
 }
 /* ----- END ------------------------------------------------------------------------- */
