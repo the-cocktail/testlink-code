@@ -14,8 +14,7 @@
   <body class="align">
     <div class="site__container">
       <div class="grid__container">
-      <img src="{$tlCfg->theme_dir}images/{$tlCfg->logo_login}"><br>
-      <span>{$tlVersion|escape} </span>
+      <img src="{$tlCfg->theme_dir}images/{$tlCfg->logo_login}">
       </div>
       
       {if $gui->note != ''}
@@ -75,6 +74,13 @@
           </p> 
         </div>
       {/if}
+
+      <div>
+        <p class="text--center">
+          <em>TestLink {$tlVersion|escape}</em>
+        </p>
+      </div>
+    </div>
   </div>
 </body>
 </html>
