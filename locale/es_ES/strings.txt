@@ -788,8 +788,8 @@ $TLS_was_success = " fue correctamente ";
 $TLS_logical_and = "Y";
 $TLS_logical_or = "O";
 $TLS_not_linked = "No enlazado";
-$TLS_btn_apply_filter = "Aplicar Filtro";
-$TLS_btn_reset_filters = "Resetear Filtros";
+$TLS_btn_apply_filter = "Aplicar";
+$TLS_btn_reset_filters = "Resetear";
 $TLS_caption_nav_filters = "Filtros";
 $TLS_caption_nav_settings = "Opciones";
 $TLS_current_build = "Build actual";
@@ -2119,7 +2119,7 @@ $TLS_drag_and_drop_to_reorder = "Arrastra el Requisito desde el icono para cambi
 // ----- gui/templates/tcTree.tpl -----
 $TLS_button_refresh = "Recargar";
 $TLS_button_update_tree = "Actualizar el Árbol de Navegación";
-$TLS_do_auto_update = "Actualizar el Árbol de Navegación después de cada operación";
+$TLS_do_auto_update = "Actualizar el Árbol de Navegación";
 $TLS_no_tc_spec_av = "¡No hay una Especificación de Pruebas disponible!";
 
 

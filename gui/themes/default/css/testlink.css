@@ -1090,4 +1090,7 @@ th.testlink, td.testlink, tr.testlink td {
     text-align:left;
 }
 
+#filter_panel_form .x-tool {
+	display: none;
+}
 /* ----- END ------------------------------------------------------------------------- */
