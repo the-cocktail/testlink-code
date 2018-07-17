@@ -57,7 +57,7 @@
             </div>
 
             <div class="form__field">
-              <input type="submit" value="{$labels.btn_login}">
+              <input type="submit" style="background-color:#90AC2B;" value="{$labels.btn_login}">
             </div>
 
           </form>
