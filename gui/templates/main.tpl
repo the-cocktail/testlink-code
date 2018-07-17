@@ -11,7 +11,7 @@
 	<meta name="author" content="TestLink Development Team" />
 	<meta name="copyright" content="TestLink Development Team" />
 	<meta name="robots" content="NOFOLLOW" />
-	<title>TestLink {$tlVersion|escape}</title>
+	<title>TestLink · The Cocktail</title>
 	<meta name="description" content="TestLink - {$gui->title|default:"Main page"}" />
 	<link rel="icon" href="{$basehref}{$smarty.const.TL_THEME_IMG_DIR}favicon.ico" type="image/x-icon" />
 </head>
