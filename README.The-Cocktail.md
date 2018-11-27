@@ -28,9 +28,10 @@ descomprimo el ZIP:
 nando@tck-testlink1-vm:~$ unzip testlink-code-the-cocktail_1_9_6.zip
 ```
 
- * 5º- Y por último **copio a mano los ficheros que modificados** :sweat_smile:
+ * 5º- Y por último **copio a mano la carpeta de imágenes y los ficheros modificados**:
 
 ```Shell
+> cp -Rf testlink-code-the-cocktail_1_9_6/gui/themes/default/images/* testlink_htdocs/gui/themes/default/images/
 > cp testlink-code-the-cocktail_1_9_6/config.inc.php testlink_htdocs/
 > cp testlink-code-the-cocktail_1_9_6/gui/themes/default/css/testlink.css testlink_htdocs/gui/themes/default/css/testlink.css
 > cp testlink_code-the-cocktail_1_9_6/gui/themes/default/css/tl_documents.css testlink_htdocs/gui/themes/default/css/tl_documents.css
