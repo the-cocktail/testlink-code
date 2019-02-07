@@ -31,10 +31,11 @@ nando@tck-testlink1-vm:~$ unzip testlink-code-the-cocktail_1_9_6.zip
  * 5º- Y por último **copio a mano la carpeta de templates, imágenes y cualquier otro fichero modificado**:
 
 ```Shell
-> sudo cp testlink-code-the-cocktail_1_9_6/config.inc.php testlink_htdocs/
-> sudo cp -Rf testlink-code-the-cocktail_1_9_6/gui/templates/* testlink_htdocs/gui/templates/
-> sudo cp -Rf testlink-code-the-cocktail_1_9_6/gui/themes/default/* testlink_htdocs/gui/themes/default/
-> sudo cp testlink-code-the-cocktail_1_9_6/lib/functions/print.inc.php testlink_htdocs/lib/functions/
-> sudo cp testlink-code-the-cocktail_1_9_6/locale/es_ES/strings.txt testlink_htdocs/locale/es_ES
-> sudo cp testlink-code-the-cocktail_1_9_6/third_party/ext-js/css/ext-all.css htdocs/third_party/ext-js/css/
+sudo cp testlink-code-the-cocktail_1_9_6/config.inc.php testlink_htdocs/
+sudo cp -Rf testlink-code-the-cocktail_1_9_6/gui/templates/* testlink_htdocs/gui/templates/
+sudo cp -Rf testlink-code-the-cocktail_1_9_6/gui/themes/default/* testlink_htdocs/gui/themes/default/
+sudo cp testlink-code-the-cocktail_1_9_6/gui/themes/default/images/* testlink_htdocs/gui/themes/default/images/
+sudo cp testlink-code-the-cocktail_1_9_6/lib/functions/print.inc.php testlink_htdocs/lib/functions/
+sudo cp testlink-code-the-cocktail_1_9_6/locale/es_ES/strings.txt testlink_htdocs/locale/es_ES
+sudo cp testlink-code-the-cocktail_1_9_6/third_party/ext-js/css/ext-all.css testlink_htdocs/third_party/ext-js/css/
 ```
