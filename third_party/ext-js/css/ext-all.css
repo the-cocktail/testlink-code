@@ -5434,11 +5434,11 @@ ul.x-tab-strip-bottom{
 }
 
 .x-tab-strip-over span.x-tab-strip-text {
-	color:#90AC2B;
+	color:#EDFFBD;
 }
 
 .x-tab-strip-active span.x-tab-strip-text {
-	color:#90AC2B;
+	color:#EDFFBD;
     font-weight:bold;
 }
 
@@ -5536,7 +5536,7 @@ ul.x-tab-strip-bottom{
 
 .x-form-check-group-label {
     border-bottom: 1px solid #99bbe8;
-    color: #90AC2B;
+    color: #EDFFBD;
 }
 
 .x-editor .x-form-check-wrap {
@@ -5634,7 +5634,7 @@ ul.x-tab-strip-bottom{
 
 .x-fieldset legend {
     font:bold 11px tahoma, arial, helvetica, sans-serif;
-    color:#90AC2B;
+    color:#EDFFBD;
 }
 .x-btn{
 	font:normal 11px tahoma, verdana, helvetica;
@@ -5940,7 +5940,7 @@ td.x-grid3-hd-over .x-grid3-hd-inner, td.sort-desc .x-grid3-hd-inner, td.sort-as
 }
 
 .x-grid3-hd-text {
-	color:#90AC2B;
+	color:#EDFFBD;
 }
 
 .x-dd-drag-proxy .x-grid3-hd-inner{
@@ -6423,11 +6423,11 @@ td.grid-hd-group-cell {
 }
 
 td.x-date-mp-month a,td.x-date-mp-year a {
-	color:#90AC2B;
+	color:#EDFFBD;
 }
 
 td.x-date-mp-month a:hover,td.x-date-mp-year a:hover {
-	color:#90AC2B;
+	color:#EDFFBD;
 	background-color: #ddecfe;
 }
 
@@ -6640,7 +6640,7 @@ a.x-menu-item {
 
 .x-combo-list-hd {
     font:bold 11px tahoma, arial, helvetica, sans-serif;
-    color:#90AC2B;
+    color:#EDFFBD;
     background-image: url(../images/default/layout/panel-title-light-bg.gif);
     border-bottom-color:#98c0f4;
 }
@@ -6669,7 +6669,7 @@ a.x-menu-item {
 }
 
 .x-panel-header {
-    color:#90AC2B;
+    color:#EDFFBD;
     font-weight:bold;
     font-size: 11px;
     font-family: tahoma,arial,verdana,sans-serif;
@@ -6695,7 +6695,7 @@ a.x-menu-item {
 }
 
 .x-panel-tl .x-panel-header {
-    color:#90AC2B;
+    color:#EDFFBD;
 	font:bold 11px tahoma,arial,verdana,sans-serif;
 }
 
@@ -6751,7 +6751,7 @@ a.x-menu-item {
 }
 
 .x-window-tl .x-window-header {
-    color:#90AC2B;
+    color:#EDFFBD;
 	font:bold 11px tahoma,arial,verdana,sans-serif;
 }
 

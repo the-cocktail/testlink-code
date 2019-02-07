@@ -20,7 +20,7 @@ body, body.testlink {
 }
 
 body.landing {
-	background:  	#90AC2B; /* 059 */
+	background:  	#EDFFBD; /* 059 */
 	font-family: 	'Trebuchet MS', Arial, Verdana, sans-serif;
 	font-size: 		small;
 	margin:			0px;
@@ -101,7 +101,7 @@ a:visited, a:link, a:active {
 }
 /* A link being hovered over is red*/
 a:hover   {
-	color: 			#90AC2B;
+	color: 			#EDFFBD;
 	text-decoration: none;
 }
 
@@ -133,7 +133,7 @@ select.menu_combo {
 /* ***** Main page specific ***************************************** */
 
 div.testproject_title{
-	background:		#90AC2B;
+	background:		#EDFFBD;
 	border: 		1px solid black;
 	color:			white;
 	font-size:		110%;
@@ -338,7 +338,7 @@ span.help
 	top:			50px;
 	width: 			500px;
 	height:			auto;
-	background: 	#90AC2B;
+	background: 	#EDFFBD;
 	color:			white;
 	font-size:		80%;
 	border: 		medium solid #808080;
@@ -389,19 +389,19 @@ span.help
 }
 
 div.messages {
-	background-color:	#90AC2B;
+	background-color:	#EDFFBD;
 	color:				white;
 	margin: 			3px;
 	padding:			3px;
 }
 
 div.messages_rounded {
-	background-color:	#90AC2B;
+	background-color:	#EDFFBD;
 	color:				white;
 	margin: 			3px;
 	padding:			3px;
     border-style:solid;
-    border-color:#90AC2B;
+    border-color:#EDFFBD;
     border-radius: 10px;
 }
 
@@ -422,7 +422,7 @@ span.selected, span.unselected {
 }
 
 span.selected {
-	background:		#90AC2B;
+	background:		#EDFFBD;
 	color:			white;
 }
 
@@ -457,10 +457,10 @@ table.common {
 
 table.common th, table.simple th, table.simple_tableruler th{
   	overflow:		hidden;
-  	color:			#90AC2B;
+  	color:			#EDFFBD;
   	font:			bold 11px tahoma,arial,verdana,sans-serif;
   	padding:		5px 3px 4px 5px;
-  	border:			1px solid #90AC2B;
+  	border:			1px solid #EDFFBD;
   	line-height:	15px;
   	background-color: #FFF;
 }
@@ -741,7 +741,7 @@ div.exec_history {
 }
 
 span.type1 {
-	background:		#90AC2B;
+	background:		#EDFFBD;
 	border: 		1px solid black;
 	color:			white;
 	font-size:		110%;
@@ -889,7 +889,7 @@ div.login_form.medium {
 
 /* havlatm: @TODO title must be header markup */
 .exec_tc_title {
-	background:		#90AC2B;
+	background:		#EDFFBD;
 	color:			white;
 	margin-bottom:	4px;
 	padding: 		3px;
@@ -926,10 +926,10 @@ input.tl-input{
 
 table.mainTable-x th {
   overflow:hidden;
-  color:#90AC2B;
+  color:#EDFFBD;
   font:bold 11px tahoma,arial,verdana,sans-serif;
   padding:5px 3px 4px 5px;
-	border:			1px solid #90AC2B;
+	border:			1px solid #EDFFBD;
   line-height:15px;
   background:transparent url(../images/white-top-bottom.gif) repeat-x 0 -1px;
 }
@@ -1046,7 +1046,7 @@ th.testlink, td.testlink, tr.testlink td {
                                                                           border-bottom:0 none;}
 .x-tl-panel-body-noheader,.x-tl-panel-mc .x-tl-panel-body{border-top:1px solid #99bbe8;}
 .x-tl-panel-header{overflow:hidden;}
-.x-tl-panel-tl .x-tl-panel-header{color:#90AC2B;font:bold 11px tahoma,arial,verdana,sans-serif;
+.x-tl-panel-tl .x-tl-panel-header{color:#EDFFBD;font:bold 11px tahoma,arial,verdana,sans-serif;
                                padding:5px 0 4px 0;border:0 none;background:transparent;}
 .x-tl-panel-tl .x-tl-panel-icon,.x-window-tl .x-tl-panel-icon{padding-left:20px!important;background-repeat:no-repeat;
                                                         background-position:0 4px;}
