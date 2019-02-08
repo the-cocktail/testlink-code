@@ -6674,12 +6674,12 @@ a.x-menu-item {
     font-size: 11px;
     font-family: tahoma,arial,verdana,sans-serif;
     border-color:#99bbe8;
-    background-color: #FFF;
+    background-color: #5E1EC8;
 }
 
 .x-panel-body {
-    border-color:#99bbe8;
-    background-color:#fff;
+    border-color:#5E1EC8;
+    background-color:#EDFFBD;
 }
 
 .x-panel-bbar .x-toolbar, .x-panel-tbar .x-toolbar {
@@ -6718,7 +6718,7 @@ a.x-menu-item {
 }
 
 .x-panel-ml {
-	background-color: #fff;
+	background-color: #5E1EC8;
     background-image:url(../images/default/panel/left-right.gif);
 }
 
@@ -6794,7 +6794,7 @@ a.x-menu-item {
 }
 
 .x-window-maximized .x-window-tc {
-    background-color:#fff;
+    background-color:#5E1EC8;
 }
 
 .x-window-bbar .x-toolbar {
@@ -6826,7 +6826,8 @@ body.x-body-masked .x-window-plain .x-window-mc {
     background-color: #ccd9e8;
 }.x-html-editor-wrap {
     border-color:#a9bfd3;
-    background-color:#fff;
+    background-color:#5E1EC8;
+    color: #EDFFBD;
 }
 .x-html-editor-tb .x-btn-text {
     background-image:url(../images/default/editor/tb-sprite.gif);

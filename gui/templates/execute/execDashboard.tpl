@@ -38,7 +38,7 @@ TestLink Open Source Project - http://testlink.sourceforge.net/
     <br />
   {/if}
 
-  <div style="color: #EDFFBD;font-weight: bold;font-size: 11px;font-family: tahoma,arial,verdana,sans-serif;">
+  <div style="color: #5E1EC8;font-weight: bold;font-size: 11px;font-family: tahoma,arial,verdana,sans-serif;">
   {$labels.testplan} {$gui->testplan_name|escape}
   </div>
   <div id="testplan_notes" class="exec_additional_info">
@@ -47,7 +47,7 @@ TestLink Open Source Project - http://testlink.sourceforge.net/
   </div>
 
   {if $gui->platform_info.id > 0}
-    <div style="color: #EDFFBD;font-weight: bold;font-size: 11px;font-family: tahoma,arial,verdana,sans-serif;">
+    <div style="color: #5E1EC8;font-weight: bold;font-size: 11px;font-family: tahoma,arial,verdana,sans-serif;">
     {$labels.platform} {$gui->platform_info.name|escape}
     </div>
     <div id="platform_notes" class="exec_additional_info">
@@ -55,7 +55,7 @@ TestLink Open Source Project - http://testlink.sourceforge.net/
     </div>
   {/if}
 
-  <div style="color: #EDFFBD;font-weight: bold;font-size: 11px;font-family: tahoma,arial,verdana,sans-serif;">
+  <div style="color: #E5E1EC;font-weight: bold;font-size: 11px;font-family: tahoma,arial,verdana,sans-serif;">
   {$labels.build} {$gui->build_name|escape}
   </div>
   <div id="build_notes" class="exec_additional_info">
