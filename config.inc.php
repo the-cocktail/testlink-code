@@ -459,8 +459,8 @@ $tlCfg->theme_dir = 'gui/themes/default/';
 $tlCfg->temp_dir = TL_ABS_PATH . 'gui' . DIRECTORY_SEPARATOR . 'templates_c' . DIRECTORY_SEPARATOR;
 
 /** Company logo (used by navigation bar and login page page) */
-$tlCfg->logo_login = 'the-cocktail.png';
-$tlCfg->logo_navbar = 'the-cocktail-xxs.png';
+$tlCfg->logo_login = 'the-cocktail-logo.png';
+$tlCfg->logo_navbar = 'the-cocktail-xs.png';
 
 
 /** Login page could show an informational text */

@@ -30,7 +30,7 @@ title bar + menu
 
 <div style="width: 100%; padding: 0px; height: 40px;">
   <a href="index.php" target="_parent">
-    <img alt="The Cocktail Logo" title="logo" src="{$smarty.const.TL_THEME_IMG_DIR}{$tlCfg->logo_navbar}" />
+    <img alt="The Cocktail Logo" title="logo" src="{$smarty.const.TL_THEME_IMG_DIR}{$tlCfg->logo_navbar}" height="40px" />
   </a>
 </div>
 
