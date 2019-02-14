@@ -1539,7 +1539,7 @@ function renderTestCaseForPrinting(&$db,&$node,&$options,$env,$context,$indentLe
   if ($options['passfail'])
   {  
     $tsp = ($cfg['tableColspan']-1);
-    $code .= '<tr style="' . "font-weight: bold;background: #DFD;text-align: left;" . '">' .
+    $code .= '<tr style="' . "font-weight: bold;text-align: left;" . '">' .
              '<td width="' . $cfg['firstColWidth'] . '" valign="top">' . $labels['execution_details'] .'</td>' . 
              '<td colspan="' . $tsp . '">' . "&nbsp;" . "</td></tr>\n";
 
