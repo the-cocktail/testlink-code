@@ -129,6 +129,8 @@ input {
 
 .user__feedback {
   font-weight: bold;
-  margin: 0 auto;
+  margin: 20px;
   width: 90%;
 }
+
+
