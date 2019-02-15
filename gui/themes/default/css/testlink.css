@@ -390,14 +390,14 @@ span.help
 
 div.messages {
 	background-color:	#EDFFBD;
-	color:				white;
+	color:				#5E1EC8;
 	margin: 			3px;
 	padding:			3px;
 }
 
 div.messages_rounded {
 	background-color:	#EDFFBD;
-	color:				white;
+	color:				#5E1EC8;
 	margin: 			3px;
 	padding:			3px;
     border-style:solid;
@@ -423,7 +423,7 @@ span.selected, span.unselected {
 
 span.selected {
 	background:		#EDFFBD;
-	color:			white;
+	color:				#5E1EC8;
 }
 
 span.unselected:hover {
@@ -595,7 +595,7 @@ table.test_exec {
 
 /* ***** Execution & Results ********************************************************* */
 div.passed, div.failed, div.blocked, div.not_run {
-	color: 			white;
+	color:				#5E1EC8;
 	margin: 		8px;
 	padding: 		6px;
 	text-align: 	center;
