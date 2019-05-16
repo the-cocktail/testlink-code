@@ -741,7 +741,7 @@ $tlCfg->document_generator->confidential_msg = '';
 
 // Logo for generated documents
 $tlCfg->document_generator->company_logo = $tlCfg->logo_login;
-// $tlCfg->document_generator->company_logo_height = '53';
+$tlCfg->document_generator->company_logo_height = '53';
 
 /** CSS used in printed html documents */
 $tlCfg->document_generator->css_template = 'css/tl_documents.css';
