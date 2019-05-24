@@ -3,11 +3,11 @@
  * TestLink Open Source Project - http://testlink.sourceforge.net/ 
  * This script is distributed under the GNU General Public License 2 or later. 
  *
- * @package     TestLink
- * @author      Francisco Mancardi
- * @copyright   2007-2012, TestLink community 
  * @filesource  tlAttachment.class.php
- * @link        http://www.teamst.org/index.php
+ * @package   TestLink
+ * @author    Francisco Mancardi
+ * @copyright 2007-2018, TestLink community 
+ * @link      http://www.teamst.org/index.php
  *
  */
 /** parenthal class */
@@ -55,6 +55,10 @@ class tlAttachment extends tlDBObject
    * @var int $fSize the filesize (uncompressed)
    */
   protected $fSize;
+
+  protected $isImage;
+  protected $inlineString;
+
 
   /**
    * @var string $destFPath the path to file within the repository
@@ -109,6 +113,8 @@ class tlAttachment extends tlDBObject
     $this->fContents = NULL;
     $this->description = NULL;
     $this->dateAdded = NULL;
+    $this->isImage = NULL;
+    $this->inlineString = NULL;
     
     if (!($options & self::TLOBJ_O_SEARCH_BY_ID))
     {
@@ -125,19 +131,12 @@ class tlAttachment extends tlDBObject
   {
     parent::__construct();
 
-    // $this->compressionType  = tlAttachmentRepository::getCompression();
-    $this->setCompression(tlAttachmentRepository::getCompression());
-    
+    $this->compressionType  = tlAttachmentRepository::getCompression();
     $this->repositoryPath = tlAttachmentRepository::getPathToRepository();
     $this->attachmentCfg = config_get('attachments');
 
     $this->_clean();
     $this->dbID = $dbID;
-  }
-  
-  function setCompression($value)
-  {
-    $this->compressionType = $value;
   }
   
   
@@ -149,6 +148,16 @@ class tlAttachment extends tlDBObject
     parent::__destruct();
     $this->_clean();
   }
+
+  /* 
+   *
+   */
+  function setID($id)
+  {
+    $this->dbID = $id;
+  }
+
+
   
   /*
    * Initializes the attachment object 
@@ -165,15 +174,16 @@ class tlAttachment extends tlDBObject
    * 
    * @return integer returns tl::OK
    */
-  public function create($fkid,$fkTableName,$fName,$destFPath,$fContents,$fType,$fSize,$title)
+  public function create($fkid,$fkTableName,$fName,$destFPath,$fContents,$fType,
+                         $fSize,$title,$opt=null)
   {
     $this->_clean();
-    
+ 
     $title = trim($title);
     $config = $this->attachmentCfg;
     if($title == "")
     {
-      switch($config->emptyTitleActionOnSave)
+      switch($config->action_on_save_empty_title)
       {
         case 'use_filename':
           $title = $fName;
@@ -184,7 +194,14 @@ class tlAttachment extends tlDBObject
       }
 
     }
-    if(!$config->emptyTitleAllowed && $title == "")
+
+    $allowEmptyTitle = $config->allow_empty_title;
+    if( isset($opt['allow_empty_title']) )
+    {
+      $allowEmptyTitle = $opt['allow_empty_title'];
+    }  
+
+    if( !$allowEmptyTitle && $title == "")
     {
       return self::E_TITLELENGTH; 
     }
@@ -197,9 +214,12 @@ class tlAttachment extends tlDBObject
     $this->destFPath = trim($destFPath); 
     $this->fContents = $fContents;
 
-    // for FS-repository, the path to the repository itself is cut off, so the path is
-    // relative to the repository itself
-    $this->destFPath = str_replace($this->repositoryPath . DIRECTORY_SEPARATOR,"",$destFPath);
+    $this->isImage = !(strpos($this->fType,'image/') === FALSE);
+    $this->inlineString = NULL;
+    
+    //for FS-repository, the path to the repository itself is cut off, so the path is
+    //          relative to the repository itself
+    $this->destFPath = str_replace($this->repositoryPath.DIRECTORY_SEPARATOR,"",$destFPath);
     $this->title = trim($title);
     
     return tl::OK;
@@ -216,20 +236,15 @@ class tlAttachment extends tlDBObject
   public function readFromDB(&$db,$options = self::TLOBJ_O_SEARCH_BY_ID)
   {
     $this->_clean($options);
-
-    $debugMsg = 'Class:' . __CLASS__ . ' - Method: ' . __FUNCTION__;
-    $query = "/* $debugMsg */  SELECT id,title,description,file_name,file_type,file_size,date_added,".
-             "compression_type,file_path,fk_id,fk_table FROM {$this->tables['attachments']} ";
+    $query = "SELECT id,title,description,file_name,file_type,file_size,date_added,".
+        "compression_type,file_path,fk_id,fk_table FROM {$this->tables['attachments']} ";
         
     $clauses = null;
     if ($options & self::TLOBJ_O_SEARCH_BY_ID)
-    {
       $clauses[] = "id = {$this->dbID}";    
-    }
     if ($clauses)
-    {
       $query .= " WHERE " . implode(" AND ",$clauses);
-    }
+    
     $info = $db->fetchFirstRow($query);      
     if ($info)
     {
@@ -237,13 +252,19 @@ class tlAttachment extends tlDBObject
       $this->fkTableName = $info['fk_table'];
       $this->fName = $info['file_name'];
       $this->destFPath = $info['file_path'];
-      $this->fType = $info['file_type'];
+      $this->fType = trim($info['file_type']);
       $this->fSize = $info['file_size'];
       $this->dbID =  $info['id'];
       $this->description = $info['description'];
       $this->dateAdded = $info['date_added'];
       $this->title = $info['title'];
       $this->compressionType = $info['compression_type'];
+
+      $this->isImage = !(strpos($this->fType,'image/') === FALSE);
+      $this->inlineString = NULL;
+      if($this->isImage) {
+        $this->inlineString = "[tlInlineImage]{$this->dbID}[/tlInlineImage]";
+      } 
     }
         
     return $info ? tl::OK : tl::ERROR;
@@ -254,16 +275,16 @@ class tlAttachment extends tlDBObject
    * 
    * @return array array with the attachment information
    */
-  public function getInfo()
-  {
+  public function getInfo() {
     return array("id" => $this->dbID,"title" => $this->title,
-                 "description" => $this->description,
-                 "file_name" => $this->fName, "file_type" => $this->fType,
-                 "file_size" => $this->fSize,
-                 "date_added" => $this->dateAdded,
-                 "compression_type" => $this->compressionType,
-                 "file_path" => $this->destFPath,
-                 "fk_id" => $this->fkID,"fk_table" => $this->fkTableName);
+               "description" => $this->description,
+               "file_name" => $this->fName, "file_type" => $this->fType,
+               "file_size" => $this->fSize, "is_image" => $this->isImage,
+               "date_added" => $this->dateAdded, "inlineString" => $this->inlineString,
+               "compression_type" => $this->compressionType,
+               "file_path" => $this->destFPath,
+               "fk_id" => $this->fkID,"fk_table" => $this->fkTableName,
+    );
   }
   
   /* 
@@ -272,26 +293,27 @@ class tlAttachment extends tlDBObject
    * 
    * @return integer returns tl::OK on success, tl::ERROR else
    */
-  public function writeToDB(&$db)
-  {
+  public function writeToDB(&$db,&$itemID=null) {
     $tableName = $db->prepare_string($this->fkTableName);
     $fName = $db->prepare_string($this->fName);
     $title = $db->prepare_string($this->title);
     $fType = $db->prepare_string($this->fType);
     
-    $destFPath = is_null($this->destFPath) ? 'NULL' : "'".$db->prepare_string($this->destFPath)."'";
-    //for FS-repository the contents are null
-    $fContents = is_null($this->fContents) ? 'NULL' : "'".$db->prepare_string($this->fContents)."'";
+    $destFPath = 
+      is_null($this->destFPath) ? 'NULL' : "'" . $db->prepare_string($this->destFPath) . "'";
+
+    // for FS-repository the contents are null
+    $fContents = is_null($this->fContents) ? 'NULL' : "'" . $db->prepare_string($this->fContents) . "'";
     
     $query = "INSERT INTO {$this->tables['attachments']} 
-         (fk_id,fk_table,file_name,file_path,file_size,file_type, date_added,content,compression_type,title) 
-          VALUES ({$this->fkID},'{$tableName}','{$fName}',{$destFPath},{$this->fSize},'{$this->fType}'," . $db->db_now() . 
-          ",$fContents,{$this->compressionType},'{$title}')";
+             (fk_id,fk_table,file_name,file_path,file_size,file_type, date_added,content,compression_type,title) 
+             VALUES ({$this->fkID},'{$tableName}','{$fName}',{$destFPath},{$this->fSize},'{$this->fType}'," . $db->db_now() . 
+             ",$fContents,{$this->compressionType},'{$title}')";
     
     $result = $db->exec_query($query);
-    if ($result)
-    {
+    if ($result) {
       $this->dbID = $db->insert_id();
+      $itemID = $this->dbID;
     }
     
     return $result ? tl::OK : tl::ERROR;
@@ -302,9 +324,9 @@ class tlAttachment extends tlDBObject
    * 
    * @return integer return tl::OK on success, tl::ERROR else
    */
-  public function deleteFromDB(&$db)
-  {
-    $query = "DELETE FROM {$this->tables['attachments']} WHERE id = {$this->dbID}";
+  public function deleteFromDB(&$db) {
+    $query = "DELETE FROM {$this->tables['attachments']} 
+              WHERE id = {$this->dbID}";
     $result = $db->exec_query($query);
     
     return $result ? tl::OK : tl::ERROR;
@@ -318,8 +340,7 @@ class tlAttachment extends tlDBObject
    * @param $detailLevel the detailLevel
    * @return tlAttachment the created attachment or null on failure
    */
-  static public function getByID(&$db,$id,$detailLevel = self::TLOBJ_O_GET_DETAIL_FULL)
-  {
+  static public function getByID(&$db,$id,$detailLevel = self::TLOBJ_O_GET_DETAIL_FULL) {
     return tlDBObject::createObjectFromDB($db,$id,__CLASS__,tlAttachment::TLOBJ_O_SEARCH_BY_ID,$detailLevel);
   }
   
@@ -350,86 +371,5 @@ class tlAttachment extends tlDBObject
   {
     return self::handleNotImplementedMethod(__FUNCTION__);
   }
-
-
-
-  static public function getGuiCfg()
-  {
-        $cfg = new stdClass();
-        
-        // this can be overwritten for logic present on object/item we are using
-        $cfg->display = true;
-        $cfg->uploadEnabled = true;
-
-        $cfg->tableStyles = "font-size:12px";
-        $cfg->tableClassName = "simple";
-        $cfg->inheritStyle = 0;
-        $cfg->downloadOnly = false;
-        $cfg->loadOnCancelURL = ''; // will be setted by each feature
-        $cfg->disabledMsg = '';  // will be setted after repo checks
-
-        // theses are specific to allow different behaviours ONLY on execution feature
-        // @see const.inc.php
-        // @see $tlCfg->exec_cfg->att_model
-        $cfg->showUploadBtn = true;  
-        $cfg->showTitle =  true;
-        $cfg->showUploadColumn = false;
-        $cfg->numCols = 4; 
-
-        $dummy = array('title_upload_attachment' => null, 'enter_attachment_title' => null,
-                       'btn_upload_file' => null, 'warning' => null, 'enter_attachment_title' => null,
-                       'local_file' => null, 'attachment_upload_ok' => null,'alt_delete_attachment' => null,
-                       'title_choose_local_file' => null ,'btn_cancel' => null,
-                       'warning_delete_attachment' => 'warning_delete_attachment', 'delete' => null,
-                       'attachment_feature_disabled' => null,'attached_files' => null,
-                       'max_size_file_upload' => null,'upload_file_new_file' => null);
-        $cfg->labels = init_labels($dummy);
-        
-        $dummy = config_get('attachments');
-        $cfg->accessLink = $dummy->accessIcon;        
-       
-        return $cfg;  
-  }
-
-  /**
-   * Use repository manager, to get information about the attachments of a given object,
-   * 
-   * @param object $repository [ref] the attachment Repository
-   * @param int $objectID id of the object that owns the attachment (attachments.fk_id);
-   * @param string $fkTableName the name of the table $fkid refers to (attachments.fk_table)
-   * @param bool $storeListInSession if true, the attachment list will be stored within the session
-   * @param int $counter if $counter > 0 the attachments are appended to existing attachments within the session
-   *
-   * @return array infos about the attachment on success, NULL else
-  */
-  function getAttachMetaDataViaRepository(&$repository,$itemID,$fkTableName,$storeListInSession = true,$counter = 0)
-  {
-    $attach = $repository->getAttachmentInfosFor($itemID,$fkTableName);
-    if ($storeListInSession)
-    {
-      $this->storeInSession();
-    }
-    return $attach;
-  }
-
-  /**
-   * Use specific object manager, to get infos about it's attachments.
-   * 
-   * @param tlObjectWithAttachments $object The object whose attachment should be fetched
-   * @param int $itemID the id of the object that owns the attachment (attachments.fk_id);
-   * @param bool $storeListInSession if true, the attachment list will be stored within the session
-   * @param int $counter if $counter > 0 the attachments are appended to existing attachments within the session
-   *
-   * @return array returns infos about the attachment on success, NULL else
-   */
-  function getAttachMetaDataViaObject(&$object,$itemID,$storeListInSession = true,$counter = 0)
-  {
-  	$attach = $object->getAttachmentInfos($itemID);
-  	if ($storeListInSession)
-  	{
-  		storeAttachmentsInSession($attach,$counter);
-  	}
-  	return $attach;
-  }
-}
+};
 ?>

@@ -1,13 +1,8 @@
 {* 
 TestLink Open Source Project - http://testlink.sourceforge.net/ 
-
-@filesource	planAddTC_m1.tpl
-Purpose: smarty template - generate a list of TC for adding to Test Plan 
-
-@internal revisions
-20111012 - franciscom - TICKET 3939: Add warning message when removing EXECUTED test cases from a test plan
+@filesource planAddTC_m1.tpl
+generate a list of TC for adding to Test Plan 
 *}
-
 {lang_get var="labels" 
           s='note_keyword_filter, check_uncheck_all_for_remove,
              th_id,th_test_case,version,execution_order,th_platform,
@@ -17,11 +12,11 @@ Purpose: smarty template - generate a list of TC for adding to Test Plan
              check_uncheck_all_checkboxes,removal_tc,show_tcase_spec,
              tester_assignment_on_add,adding_tc,check_uncheck_all_tc,for,
              build_to_assign_on_add,importance,execution,design,execution_history,
-             warning_remove_executed'}
+             warning_remove_executed,th_status'}
 
 {* prefix for checkbox named , ADD and ReMove *}   
-{assign var="add_cb" value="achecked_tc"} 
-{assign var="rm_cb" value="remove_checked_tc"}
+{$add_cb="achecked_tc"} 
+{$rm_cb="remove_checked_tc"}
 
 {config_load file="input_dimensions.conf" section="planAddTC"}
 {include file="inc_head.tpl" openHead="yes"}
@@ -30,8 +25,9 @@ Purpose: smarty template - generate a list of TC for adding to Test Plan
 {include file="inc_ext_js.tpl"}
 <script type="text/javascript">
 <!--
-// 20111012
+js_warning_remove_executed = '{$labels.warning_remove_executed}';
 js_remove_executed_counter = 0;
+
 function updateRemoveExecCounter(oid)
 {
 	var obj = document.getElementById(oid)
@@ -45,19 +41,18 @@ function updateRemoveExecCounter(oid)
 	}
 }
 
-
 function checkDelete(removeExecCounter)
 {
-	var reto;
 	if(js_remove_executed_counter > 0)
 	{
-		return confirm('{$labels.warning_remove_executed}');
+		return confirm(js_warning_remove_executed);
 	}
 	else
 	{
 		return true;
-	}	
+	}
 }
+
 
 function tTip(tcID,vID)
 {
@@ -76,37 +71,56 @@ function showTT(e)
 	alert(e);
 }
 
+js_tcase_importance = new Array();
+js_tcase_wkfstatus = new Array();
 
-// variables to store importance informations for test cases
-js_option_importance = new Array();
+attrDomain = new Object();
+attrDomain.importance = new Array();
+attrDomain.wkfstatus = new Array();
+
 {foreach key=key item=item from=$gsmarty_option_importance}
-	js_option_importance[{$key}] = "{$item}";
+	attrDomain.importance[{$key}] = "{$item}";
 {/foreach}
 
-js_tcase_importance = new Array();
+{foreach key=key item=item from=$gsmarty_option_wkfstatus}
+  attrDomain.wkfstatus[{$key}] = "{$item}";
+{/foreach}
 
-// function to update test case importance when selecting a different test case version
-function updateImportance(tcID,importanceOptions,importance) {
-	document.getElementById("importance_"+tcID).firstChild.nodeValue = importanceOptions[importance];
+
+// Update test case attributes when selecting a different test case version
+// - workflow status
+// - importance
+//
+function updTCAttr(tcID,tcvID) 
+{
+  var impOID = "importance_"+tcID;
+  var wkfOID = "wkfstatus_"+tcID;
+  var val;
+  var poid;
+
+  val = js_tcase_importance[tcID][tcvID];
+	poid = document.getElementById(impOID);
+  poid.firstChild.nodeValue = attrDomain.importance[val];
+
+  val = js_tcase_wkfstatus[tcID][tcvID];
+  poid = document.getElementById(wkfOID);
+  poid.firstChild.nodeValue = attrDomain.wkfstatus[val];
 }
 
 Ext.onReady(function(){ 
 {foreach from=$gui->items key=idx item=info}
   {foreach from=$info.testcases key=tcidx item=tcversionInfo}
-   {assign var=tcversionLinked value=$tcversionInfo.linked_version_id}
+   {$tcversionLinked=$tcversionInfo.linked_version_id}
 	   tTip({$tcidx},{$tcversionLinked});
   {/foreach}  
 {/foreach}
 });
 //-->
 </script>
-
 </head>
 <body class="fixedheader">
-<form name="addTcForm" id="addTcForm" method="post" onSubmit="javascript:return checkDelete(js_remove_executed_counter);">
-	<input type="hidden" name="tproject_id" id="tproject_id" value={$gui->tproject_id}/>
-	<input type="hidden" name="tplan_id" id="tplan_id" value={$gui->tplan_id}/>
-	
+<form name="addTcForm" id="addTcForm" method="post" 
+      onSubmit="javascript:return checkDelete(js_remove_executed_counter);">
 
    <div id="header-wrap">
 	  	<h1 class="title">{$gui->pageTitle|escape}{$tlCfg->gui->title_separator_2}{$gui->actionTitle}
@@ -117,28 +131,33 @@ Ext.onReady(function(){
 	  	  {include file="inc_update.tpl" result=$sqlResult}
         
 	  	  	
-		{* user assignments per build --------------------------------------------- *}
+		{* user assignments per build *}
 		{* show this only if a build exists to which we can assign users *}
-		{if $gui->build.count}
-			<div class="groupBtn">
-					{$labels.tester_assignment_on_add}
-					<select name="testerID" id="testerID">
+		{if $gui->build.count && $gui->canAssignExecTask}
+		
+		<div class="groupBtn">
+				{$labels.tester_assignment_on_add}
+				<select name="testerID"
+				        id="testerID">
 					{html_options options=$gui->testers selected=$gui->testerID}
-					</select>
-					
-					{$labels.build_to_assign_on_add}
-					<select name="build_id">
-					{html_options options=$gui->build.items selected=$gui->build.selected}
-					</select>
+				</select>
+				
+				{$labels.build_to_assign_on_add}
+				<select name="build_id">
+				{html_options options=$gui->build.items 
+				              selected=$gui->build.selected}
+				</select>
+		
+				<input type="checkbox" name="send_mail" id="send_mail" {$gui->send_mail_checked}/>
+				{$labels.send_mail_to_tester}
 			
-					<input type="checkbox" name="send_mail" id="send_mail" {$gui->send_mail_checked}/>
-					{$labels.send_mail_to_tester}
-			</div>
+		</div>
+
 		{/if} {* if $gui->build.count *}
 		{* ------------------------------------------------------------------------------------- *}
 		
 	  	  
-	  	  <div class="groupBtn">
+	  <div class="groupBtn">
 			<div style="float: left; margin-right: 2em">
 				{$labels.check_uncheck_all_tc}
 				{if $gui->usePlatforms}
@@ -179,19 +198,20 @@ Ext.onReady(function(){
 
 {if $gui->has_tc}
   <div class="workBack" id="workback">
-  	{if $gui->keywords_filter != ''}
-  		<div style="margin-left: 20px; font-size: smaller;">
-  			<br />{$labels.note_keyword_filter}{$gui->keywords_filter|escape}</p>
-  		</div>
+    <div style="margin-left: 20px; font-size: smaller;">
+  	{$gui->status_feeback|escape}<br />
+    {if $gui->keywords_filter_feedback != '' }
+  			<br />{$labels.note_keyword_filter}: {$gui->keywords_filter_feedback|escape}</p>
   	{/if}
-       
+    </div>
+
     {* ======================================== *}
     {* Loop over Test Suites to draw test cases *}
-  	{assign var="item_number" value=0}
+  	{$item_number=0}
   	{foreach name="tSuiteLoop" from=$gui->items item=ts}
-  		{assign var="item_number" value=$item_number+1}
-  		{assign var="ts_id" value=$ts.testsuite.id}
-  		{assign var="div_id" value="div_$ts_id"}
+  		{$item_number=$item_number+1}
+  		{$ts_id=$ts.testsuite.id}
+  		{$div_id="div_$ts_id"}
   	  {strip}
   	  
   	  {* Title and clickable images to control toogle *}
@@ -219,17 +239,15 @@ Ext.onReady(function(){
   		    	    {/if}
   			     </td>
   
-                 {if $gui->usePlatforms} <td>{$labels.th_platform}</td> {/if}
+             {if $gui->usePlatforms} <td>{$labels.th_platform}</td> {/if}
   			     <td>{$labels.th_test_case}</td>
   			     <td>{$labels.version}</td>
+             <td>{$labels.th_status}</td>
   			     {if $gui->priorityEnabled} <td>{$labels.importance}</td> {/if}
-             	 <td align="center">
-   				      <img src="{$tlImages.exec_order} title="{$labels.execution_order}" />
-  				 </td>
+             		<td align="center">
+   				      <img src="{$tlImages.execution_order}" title="{$labels.execution_order}" />
+  				   	</td>
 
-             
-             
-             
              {if $ts.linked_testcase_qty gt 0}
   				      <td>&nbsp;</td>
   				      <td>
@@ -238,39 +256,39 @@ Ext.onReady(function(){
                      title="{$labels.check_uncheck_all_for_remove}" />
   				      </td>
   				      <td align="center">
-  				      <img src="{$tlImages.date}" title="{$labels.added_on_date}" />
+    				      <img src="{$tlImages.date}" title="{$labels.added_on_date}" />
   				      </td>
              {/if}
             </tr>   
             
   			    {foreach name="tCaseLoop" from=$ts.testcases item=tcase}
-      			  {assign var='is_active' value=0}
-              {assign var='linked_version_id' value=$tcase.linked_version_id}
-              {assign var='tcID' value=$tcase.id}
+      			  {$is_active=0}
+              	{$linked_version_id=$tcase.linked_version_id}
+              {$tcID=$tcase.id}
   				    {if $linked_version_id != 0}
                 {if $tcase.tcversions_active_status[$linked_version_id] eq 1}             
-                    {assign var='is_active' value=1}
+                    {$is_active=1}
                 {/if}
               {else}
                 {if $tcase.tcversions_qty != 0}
-                	{assign var='is_active' value=1}
+                	{$is_active=1}
                 {/if}
               {/if}      
               
-              {* ---------------------------------------------------------------------------------------- *}
+              {* ------------------------------------------------------------- *}
               {if $is_active || $linked_version_id != 0}  
      				    {if $gui->full_control || $linked_version_id != 0}
-     					    {assign var="drawPlatformChecks" value=0}
+     					    {$drawPlatformChecks=0}
                   {if $gui->usePlatforms}
                     {* Feature id is indexed by platform id then 0 => has no platform assigned *}
                     {if !isset($tcase.feature_id[0])}
-                      {assign var="drawPlatformChecks" value=1}
+                      {$drawPlatformChecks=1}
                     {/if}
                   {/if}
      				  
      				      <tr{if $linked_version_id != 0 && $drawPlatformChecks == 0} style="{$smarty.const.TL_STYLE_FOR_ADDED_TC}"{/if}>
       			    	  <td width="20">
-                    {* ----------------------------------------------------------------------------------------------------- *} 
+                    {* ------------------------------------------------------- *} 
                     {* Draw check box left to test case name - the old way when platforms feature does not exist *}
       			        {if !$gui->usePlatforms  || $drawPlatformChecks == 0}
       				        {if $gui->full_control}
@@ -284,7 +302,7 @@ Ext.onReady(function(){
   								      &nbsp;&nbsp;
       				        {/if}
       				      {/if}  
-                    {* ----------------------------------------------------------------------------------------------------- *} 
+                    {* ------------------------------------------------------- *} 
       			      	</td>
       			      	
                     {if $gui->usePlatforms}
@@ -303,51 +321,75 @@ Ext.onReady(function(){
 							<img class="clickable" src="{$tlImages.history_small}"
 							     onclick="javascript:openExecHistoryWindow({$tcase.id});"
 							     title="{$labels.execution_history}" />
-							<img class="clickable" src="{$tlImages.edit_type2}"
-							     onclick="javascript:openTCaseWindow({$gui->tproject_id},{$tcase.id});"
+							<img class="clickable" src="{$smarty.const.TL_THEME_IMG_DIR}/edit_icon.png"
+							     onclick="javascript:openTCaseWindow({$tcase.id});"
 							     title="{$labels.design}" />
 							<span id="tooltip-{$tcID}">
+                <img src="{$tlImages.summary_small}">&nbsp;
 								{$gui->testCasePrefix|escape}{$tcase.external_id}{$gsmarty_gui->title_separator_1}{$tcase.name|escape}
 							</span>
       			        </td>
                   	<td>
                   	{if $gui->priorityEnabled}
-                  			<script type="text/javascript">
-                  			{* To be able to update importance when selecting another test case version
-                      		   we need to transform smarty arrays to javascript array *}
+                  		<script type="text/javascript">
+                  		{* To be able to update importance when selecting 
+                         another test case version we need to transform 
+                         smarty arrays to javascript array *}
 
-                      			js_tcase_importance[{$tcID}] = new Array();
-                  				{foreach key=version item=value from=$tcase.importance}
-                  					js_tcase_importance[{$tcID}][{$version}] = {$value};
-                  				{/foreach}
-                      		</script>
-           				    <select name="tcversion_for_tcid[{$tcID}]" 
-           				            onchange="javascript:updateImportance({$tcID},js_option_importance,js_tcase_importance[{$tcID}][this.options[this.selectedIndex].value]);"
-           				            {if $linked_version_id != 0} disabled{/if}>
-           				            {html_options options=$tcase.tcversions selected=$linked_version_id}
+                      js_tcase_importance[{$tcID}] = new Array();
+                      js_tcase_wkfstatus[{$tcID}] = new Array();
+
+                  		{foreach key=version item=value from=$tcase.importance}
+                  			js_tcase_importance[{$tcID}][{$version}] = {$value};
+                  		{/foreach}
+                      {foreach key=version item=value from=$tcase.status}
+                        js_tcase_wkfstatus[{$tcID}][{$version}] = {$value};
+                      {/foreach}
+                      </script>
+           				    
+                      <select name="tcversion_for_tcid[{$tcID}]" 
+           				      onchange="updTCAttr({$tcID},this.options[this.selectedIndex].value);"
+           				      {if $linked_version_id != 0} disabled{/if}>
+           				        {html_options options=$tcase.tcversions selected=$linked_version_id}
            				    </select>
                   	</td>
-                  	
-                  	    {* BUGID - add Importance column *}
-      			        <td id="importance_{$tcID}">
-      			              {* $tcase.importance *}
-      			              {* $linked_version_id *}
-      			              {if $linked_version_id != 0} 
-      			                    {* set importance to importance of linked test case version *}
-      			                    {assign var=importance value=$tcase.importance.$linked_version_id}
-      			              {else}
-      			                    {* if no test case version is linked -> set to importance 
-      			                       of the first option from select box. only way to get first
-      			                       element of an array is this loop afaik *}
-      			                    {foreach name="oneLoop" from=$tcase.importance key=key item=item}
-      			                    	{if $smarty.foreach.oneLoop.first}
-      			                    		{assign var=firstElement value=$key}
-      			                    	{/if}
-      			                    {/foreach}
-      			                    {assign var=importance value=$tcase.importance.$firstElement}
-      			              {/if}
-      			              {$gsmarty_option_importance.$importance}
+
+
+                    {if $linked_version_id != 0} 
+                        {$importance=$tcase.importance.$linked_version_id}
+                        {$wkf=$tcase.status.$linked_version_id}
+                    {else}
+                      {* 
+                        if no test case version is linked -> 
+                        set attr to first option from select box. 
+                        Only way to get first element of an array is 
+                        this loop afaik 
+                      *}
+                      {foreach name="oneLoop" from=$tcase.importance 
+                               key=key item=item}
+                        {if $smarty.foreach.oneLoop.first}
+                          {$firstElement=$key}
+                        {/if}
+                      {/foreach}
+                      {$importance=$tcase.importance.$firstElement}
+
+                      {foreach name="oneLoop" from=$tcase.status 
+                               key=key item=item}
+                        {if $smarty.foreach.oneLoop.first}
+                          {$firstElement=$key}
+                        {/if}
+                      {/foreach}
+                      {$wkf=$tcase.status.$firstElement}
+                    {/if}
+
+                    <td id="wkfstatus_{$tcID}" style="width:15%">
+                      {$gsmarty_option_wkfstatus.$wkf}
+                    </td>
+
+      			        <td id="importance_{$tcID}" style="width:7%">
+      			          {$gsmarty_option_importance.$importance}
       			        </td>
+
            			{else}
            				    <select name="tcversion_for_tcid[{$tcID}]"{if $linked_version_id != 0} disabled{/if}>
            				            {html_options options=$tcase.tcversions selected=$linked_version_id}
@@ -366,34 +408,37 @@ Ext.onReady(function(){
                   {* ---------------------------------------------------------------------------------------------------------- *}      
                   {if $ts.linked_testcase_qty gt 0 && $drawPlatformChecks==0}
             			  <td>&nbsp;</td>
+            			  
             			  <td>
-            			  	{assign var="show_remove_check" value=0}
-            			  	{assign var="executed" value=0}
-            			  	{if $tcase.executed[0] eq 'yes'}
-            			  		{assign var="executed" value=1}
-            			  	{/if}
-            			  	
+            			    {$show_remove_check=0}
+            			    {$executed=0}
+         				      {if $tcase.executed[0] == 'yes'}
+            			    	{$executed=1}
+            			    {/if}
+            			    
             			  	{if $linked_version_id}
-            			  		{$show_remove_check = 1}
+            			  		{$show_remove_check=1}
          				        {if $tcase.executed[0] == 'yes'}
-         				          	{$show_remove_check = $gui->can_remove_executed_testcases}
+         				          {$show_remove_check=$gui->can_remove_executed_testcases}
             			  	  {/if}      
-                      {/if} 
-            			  	{if $show_remove_check}
-            			  		<input type='checkbox' name='{$rm_cb}[{$tcID}][0]' id='{$rm_cb}{$tcID}[0]' 
-            			  			   value='{$linked_version_id}' 
-            			  			   {if $executed}
-            			  			      onclick="updateRemoveExecCounter('{$rm_cb}{$tcID}[0]')" 
-            			  	    	   {/if}
-            			  	    />
-  						        {else}
-            			  		&nbsp;
-            			  	{/if}
-                      {if $tcase.executed[0] eq 'yes'}&nbsp;&nbsp;&nbsp;
+                   		{/if} 
+            	   			{if $show_remove_check}
+            					<input type='checkbox' name='{$rm_cb}[{$tcID}][0]' id='{$rm_cb}{$tcID}[0]' 
+            					       value='{$linked_version_id}' 
+            						   {if $executed}	
+            						   	 onclick="updateRemoveExecCounter('{$rm_cb}{$tcID}[0]')"
+            						   {/if}	
+            					/>
+  				   			{else}
+            		    		&nbsp;
+            	   			{/if}
+            	   
+                   			{if $tcase.executed[0] eq 'yes'}&nbsp;&nbsp;&nbsp;
    				                  <img src="{$tlImages.executed}" title="{$gui->warning_msg->executed}" />
-                      {/if}
-                      {if $is_active eq 0}&nbsp;&nbsp;&nbsp;{$labels.inactive_testcase}{/if}
+                      		{/if}
+                      		{if $is_active eq 0}&nbsp;&nbsp;&nbsp;{$labels.inactive_testcase}{/if}
             			  </td>
+            			  
             			  <td align="center" title="{$labels.info_added_on_date}">
             			  	{if $tcase.linked_ts[0] != ''}{localize_date d=$tcase.linked_ts[0]}{else}&nbsp;{/if}  
             			  </td>
@@ -403,19 +448,21 @@ Ext.onReady(function(){
                 </tr>
                 {* This piece will be used ONLY when platforms are not used or not assigned yet *}
   			        {if isset($tcase.custom_fields[0])}
-        			    <input type='hidden' name='linked_with_cf[{$tcase.feature_id}]' value='{$tcase.feature_id}' />
+        			    <input type='hidden' name='linked_with_cf[{$tcase.feature_id[0]}]' value='{$tcase.feature_id[0]}' />
                   <tr><td colspan="9">{$tcase.custom_fields[0]}</td></tr>
                 {/if}
+                
               {/if}
               
               
-              {* ================================================================================================================ *} 
+              {* ============================================================ *} 
               {* === Draw Platform related information === *}
               {if $gui->usePlatforms && $drawPlatformChecks}
                 {foreach from=$gui->platforms item=platform}
-                  <tr {if isset($tcase.feature_id[$platform.id])}	style="{$smarty.const.TL_STYLE_FOR_ADDED_TC}" {/if} >
+                  <tr {if isset($tcase.feature_id[$platform.id])}	
+                      style="{$smarty.const.TL_STYLE_FOR_ADDED_TC}" {/if} >
                   	<td>
-      				       {if $gui->full_control}
+      				    {if $gui->full_control}
   	      		        {if $is_active == 0 || isset($tcase.feature_id[$platform.id])}
   	      		      	  &nbsp;&nbsp;
   	      		        {else}
@@ -429,16 +476,34 @@ Ext.onReady(function(){
       			        <td>{$platform.name|escape}</td>
   				          <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
   				          {if $gui->priorityEnabled} <td>&nbsp;</td> {/if}
-  				          
-  				          {if $is_active == 1 && isset($tcase.feature_id[$platform.id])}
+
+                    {* it's not possible to remove an inactive tc version from a testplan with platforms *}
+                      {if isset($tcase.feature_id[$platform.id])}
   	      			      <td>&nbsp;</td>
+                      <td>&nbsp;</td>
   	   				        <td>
-  	   				          <input type='checkbox' name='{$rm_cb}[{$tcID}][{$platform.id}]' id='{$rm_cb}{$tcID}[{$platform.id}]' 
-  	      			  		         value='{$linked_version_id}' />
-  	      			    {* added isset() on next line to avoid warning on event log *}
-                        {if isset($tcase.executed[$platform.id]) && $tcase.executed[$platform.id] eq 'yes'}&nbsp;&nbsp;&nbsp;
+  	      			    	{* added isset() on next section to avoid warning on event log *}
+							        {* can_remove_executed doesn't work when Platforms are used *}	
+            			    {$show_remove_check=0}
+            			  	{if $linked_version_id}
+            			  		{$show_remove_check=1}
+         				        {if isset($tcase.executed[$platform.id]) && $tcase.executed[$platform.id] eq 'yes'}
+         				          	{$show_remove_check=$gui->can_remove_executed_testcases}
+            			  	  	{/if}      
+                   			{/if} 
+            	   			{if $show_remove_check}
+  	   				            <input type='checkbox' name='{$rm_cb}[{$tcID}][{$platform.id}]' id='{$rm_cb}{$tcID}[{$platform.id}]'
+  	      			  		           value='{$linked_version_id}' />
+  				   			{else}
+            		    		&nbsp;&nbsp;
+            	   			{/if}
+                        	{if isset($tcase.executed[$platform.id]) && $tcase.executed[$platform.id] eq 'yes'}&nbsp;&nbsp;&nbsp;
    				                  <img src="{$tlImages.executed}" title="{$gui->warning_msg->executed}" />
-                        {/if}
+                        	{/if}
+
+                            {* TICKET 5294: it is not possible to remove an inactive tc version from a testplan with platforms *}
+                            {* display "inactive" label when testcase has no active version *}
+                            {if $is_active eq 0}&nbsp;&nbsp;&nbsp;{$labels.inactive_testcase}{/if}
   	                  </td>
   	                  <td align="center" title="{$labels.info_added_on_date}">{localize_date d=$tcase.linked_ts[$platform.id]}</td>
                     {/if}
@@ -470,6 +535,10 @@ Ext.onReady(function(){
   </div>
 {/if}
 </form>
-{if $gui->refreshTree}{$tlRefreshTreeJS}{/if}
+
+{if $gui->refreshTree}
+	{include file="inc_refreshTreeWithFilters.tpl"}
+{/if}
+
 </body>
 </html>

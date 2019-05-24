@@ -4,13 +4,14 @@
  * This script is distributed under the GNU General Public License 2 or later. 
  *
  * @filesource  tlIssueTracker.php
- * @package   TestLink
- * @author    franciscom
- * @copyright   2012, TestLink community
- * @link    http://www.teamst.org/index.php
+ * @package     TestLink
+ * @author      franciscom
+ * @copyright   2012,2013 TestLink community
+ * @link        http://testlink.sourceforge.net/
  *
  * @internal revisions
- * @since 2.0
+ * @since 1.9.10
+ *
 **/
 
 /**
@@ -35,22 +36,23 @@ class tlIssueTracker extends tlObject
                         4 =>  array('type' => 'mantis', 'api' =>'db', 'enabled' => true, 'order' => -1),
                         5 =>  array('type' => 'jira', 'api' =>'soap', 'enabled' => true, 'order' => -1),
                         6 =>  array('type' => 'jira', 'api' =>'db', 'enabled' => true, 'order' => -1),
+                        7 =>  array('type' => 'jira', 'api' =>'rest', 'enabled' => true, 'order' => -1),
                         8 =>  array('type' => 'fogbugz','api' =>'rest','enabled' => true, 'order' => -1),
                         9 =>  array('type' => 'fogbugz','api' =>'db','enabled' => true, 'order' => -1),
-                       10 =>  array('type' => 'gforge','api' =>'soap','enabled' => true, 'order' => -1),
-                       11 =>  array('type' => 'gforge','api' =>'db','enabled' => true, 'order' => -1),
-                       12 =>  array('type' => 'eventum','api' =>'db', 'enabled' => true, 'order' => -1),
-                       13 =>  array('type' => 'polarion', 'api' =>'soap', 'enabled' => true, 'order' => -1),
+                       10 =>  array('type' => 'gforge','api' =>'soap','enabled' => false, 'order' => -1),
+                       11 =>  array('type' => 'gforge','api' =>'db','enabled' => false, 'order' => -1),
+                       12 =>  array('type' => 'eventum','api' =>'db', 'enabled' => false, 'order' => -1),
+                       13 =>  array('type' => 'polarion', 'api' =>'soap', 'enabled' => false, 'order' => -1),
                        14 =>  array('type' => 'youtrack','api' =>'rest','enabled' => true, 'order' => -1),
                        15 =>  array('type' => 'redmine','api' =>'rest','enabled' => true, 'order' => -1),
-                       16 =>  array('type' => 'redmine','api' =>'db','enabled' => true, 'order' => -1),
-                       17 =>  array('type' => 'seapine','api' =>'soap','enabled' => true, 'order' => -1),
-                       18 =>  array('type' => 'seapine','api' =>'db','enabled' => true, 'order' => -1),
+                       16 =>  array('type' => 'redmine','api' =>'db','enabled' => false, 'order' => -1),
+                       17 =>  array('type' => 'seapine','api' =>'soap','enabled' => false, 'order' => -1),
+                       18 =>  array('type' => 'seapine','api' =>'db','enabled' => false, 'order' => -1),
                        19 =>  array('type' => 'trac','api' =>'xmlrpc','enabled' => true, 'order' => -1),
-                       20 =>  array('type' => 'trackplus','api' =>'soap','enabled' => true, 'order' => -1),
-                       21 =>  array('type' => 'trackplus','api' =>'db','enabled' => true, 'order' => -1));
-  
-  
+                       20 =>  array('type' => 'trackplus','api' =>'soap','enabled' => false, 'order' => -1),
+                       21 =>  array('type' => 'trackplus','api' =>'db','enabled' => false, 'order' => -1),
+                       22 =>  array('type' => 'gitlab','api' =>'rest','enabled' => true, 'order' => -1)
+                     );
   
     
   var $entitySpec = array('name' => 'string','cfg' => 'string','type' => 'int');
@@ -62,7 +64,7 @@ class tlIssueTracker extends tlObject
    */
   function __construct(&$db)
   {
-      parent::__construct();
+    parent::__construct();
 
     // populate types property
     $this->getTypes();
@@ -71,11 +73,11 @@ class tlIssueTracker extends tlObject
 
 
 
-  /**
+    /**
    * @return hash
    * 
    * 
-   */
+     */
   function getSystems($opt=null)
   {
     $my = array('options' => null);
@@ -106,7 +108,7 @@ class tlIssueTracker extends tlObject
         $ret[$code] = $elem;
       }
     }
-    return $ret;
+      return $ret;
     }
 
   /**
@@ -120,7 +122,10 @@ class tlIssueTracker extends tlObject
     {
       foreach($this->systems as $code => $spec)
       {
-        $this->types[$code] = $spec['type'] . " (Interface: {$spec['api']})";
+        if($spec['enabled'])
+        {  
+          $this->types[$code] = $spec['type'] . " (Interface: {$spec['api']})";
+        }  
       }
     }
     return $this->types;
@@ -145,7 +150,7 @@ class tlIssueTracker extends tlObject
      */
   function getEntitySpec()
   {
-    return $this->entitySpec;
+        return $this->entitySpec;
   }
 
 
@@ -156,15 +161,29 @@ class tlIssueTracker extends tlObject
   {
     $debugMsg = 'Class:' . __CLASS__ . ' - Method: ' . __FUNCTION__;
     $ret = array('status_ok' => 0, 'id' => 0, 'msg' => 'name already exists');
-    $safeobj = $this->sanitize($it);  
 
+    // Critic we need to do this before sanitize, because $it is changed
+    $xlmCfg = trim($it->cfg); 
+
+    // allow empty config
+    if(strlen($xlmCfg) > 0)
+    {  
+      $ret = $this->checkXMLCfg($xlmCfg);
+      if(!$ret['status_ok'])
+      {  
+        return $ret;  // >>>---> Bye!
+      }  
+    }
+
+
+    $safeobj = $this->sanitize($it);  
     // empty name is not allowed
     if( is_null($safeobj->name) )
     {
       $ret['msg'] = 'empty name is not allowed';
       return $ret;  // >>>---> Bye!
     }
-      
+
     // need to check if name already exist
     if( is_null($this->getByName($it->name,array('output' => 'id')) ))
     {
@@ -174,13 +193,13 @@ class tlIssueTracker extends tlObject
 
       if( $this->db->exec_query($sql) )
       {
-          // at least for Postgres DBMS table name is needed.
-            $itemID=$this->db->insert_id($this->tables['issuetrackers']);
-            $ret = array('status_ok' => 1, 'id' => $itemID, 'msg' => 'ok');
+        // at least for Postgres DBMS table name is needed.
+        $itemID=$this->db->insert_id($this->tables['issuetrackers']);
+        $ret = array('status_ok' => 1, 'id' => $itemID, 'msg' => 'ok');
       }
       else
       {
-          $ret = array('status_ok' => 0, 'id' => 0, 'msg' => $this->db->error_msg());
+        $ret = array('status_ok' => 0, 'id' => 0, 'msg' => $this->db->error_msg());
       }
     }
     
@@ -198,25 +217,36 @@ class tlIssueTracker extends tlObject
     $msg['duplicate_name'] = "Update can not be done - name %s already exists for id %s";
     $msg['ok'] = "operation OK for id %s";
 
-    $safeobj = $this->sanitize($it);
-      $ret = array('status_ok' => 1, 'id' => $it->id, 'msg' => '');
+    // Critic we need to do this before sanitize, because $it is changed
+    $xlmCfg = trim($it->cfg); 
 
+    $safeobj = $this->sanitize($it);
+    $ret = array('status_ok' => 1, 'id' => $it->id, 'msg' => '');
+
+    // allow empty config
+    if(strlen($xlmCfg) > 0)
+    {  
+      $ret = $this->checkXMLCfg($xlmCfg);
+    }
 
     // check for duplicate name
-    $info = $this->getByName($safeobj->name);
+    if( $ret['status_ok'] )   
+    {
+      $info = $this->getByName($safeobj->name);
       if( !is_null($info) && ($info['id'] != $it->id) )
       {
         $ret['status_ok'] = 0;
         $ret['msg'] .= sprintf($msg['duplicate_name'], $safeobj->name, $info['id']);
       }
-    
+    }
+
     if( $ret['status_ok'] )   
     {
       $sql =  "UPDATE {$this->tables['issuetrackers']}  " .
-          " SET name = '" . $safeobj->name. "'," . 
-          "   cfg = '" . $safeobj->cfg . "'," .
-          "       type = " . $safeobj->type . 
-          " WHERE id = " . intval($it->id);
+              " SET name = '" . $safeobj->name. "'," . 
+              "     cfg = '" . $safeobj->cfg . "'," .
+              "     type = " . $safeobj->type . 
+              " WHERE id = " . intval($it->id);
       $result = $this->db->exec_query($sql);
       $ret['msg'] .= sprintf($msg['ok'],$it->id);
     
@@ -286,7 +316,7 @@ class tlIssueTracker extends tlObject
   function getByID($id, $options=null)
   {
     $debugMsg = 'Class:' . __CLASS__ . ' - Method: ' . __FUNCTION__;
-      return $this->getByAttr(array('key' => 'id', 'value' => $id),$options);
+    return $this->getByAttr(array('key' => 'id', 'value' => $id),$options);
   }
 
 
@@ -296,7 +326,7 @@ class tlIssueTracker extends tlObject
   function getByName($name, $options=null)
   {
     $debugMsg = 'Class:' . __CLASS__ . ' - Method: ' . __FUNCTION__;
-      return $this->getByAttr(array('key' => 'name', 'value' => $name),$options);
+    return $this->getByAttr(array('key' => 'name', 'value' => $name),$options);
   }
 
 
@@ -327,12 +357,12 @@ class tlIssueTracker extends tlObject
     switch($attr['key'])
     {
       case 'id':
-           $where = " WHERE id = " . intval($attr['value']);
+        $where = " WHERE id = " . intval($attr['value']);
       break;
   
       case 'name':
       default:
-           $where = " WHERE name = '" . $this->db->prepare_string($attr['value']) . "'";
+        $where = " WHERE name = '" . $this->db->prepare_string($attr['value']) . "'";
       break;
     }
      
@@ -392,8 +422,8 @@ class tlIssueTracker extends tlObject
     }     
     
     // seems here is better do not touch.
-      $sobj->cfg = $this->db->prepare_string($obj->cfg);
-      $sobj->type = intval($obj->type);
+    $sobj->cfg = $this->db->prepare_string($obj->cfg);
+    $sobj->type = intval($obj->type);
     
     return $sobj;
   } 
@@ -540,20 +570,24 @@ class tlIssueTracker extends tlObject
         $lc = $this->db->fetchRowsIntoMap($sql,'id');
       }
     
+      
       foreach($rs as &$item)
       {
         $item['verbose'] = $item['name'] . " ( {$this->types[$item['type']]} )" ;
         $item['type_descr'] = $this->types[$item['type']];
         $item['env_check_ok'] = true;
         $item['env_check_msg'] = '';
-      	if( $my['options']['checkEnv'] )
-	      {
-        	$impl = $this->getImplementationForType($item['type']);
-	        $dummy = $impl::checkEnv();
-	        $item['env_check_ok'] = $dummy['status'];
-	        $item['env_check_msg'] = $dummy['msg'];
-      	}
-       
+        $item['connection_status'] = '';
+         
+        if( $my['options']['checkEnv'] )
+        {
+           $impl = $this->getImplementationForType($item['type']);
+           $dummy = $impl::checkEnv();
+           $item['env_check_ok'] = $dummy['status'];
+           $item['env_check_msg'] = $dummy['msg'];
+        }
+
+        
         if( !is_null($lc) )
         {
           if( isset($lc[$item['id']]) )
@@ -563,7 +597,7 @@ class tlIssueTracker extends tlObject
         }
       }
     }
-      return $rs;
+    return $rs;
   }
 
 
@@ -578,7 +612,7 @@ class tlIssueTracker extends tlObject
     if(is_null($tprojectID))
     {
       return;
-        }
+    }
     $sql = "/* $debugMsg */ " .
          " SELECT TPIT.testproject_id, NHTPR.name AS testproject_name, " .
          " TPIT.issuetracker_id,ITRK.name AS issuetracker_name, ITRK.type" .
@@ -594,47 +628,108 @@ class tlIssueTracker extends tlObject
     { 
       $ret = $ret[0];
       $ret['verboseType'] = $this->types[$ret['type']];
+      $spec = $this->systems[$ret['type']];
+      $ret['api'] = $spec['api'];
     }
     
     return $ret;
   }
 
 
-  /*
+  /**
    *
-     *
+   *
    */
   function getInterfaceObject($tprojectID)
   {
-    $its = null;
     $issueT = $this->getLinkedTo($tprojectID);
-    if( !is_null($issueT)  )
+    $name = $issueT['issuetracker_name'];
+    $goodForSession = ($issueT['api'] != 'db');
+
+    if($goodForSession && isset($_SESSION['its'][$name]))
     {
-      $itd = $this->getByID($issueT['issuetracker_id']);
-      $iname = $itd['implementation'];
-      $its = new $iname($itd['implementation'],$itd['cfg']);
+      return $_SESSION['its'][$name]; 
+    }  
+
+    try
+    {
+      if( !is_null($issueT)  )
+      {
+        $itd = $this->getByID($issueT['issuetracker_id']);
+        $iname = $itd['implementation'];
+
+        if($goodForSession)
+        {
+          $_SESSION['its'][$name] = new $iname($iname,$itd['cfg'],$itd['name']);
+        }
+        else
+        {
+          $ixx = new $iname($iname,$itd['cfg'],$itd['name']);
+          return $ixx;
+        }  
+      }
+      else
+      {
+        $_SESSION['its'][$name] = null;
+      }
+      return $_SESSION['its'][$name];
     }
-    return  $its;
-  
+    catch (Exception $e)
+    {
+      echo('Probably there is some PHP Config issue regarding extension<b>');
+      echo($e->getMessage().'<pre>'.$e->getTraceAsString().'</pre>');   
+    }
   }
 
+  /*
+   *
+   *
+   */
+  function checkConnection($its)
+  {
+    $xx = $this->getByID($its);
+    $class2create = $xx['implementation'];
+    $its = new $class2create($xx['type'],$xx['cfg'],$xx['name']);
 
-  //function unlinkBadBoys($id)
-  //{
-  //  $debugMsg = 'Class:' . __CLASS__ . ' - Method: ' . __FUNCTION__;
-    //
-  //  if(is_null($id))
-  //  {
-  //    return;
-    //    }
-    //    
-    //    // Get links
-    //    $dummy = 
-  //  $sql = "/* $debugMsg */ DELETE FROM {$this->tables['testproject_issuetracker']} " .
-  //           " WHERE testproject_id = " . intval($tprojectID) . 
-  //           " AND issuetracker_id = " . intval($id);
-  //  $this->db->exec_query($sql);
-  //}
+    $op = $its->isConnected();
+    
+    // because I've added simple cache on $_SESSION
+    // IMHO is better to update cache after this check
+    $_SESSION['its'][$xx['name']] = $its;
+
+    return $op;
+  }
+
+  /**
+   *
+   */
+  function checkXMLCfg($xmlString)
+  {
+    $signature = 'Source:' . __METHOD__;
+    $op = array('status_ok' => true, 'msg' => '');
+
+    $xmlCfg = "<?xml version='1.0'?> " . trim($xmlString);
+    libxml_use_internal_errors(true);
+    try 
+    {
+      $cfg = simplexml_load_string($xmlCfg);
+      if (!$cfg) 
+      {
+        $op['status_ok'] = false;
+        $op['msg'] = $signature . " - Failure loading XML STRING\n";
+        foreach(libxml_get_errors() as $error) 
+        {
+          $op['msg'] .= "\t" . $error->message;
+        }
+      }
+    }
+    catch(Exception $e)
+    {
+      $op['status_ok'] = false;
+      $op['msg'] = $signature . " - Exception loading XML STRING\n" . 'Message: ' .$e->getMessage();
+    }
+
+    return $op;
+  }  
 
 } // end class
-?>

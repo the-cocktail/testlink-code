@@ -622,7 +622,10 @@ $TLS_req_spec_type = "Tipo de Espec. de Req.";
 $TLS_btn_hide_cf = "Ocultar Campos personalizados";
 $TLS_btn_show_cf = "mostrar campos personalizados";
 $TLS_btn_export_testplan_tree = 'Exportar plan';
-
+$TLS_test_grouped_by = "Agrupados por pruebas";
+$TLS_mode_test_suite = "Suite de Pruebas";
+$TLS_mode_req_coverage = "Requisitos";
+$TLS_parent_child_relation = "Relación padre hijo";
 
 // ----- gui/templates/execNavigator.tpl -----
 $TLS_TestPlan = $TLS_testplan;
@@ -3141,6 +3144,21 @@ $TLS_export_execution_set = 'Exportar set de ejecución';
 // ---- FIXES ----
 $TLS_hlp_results_by_tester_per_build_table = '';
 
+// ----- pluginView.php -----       
+$TLS_title_plugins = "undefined";
+$TLS_title_plugin_mgmt = "undefined";
+$TLS_th_plugin = "undefined";
+$TLS_th_plugin_description = "undefined";
+$TLS_th_plugin_version = "undefined";
+$TLS_installed_plugins = "undefined";
+$TLS_available_plugins = "undefined";
+$TLS_plugin_uninstalled = "undefined";
+$TLS_plugin_installed = "undefined";
+$TLS_confirm_install_header = "undefined";
+$TLS_confirm_install_text = "undefined";
+$TLS_confirm_uninstall_header = "undefined";
+$TLS_confirm_uninstall_text = "undefined";
+$TLS_desc_mgt_plugins = "undefined";
 
 // ----- END ------------------------------------------------------------------
 ?>

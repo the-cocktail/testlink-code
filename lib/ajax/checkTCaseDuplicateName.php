@@ -6,9 +6,9 @@
  * Checks if a test case with this name already exist. Used to warn user
  * if non-unique test case name is entered.
  *
- * @package 	  TestLink
- * @author 		  Erik Eloff
- * @copyright   2010,2012 TestLink community
+ * @package 	TestLink
+ * @author 		Erik Eloff
+ * @copyright 	2010,2014 TestLink community
  * @filesource  checkTCaseDuplicateName.php
  *
  * @internal revisions
@@ -20,15 +20,12 @@ require_once('common.php');
 testlinkInitPage($db);
 $data = array('success' => true, 'message' => '');
 
-// take care of proper escaping when magic_quotes_gpc is enabled
-$_REQUEST=strings_stripSlashes($_REQUEST);
-
 $iParams = array("name" => array(tlInputParameter::STRING_N,0,100),
-	               "testcase_id" => array(tlInputParameter::INT),
-	               "testsuite_id" => array(tlInputParameter::INT));
+	             "testcase_id" => array(tlInputParameter::INT),
+	             "testsuite_id" => array(tlInputParameter::INT));
 $args = G_PARAMS($iParams);
 
-if($_SESSION['currentUser']->hasRight($db, 'mgt_view_tc'))
+if (has_rights($db, 'mgt_view_tc'))
 {
 	$tree_manager = new tree($db);
 	$node_types_descr_id=$tree_manager->get_available_node_types();
@@ -36,11 +33,6 @@ if($_SESSION['currentUser']->hasRight($db, 'mgt_view_tc'))
 	// To allow name check when creating a NEW test case => we do not have test case id
 	$args['testcase_id'] = ($args['testcase_id'] > 0 )? $args['testcase_id'] : null;
 	$args['testsuite_id'] = ($args['testsuite_id'] > 0 )? $args['testsuite_id'] : null;
-
-	// for debug - 
-	// $xx = "\$args['testcase_id']:{$args['testcase_id']} - \$args['name']:{$args['name']}" .
-	//       " - \$args['testsuite_id']:{$args['testsuite_id']}";
-	// file_put_contents('c:\checkTCaseDuplicateName.php.ajax', $xx);                            
 
 	$check = $tree_manager->nodeNameExists($args['name'], $node_types_descr_id['testcase'],
 										   $args['testcase_id'],$args['testsuite_id']);
@@ -56,4 +48,3 @@ else
 }
 
 echo json_encode($data);
-?>

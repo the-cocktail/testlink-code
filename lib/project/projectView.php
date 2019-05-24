@@ -5,42 +5,70 @@
  *
  * Display list of test projects
  *
- * @filesource	projectView.php
- * @package 	TestLink
- * @author 		TestLink community
- * @copyright 	2007-2011, TestLink community 
- * @link 		http://www.teamst.org/index.php
+ * @package 	  TestLink
+ * @author 		  TestLink community
+ * @copyright   2007-2016, TestLink community 
+ * @filesource  projectView.php
+ * @link 		    http://www.testlink.org/
  *
+ * @internal revisions
+ * @since 1.9.9
  */
+
 
 require_once('../../config.inc.php');
 require_once("common.php");
-testlinkInitPage($db);
+testlinkInitPage($db,false,false,"checkRights");
 
 $templateCfg = templateConfiguration();
+
+$smarty = new TLSmarty();
+$imgSet = $smarty->getImages();
 $args = init_args();
-checkRights($db,$_SESSION['currentUser'],$args);
-
-$gui = new stdClass();
-$gui->canManage = true;
-// $_SESSION['currentUser']->hasRight($db,"mgt_modify_product",$args->tproject_id);
-$gui->doAction = $args->doAction;
-$gui->tproject_id = $args->contextTprojectID;
-$gui->contextTprojectID = $args->contextTprojectID;
-$gui->reloadType = 'none';
-
-$tproject_mgr = new testproject($db);
-$gui->tprojects = $tproject_mgr->get_accessible_for_user($args->userID,'array_of_map');
+$gui = initializeGui($db,$args);
 
 $template2launch = $templateCfg->default_template;
-if(count($gui->tprojects) == 0)
-{
+if(!is_null($gui->tprojects) || $args->doAction=='list')
+{  
+  $labels = init_labels(array('active_integration' => null, 'inactive_integration' => null));
+  for($idx=0; $idx < $gui->itemQty; $idx++)
+  {
+    $gui->tprojects[$idx]['itstatusImg'] = '';
+    if($gui->tprojects[$idx]['itname'] != '')
+    {
+      $ak = ($gui->tprojects[$idx]['issue_tracker_enabled']) ? 'active' : 'inactive';
+      $gui->tprojects[$idx]['itstatusImg'] = ' <img title="' . $labels[$ak . '_integration'] . '" ' .
+                                             ' alt="' . $labels[$ak . '_integration'] . '" ' .
+                                             ' src="' . $imgSet[$ak] . '"/>';
+    } 
+    
+    $gui->tprojects[$idx]['ctstatusImg'] = '';
+    if($gui->tprojects[$idx]['ctname'] != '')
+    {
+      $ak = ($gui->tprojects[$idx]['code_tracker_enabled']) ? 'active' : 'inactive';
+      $gui->tprojects[$idx]['ctstatusImg'] = ' <img title="' . $labels[$ak . '_integration'] . '" ' .
+                                             ' alt="' . $labels[$ak . '_integration'] . '" ' .
+                                             ' src="' . $imgSet[$ak] . '"/>';
+    } 
+    
+
+    $gui->tprojects[$idx]['rmsstatusImg'] = '';
+    if($gui->tprojects[$idx]['rmsname'] != '')
+    {
+      $ak = ($gui->tprojects[$idx]['reqmgr_integration_enabled']) ? 'active' : 'inactive';
+      $gui->tprojects[$idx]['rmsstatusImg'] = ' <img title="' . $labels[$ak . '_integration'] . '" ' .
+                                              ' alt="' . $labels[$ak . '_integration'] . '" ' .
+                                              ' src="' . $imgSet[$ak] . '"/>';
+    } 
+  }
+
+  if(count($gui->tprojects) == 0)
+  {
     $template2launch = "projectEdit.tpl"; 
     $gui->doAction = "create";
+  }
 }
 
-// new dBug($gui);
-$smarty = new TLSmarty();
 $smarty->assign('gui',$gui);
 $smarty->display($templateCfg->template_dir . $template2launch);
 
@@ -51,34 +79,78 @@ $smarty->display($templateCfg->template_dir . $template2launch);
  */
 function init_args()
 {
-	$_REQUEST = strings_stripSlashes($_REQUEST);
-	$args = new stdClass();
-	$args->doAction = isset($_REQUEST['doAction']) ? $_REQUEST['doAction'] : 'list' ;
-	$args->userID =isset($_SESSION['userID']) ? $_SESSION['userID'] : 0;
+  $_REQUEST = strings_stripSlashes($_REQUEST);
+   
+  $args = new stdClass();
+  $args->tproject_id = isset($_SESSION['testprojectID']) ? intval($_SESSION['testprojectID']) : 0 ;
+  $args->doAction = isset($_REQUEST['doAction']) ? $_REQUEST['doAction'] : 'list' ;
+  $args->userID = isset($_SESSION['userID']) ? intval($_SESSION['userID']) : 0;
+  $args->user = isset($_SESSION['currentUser']) ? $_SESSION['currentUser'] : null; 
+  $args->name = isset($_REQUEST['name']) ? trim($_REQUEST['name']) : null ;
 
-	// Important Notice
-	// this is value set by user on NavBar.php, that set the context.
-	// needed on refresh GUI logic, example: if user deleted this test project we need
-	// to reload NavBar to refresh test project COMOBO and set a new context test project id.
-	//
-	$args->contextTprojectID = isset($_REQUEST['tproject_id']) ? intval($_REQUEST['tproject_id']) : 0 ;
-	return $args;  
+
+
+  if(!is_null($args->name))
+  {
+    $args->name = trim($args->name); 
+    if(strlen($args->name) == 0)
+    {  
+      $args->name = null;
+    }      
+    else
+    {
+      $args->name = substr($args->name,0,100);
+    }  
+  } 
+  return $args;  
 }
-
 
 /**
- * checkRights
+ * 
  *
  */
-function checkRights(&$db,&$userObj,$argsObj)
+function initializeGui(&$dbHandler,&$argsObj)
 {
-	// For this feature check must be done on Global Rights => those that belong to
-	// role assigned to user when user was created (Global/Default Role)
-	// => enviroment is ignored.
-	// To instruct method to ignore enviromente, we need to set enviroment but with INEXISTENT ID 
-	// (best option is negative value)
-	$env['tproject_id'] = -1;
-	$env['tplan_id'] = -1;
-	checkSecurityClearance($db,$userObj,$env,array('mgt_modify_product'),'and');
+  $guiObj = new stdClass();
+  $guiObj->doAction = $argsObj->doAction;
+  $guiObj->canManage = $argsObj->user->hasRight($dbHandler,"mgt_modify_product");
+  $guiObj->name = is_null($argsObj->name) ? '' : $argsObj->name;
+  $guiObj->feedback = '';
+  
+  switch($argsObj->doAction)
+  {
+    case 'list':
+      $filters = null;
+    break;
+
+    case 'search':
+    default:
+      $filters = array('name' => array('op' => 'like', 'value' => $argsObj->name));
+      $guiObj->feedback = lang_get('no_records_found');
+    break;
+  }
+
+  $tproject_mgr = new testproject($dbHandler);
+  $opt = array('output' => 'array_of_map', 'order_by' => " ORDER BY name ", 'add_issuetracker' => true,
+               'add_codetracker' => true, 'add_reqmgrsystem' => true);
+  $guiObj->tprojects = $tproject_mgr->get_accessible_for_user($argsObj->userID,$opt,$filters);
+  $guiObj->pageTitle = lang_get('title_testproject_management');
+  
+  $cfg = getWebEditorCfg('testproject');
+  $guiObj->editorType = $cfg['type'];
+
+  $guiObj->itemQty = count($guiObj->tprojects);
+
+  if($guiObj->itemQty > 0)
+  {
+    $guiObj->pageTitle .= ' ' . sprintf(lang_get('available_test_projects'),$guiObj->itemQty);
+  }  
+
+  return $guiObj;
 }
-?>
+
+
+function checkRights(&$db,&$user)
+{
+	return $user->hasRight($db,'mgt_modify_product');
+}

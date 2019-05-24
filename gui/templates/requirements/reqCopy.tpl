@@ -1,11 +1,10 @@
 {*
 TestLink Open Source Project - http://testlink.sourceforge.net/
-@filesource	reqCopy.tpl
+$Id: reqCopy.tpl,v 1.10 2010/11/06 11:42:47 amkhullar Exp $
 Purpose:
         Allow user to choose requirements inside a req spec to copy.
         Will be used also to implement copy from requirement view feature.
 
-@internal revisions
 *}
 {lang_get var='labels'
           s='title_move_cp,title_move_cp_testcases,sorry_further,req_doc_id,
@@ -15,11 +14,15 @@ Purpose:
 {lang_get s='select_at_least_one_req' var="check_msg"}
 
 {include file="inc_head.tpl" openHead="yes"}
-{include file="inc_jsCheckboxes.tpl"}  {* includes ext-js *}
+{include file="inc_jsCheckboxes.tpl"}
+{include file="inc_del_onclick.tpl"}
 
+{literal}
 <script type="text/javascript">
+{/literal}
+// BUGID 3943: Escape all messages (string)
 var alert_box_title = "{$labels.warning|escape:'javascript'}";
-
+{literal}
 /*
   function: check_action_precondition
 
@@ -42,6 +45,7 @@ function check_action_precondition(container_id,action,msg)
 	}
 }
 </script>
+{/literal}
 </head>
 
 <body>
@@ -56,7 +60,6 @@ function check_action_precondition(container_id,action,msg)
 
 	<form id="copy_req" name="copy_req" method="post" action="{$gui->page2call}">
     <input type="hidden" name="req_spec_id"  id="req_spec_id"  value="{$gui->req_spec_id}" />
-    <input type="hidden" name="tproject_id"  id="tproject_id"  value="{$gui->tproject_id}" />
 	  
 		<p>{$labels.choose_target}:
 			<select name="containerID" id="containerID">
@@ -109,7 +112,10 @@ function check_action_precondition(container_id,action,msg)
 
 	</form>
 
-{if isset($gui->refreshTree) && $gui->refreshTree} {$tlRefreshTreeJS} {/if}
+	{if isset($gui->refreshTree) && $gui->refreshTree}
+ 	  {include file="inc_refreshTreeWithFilters.tpl"}
+	{/if}
+
 </div>
 </body>
 </html>

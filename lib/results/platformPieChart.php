@@ -3,34 +3,46 @@
  * TestLink Open Source Project - http://testlink.sourceforge.net/
  * This script is distributed under the GNU General Public License 2 or later. 
  *
- * @filespurce	platformPieChart.php
- * @package 	TestLink
- * @author 		franciscom
- * @copyright 	2005-2009, TestLink community
- * @link 		http://www.teamst.org/index.php
+ * @filesource  platformPieChart.php
+ * @package     TestLink
+ * @author      franciscom
+ * @copyright   2005-2013, TestLink community
+ * @link        http://www.testlink.org
  *
- * @internal Revisions:
- * 20100922 - Julian - BUGID 3798
+ * @internal revisions
+ * @since 1.9.10
  *
 **/
 require_once('../../config.inc.php');
 require_once('common.php');
-define('PCHART_PATH','../../third_party/pchart');
-include(PCHART_PATH . "/pChart/pData.class");   
-include(PCHART_PATH . "/pChart/pChart.class");   
-testlinkInitPage($db);
+include("../../third_party/pchart/pChart/pData.class");   
+include("../../third_party/pchart/pChart/pChart.class");   
 
 $resultsCfg = config_get('results');
 $chart_cfg = $resultsCfg['charts']['dimensions']['platformPieChart'];
 
-$args = init_args();
-checkRights($db,$_SESSION['currentUser'],$args);
+$args = init_args($db);
+$metricsMgr = new tlTestPlanMetrics($db);
+$dummy = $metricsMgr->getStatusTotalsByPlatformForRender($args->tplan_id);
 
-$tplan_mgr = new testplan($db);
-$totalsByPlatform = $tplan_mgr->getStatusTotalsByPlatform($args->tplan_id);
+// if platform has no test case assigned $dummy->info[$args->platform_id] does not exists
+if( isset($dummy->info[$args->platform_id]) )
+{
+  $totals = $dummy->info[$args->platform_id]['details'];
+}
+else
+{
+  // create empty set
+  $status = $metricsMgr->getStatusForReports();
+  foreach($status as $statusVerbose)
+  {
+    $totals[$statusVerbose] = array('qty' => 0, 'percentage' => 0);
+  }
+  unset($status);
+}
 
-$totals=$totalsByPlatform[$args->platform_id]['details'];
-unset($totals['total']);
+unset($dummy);
+unset($metricsMgr);
 
 $values = array();
 $labels = array();
@@ -42,8 +54,8 @@ foreach($totals as $key => $value)
     $labels[] = lang_get($resultsCfg['status_label'][$key]) . " ($value)";
     if( isset($resultsCfg['charts']['status_colour'][$key]) )
     {
-    	$series_color[] = $resultsCfg['charts']['status_colour'][$key];
-    }	
+      $series_color[] = $resultsCfg['charts']['status_colour'][$key];
+    }  
 }
 
 // Dataset definition    
@@ -61,7 +73,6 @@ $pChartCfg->radius = $chart_cfg['radius'];
 $pChartCfg->legendX = $chart_cfg['legendX'];                    
 $pChartCfg->legendY = $chart_cfg['legendY'];
 
-// BUGID 3798
 $pChartCfg->centerX = intval($pChartCfg->XSize/2);                    
 $pChartCfg->centerY = intval($pChartCfg->YSize/2);
 
@@ -72,8 +83,8 @@ $graph->description = $DataSet->GetDataDescription();
 $Test = new pChart($pChartCfg->XSize,$pChartCfg->YSize);
 foreach($series_color as $key => $hexrgb)
 {
-    $rgb = str_split($hexrgb,2);
-    $Test->setColorPalette($key,hexdec($rgb[0]),hexdec($rgb[1]),hexdec($rgb[2]));  
+  $rgb = str_split($hexrgb,2);
+  $Test->setColorPalette($key,hexdec($rgb[0]),hexdec($rgb[1]),hexdec($rgb[2]));  
 }
  
 // Draw the pie chart   
@@ -85,28 +96,59 @@ $Test->drawPieLegend($pChartCfg->legendX,$pChartCfg->legendY,$graph->data,$graph
 $Test->Stroke();
 
 
-/**
- * checkRights
- *
- */
-function checkRights(&$db,&$userObj,$argsObj)
+function checkRights(&$db,&$user)
 {
-	$env['tproject_id'] = isset($argsObj->tproject_id) ? $argsObj->tproject_id : 0;
-	$env['tplan_id'] = isset($argsObj->tplan_id) ? $argsObj->tplan_id : 0;
-	checkSecurityClearance($db,$userObj,$env,array('testplan_metrics'),'and');
+  return $user->hasRight($db,'testplan_metrics');
 }
+
 
 /**
  * 
  *
  */
-function init_args()
+function init_args(&$dbHandler)
 {
-    $_REQUEST = strings_stripSlashes($_REQUEST);
-    $args = new stdClass();
-    $args->tplan_id = intval($_REQUEST['tplan_id']);
-    $args->tproject_id = intval($_REQUEST['tproject_id']);
-    $args->platform_id = $_REQUEST['platform_id'];
-    return $args;
+  //  $_REQUEST = strings_stripSlashes($_REQUEST);
+  //  $args = new stdClass();
+  //  $args->tplan_id = $_REQUEST['tplan_id'];
+  //  $args->tproject_id = $_SESSION['testprojectID'];
+  //  $args->platform_id = $_REQUEST['platform_id'];
+  $iParams = array("apikey" => array(tlInputParameter::STRING_N,0,64),
+                   "platform_id" => array(tlInputParameter::INT_N), 
+                   "tproject_id" => array(tlInputParameter::INT_N), 
+                   "tplan_id" => array(tlInputParameter::INT_N));
+
+  $args = new stdClass();
+  R_PARAMS($iParams,$args);
+
+  if( !is_null($args->apikey) )
+  {
+    $cerbero = new stdClass();
+    $cerbero->args = new stdClass();
+    $cerbero->args->tproject_id = $args->tproject_id;
+    $cerbero->args->tplan_id = $args->tplan_id;
+    
+    if(strlen($args->apikey) == 32)
+    {
+      $cerbero->args->getAccessAttr = true;
+      $cerbero->method = 'checkRights';
+      $cerbero->redirect_target = "../../login.php?note=logout";
+      setUpEnvForRemoteAccess($dbHandler,$args->apikey,$cerbero);
+    }
+    else
+    {
+      $args->addOpAccess = false;
+      $cerbero->method = null;
+      $cerbero->args->getAccessAttr = false;
+      setUpEnvForAnonymousAccess($dbHandler,$args->apikey,$cerbero);
+    }  
+  }
+  else
+  {
+    testlinkInitPage($dbHandler,true,false,"checkRights");  
+    $args->tproject_id = isset($_SESSION['testprojectID']) ? intval($_SESSION['testprojectID']) : 0;
+  }
+  
+
+  return $args;
 }
-?>

@@ -3,17 +3,16 @@
  * TestLink Open Source Project - http://testlink.sourceforge.net/
  * This script is distributed under the GNU General Public License 2 or later.
  *
- * Test navigator for Test Plan
+ * Test navigator for Test Plan.
+ * Used on Test Case Execution Assignment feature
  *
- *
- * @filesource	planTCNavigator.php
- * @package 	TestLink
- * @copyright 	2003-2011, TestLink community
- * @link 		http://www.teamst.org/index.php
+ * @filesource  planTCNavigator.php
+ * @package     TestLink
+ * @copyright   2003-2014, TestLink community
+ * @link        http://www.testlink.org
  *
  * @internal revisions
- * @since 2.0	
- * 20110824 - franciscom - TICKET 4721: Left side tree manu - add specific navigator titles
+ * @since 1.9.11
  *
  **/
 
@@ -24,14 +23,13 @@ require_once("treeMenu.inc.php");
 require_once('exec.inc.php');
 
 testlinkInitPage($db);
-
 $templateCfg = templateConfiguration();
 
-$assignment_mgr = new assignment_mgr($db); // BUGID 3406
+$assignment_mgr = new assignment_mgr($db);
 $control = new tlTestCaseFilterControl($db, 'plan_mode');
 $gui = initializeGui($db, $control, $assignment_mgr);
-
 $control->build_tree_menu($gui);
+$control->formAction = $_SESSION['basehref'] . "lib/plan/planTCNavigator.php";
 
 $smarty = new TLSmarty();
 
@@ -50,44 +48,40 @@ $smarty->display($templateCfg->template_dir . $templateCfg->default_template);
  * @return stdClass
  * 
  * @internal revisions:
- *   20100721 - asimon - BUGID 3406, added assignmentMgr
  */
-function initializeGui(&$dbHandler, &$control, &$assignmentMgr) {
+function initializeGui(&$dbHandler, &$control, &$assignmentMgr) 
+{
 
-	$gui = new stdClass();
-	
-	$gui->feature = $control->args->feature;
-    $gui->tplanID = $control->args->testplan_id;
-    $gui->tprojectID = $control->args->testproject_id;
+  $gui = new stdClass();
+  $gui->feature = $control->args->feature;
+  $gui->tPlanID = $control->args->testplan_id;
+  $gui->title = lang_get('title_test_plan_navigator');
+  $gui->src_workframe = '';
+  $gui->additional_string = '';
+  
+  // configure target URLs and clickable buttons
+  switch($control->args->feature) 
+  {
+    case 'planUpdateTC':
+      $gui->menuUrl = "lib/plan/planUpdateTC.php";
+      $gui->title_navigator = lang_get('navigator_update_linked_tcversions');
+      $control->draw_bulk_update_button = true;
+    break;
+    
+    case 'test_urgency':
+      $gui->title_navigator = lang_get('navigator_test_urgency');
+      $gui->menuUrl = "lib/plan/planUrgency.php";
+    break;
 
-	$gui->title = lang_get('title_test_plan_navigator');
-	$gui->src_workframe = '';
-	$gui->additional_string = '';
-	
-	// configure target URLs and clickable buttons
-	switch($control->args->feature) {
-		case 'planUpdateTC':
-			$gui->menuUrl = "lib/plan/planUpdateTC.php";
-			$gui->title_navigator = lang_get('navigator_update_linked_tcversions');
-			$control->draw_bulk_update_button = true;
-		break;
-		
-		case 'test_urgency':
-			$gui->title_navigator = lang_get('navigator_test_urgency');
-			$gui->menuUrl = "lib/plan/planUrgency.php";
-		break;
+    case 'tc_exec_assignment':
+      $gui->title_navigator = lang_get('navigator_tc_exec_assignment');
+      $gui->menuUrl = "lib/plan/tc_exec_assignment.php";
+      $build_id = $control->settings['setting_build']['selected'];
+      $control->draw_tc_unassign_button = true;
+      $control->draw_tc_assignment_bulk_copy_button = true;
 
-		case 'tc_exec_assignment':
-			$gui->title_navigator = lang_get('navigator_tc_exec_assignment');
-			$gui->menuUrl = "lib/plan/tc_exec_assignment.php";
-			// BUGID 3406 - check for assignments before displaying the unassign button
-			$build_id = $control->settings['setting_build']['selected'];
-			if ($assignmentMgr->get_count_of_assignments_for_build_id($build_id)) {
-				$control->draw_tc_unassign_button = true;
-			}
-		break;
-	}
-	
-	return $gui;
+    break;
+  }
+  
+  return $gui;
 }
-?>

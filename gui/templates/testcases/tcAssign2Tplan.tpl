@@ -1,11 +1,10 @@
 {* 
 TestLink Open Source Project - http://testlink.sourceforge.net/ 
-
-@filesource	tcAssign2Tplan.tpl
+@filesource  tcAssign2Tplan.tpl
 Purpose: manage assignment of A test case version to N test plans 
          while working on test specification 
  
-@internal revisions    
+    
 *}
 {lang_get var='labels' 
           s='testproject,test_plan,th_id,please_select_one_testplan,platform,btn_cancel,
@@ -13,7 +12,8 @@ Purpose: manage assignment of A test case version to N test plans
              execution_history'}
 
 {include file="inc_head.tpl" openHead="yes"}
-{include file="inc_jsCheckboxes.tpl"} {* includes ext-js *}
+{include file="inc_jsCheckboxes.tpl"}
+{include file="inc_del_onclick.tpl"}
 
 <script type="text/javascript">
 var check_msg="{$labels.please_select_one_testplan|escape:'javascript'}";
@@ -29,31 +29,35 @@ function check_action_precondition(container_id,action)
 	return true;
 }
 </script>
-</head>
 
+{$ll = '[25, 50, 75, -1], [25, 50, 75, "All"]'}
+{include file="DataTables.inc.tpl" DataTablesOID="item_view" DataTableslengthMenu=$ll}
+
+</head>
 <body>
-<h1 class="title"> {$gui->pageTitle|escape} 
-</h1>
+
+<h1 class="title"> {$gui->pageTitle|escape}</h1>
 
 <div class="workBack">
 <h1 class="title">{$gui->mainDescription}</h1>
 
 {if $gui->tplans}
-<form method="post" action="lib/testcases/tcEdit.php?testcase_id={$gui->tcase_id}&tcversion_id={$gui->tcversion_id}">
+<form method="post" action="{$basehref}lib/testcases/tcEdit.php?testcase_id={$gui->tcase_id}&tcversion_id={$gui->tcversion_id}">
+  <div>
+  <img class="clickable" src="{$tlImages.history_small}" onclick="javascript:openExecHistoryWindow({$gui->tcase_id});"
+        title="{$labels.execution_history}" />
+  <img class="clickable" src="{$tlImages.edit_icon}" onclick="javascript:openTCaseWindow({$gui->tcase_id});"
+       title="{$labels.design}" />
+  {$gui->tcaseIdentity|escape}
+  </div>
+<br>
+<h1>{$labels.testplan_usage}</h1>
 
-<br />
-<img class="clickable" src="{$smarty.const.TL_THEME_IMG_DIR}/history_small.png"
-      onclick="javascript:openExecHistoryWindow({$gui->tcase_id});"
-      title="{$labels.execution_history}" />
-<img class="clickable" src="{$smarty.const.TL_THEME_IMG_DIR}/edit_icon.png"
-     onclick="javascript:openTCaseWindow({$gui->tproject_id},{$gui->tcase_id});"
-     title="{$labels.design}" />
-{$gui->tcaseIdentity|escape}
-<br /><br />
-{$labels.testplan_usage}:
 <div id='checkboxes'>
-<table class="simple_tableruler" style="width:50%">
+ <table id="item_view" class="simple_tableruler sortable">
+  <tr>
   <th>&nbsp;</th><th>{$labels.version}</th><th>{$labels.test_plan}</th><th>{$labels.platform}</th>
+  </tr>
   {foreach from=$gui->tplans item=link2tplan_platform}
     {foreach from=$link2tplan_platform item=link2tplan key=platform_id}
       <tr>
@@ -69,17 +73,19 @@ function check_action_precondition(container_id,action)
     {/foreach}
 
   {/foreach}
-</table>
+ </table>
 </div>
 
 {if $gui->can_do}
-<input type="hidden" id="doAction" name="doAction" value="doAdd2testplan" />
-<input type="submit" id="add2testplan"  name="add2testplan" value="{$labels.btn_add}"       
-       onclick="return check_action_precondition('checkboxes','default');" />
+  <input type="hidden" id="doAction" name="doAction" value="doAdd2testplan" />
+  <input type="submit" id="add2testplan"  name="add2testplan" value="{$labels.btn_add}"       
+         onclick="return check_action_precondition('checkboxes','default');" />
 {/if}
-<input type="button" name="cancel" value="{$labels.btn_cancel}" 
-  			                   onclick="javascript:history.back();" />  
+
+
+<input type="button" name="cancel" value="{$labels.btn_cancel}" onclick="javascript:{$gui->cancelActionJS};" />  
 </form>
+
 {else}
   {$labels.no_test_plans}
 {/if}

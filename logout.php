@@ -3,25 +3,43 @@
  * TestLink Open Source Project - http://testlink.sourceforge.net/ 
  * This script is distributed under the GNU General Public License 2 or later. 
  * 
- * Filename $RCSfile: logout.php,v $
+ * @filesource	logout.php
  *
- * @version $Revision: 1.18 $
- * @modified $Date: 2009/08/11 19:48:50 $
+ *
 **/
 require_once('config.inc.php');
 require_once('common.php');
 testlinkInitPage($db);
+
 $args = init_args();
 if ($args->userID)
 {
-	logAuditEvent(TLS("audit_user_logout",$args->userName),"LOGOUT",$args->userID,"users");  
+  logAuditEvent(TLS("audit_user_logout",$args->userName),"LOGOUT",$args->userID,"users");  
 }
 session_unset();
 session_destroy();
 
-redirect("login.php");
+$authCfg = config_get('authentication');
+if(isset($authCfg['SSO_enabled']) && $authCfg['SSO_enabled'] 
+   && $args->ssodisable == FALSE)
+{
+  redirect($authCfg['SSO_logout_destination']);
+}
+else
+{
+  $std = "login.php?note=logout&viewer={$args->viewer}";
+  $std .= $args->ssodisable ? "&ssodisable" : '';
+
+  $xx = config_get('logoutUrl');
+  $lo = is_null($xx) || trim($xx) == '' ? $std : $xx;
+  redirect($lo);
+}
 exit();
 
+
+/**
+ *
+ */
 function init_args()
 {
 	$args = new stdClass();
@@ -29,6 +47,8 @@ function init_args()
 	$args->userID = isset($_SESSION['userID']) ?  $_SESSION['userID'] : null;
 	$args->userName = $args->userID ? $_SESSION['currentUser']->getDisplayName() : "";
 	
-	return $args;
+	$args->viewer = isset($_GET['viewer']) ? $_GET['viewer'] : '';
+    $args->ssodisable = getSSODisable();
+	
+    return $args;
 }
-?>

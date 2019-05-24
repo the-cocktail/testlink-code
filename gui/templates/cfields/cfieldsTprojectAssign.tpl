@@ -1,14 +1,7 @@
 {* 
 TestLink Open Source Project - http://testlink.sourceforge.net/ 
-$Id: cfieldsTprojectAssign.tpl,v 1.10 2010/11/13 09:09:36 franciscom Exp $
+@filesource cfieldsTprojectAssign.tpl
 Purpose: management Custom fields assignment to a test project
-
-rev :
-     20101005 - amitkhullar - BUGID 3848 - enable link on Unassigned Custom Field
-     20100121 - franciscom - added more information for users
-     20090717 - franciscom - location management
-     20070527 - franciscom - added check/uncheck all logic
-     20070515 - franciscom - BUGID 0000852 
 
 *}
 {include file="inc_head.tpl" openHead="yes"}
@@ -18,12 +11,12 @@ rev :
 {lang_get var="labels" 
           s='name,label,display_order,location,cfields_active,testproject,btn_assign,
              cfields_tproject_assign,title_assigned_cfields,check_uncheck_all_checkboxes,
-             available_on,type,
-             manage_cfield,btn_unassign,btn_cfields_active_mgmt,btn_cfields_display_order,
-             btn_cfields_display_attr,title_available_cfields'}
+             available_on,type,required,
+             manage_cfield,btn_unassign,btn_cfields_boolean_mgmt,btn_cfields_display_order,
+             btn_cfields_display_attr,title_available_cfields,monitorable'}
 
 <body>
-{assign var="cfg_section" value=$smarty.template|basename|replace:".tpl":""}
+{$cfg_section=$smarty.template|basename|replace:".tpl":""}
 {config_load file="input_dimensions.conf" section=$cfg_section}
 
 <h1 class="title">
@@ -33,7 +26,7 @@ rev :
 {include file="inc_update.tpl" result=$sqlResult action=$action item="custom_field"}
 
 
-{if $gui->my_cf ne ""}
+{if $gui->linkedCF ne ""}
   <div class="workBack">
     <h2>{$labels.title_assigned_cfields}</h2>
     <form method="post">
@@ -44,7 +37,7 @@ rev :
       <table class="simple_tableruler">
       	<tr>
       		<th align="center"  style="width: 5px;background-color:#005498;"> 
-      		    <img src="{$smarty.const.TL_THEME_IMG_DIR}/toggle_all.gif"
+      		    <img src="{$tlImages.toggle_all}"
       		             onclick='cs_all_checkbox_in_div("assigned_cf","assigned_cfield","memory_assigned_cf");'
       		             title="{$labels.check_uncheck_all_checkboxes}" />
       		</th>
@@ -55,10 +48,12 @@ rev :
       		<th width="15%">{$labels.display_order}</th>
       		<th width="15%">{$labels.location}</th>
       		<th width="5%">{$labels.cfields_active}</th>
+          <th width="5%">{$labels.required}</th>
+          <th width="5%">{$labels.monitorable}</th>
       	</tr>
-      	{foreach key=cf_id item=cf from=$gui->my_cf}
+      	{foreach key=cf_id item=cf from=$gui->linkedCF}
       	<tr>
-      		<td class="clickable_icon"><input type="checkbox" id="assigned_cfield{$cf.id}" name="cfield[{$cf.id}]" /></td>
+      		<td class="clickable_icon"><input type="checkbox" id="assigned_cfield{$cf.id}" name="checkedCF[{$cf.id}]" /></td>
    		   	<td class="bold"><a href="lib/cfields/cfieldsEdit.php?do_action=edit&amp;cfield_id={$cf.id}"
    		   	                    title="{$labels.manage_cfield}">{$cf.name|escape}</a></td>
       		<td class="bold">{$cf.label|escape}</td>
@@ -71,7 +66,7 @@ rev :
       		           size="{#DISPLAY_ORDER_SIZE#}" maxlength="{#DISPLAY_ORDER_MAXLEN#}" /></td>
       		           
       		<td>
-      		{* 20090718 - franciscom - location will NOT apply to EXEC only CF *}
+      		{* location will NOT apply to EXEC only CF *}
       		{if $cf.node_description == 'testcase' && $cf.enable_on_execution ==0}
 			  	<select name="location[{$cf.id}]">
 			  	  {html_options options=$gui->locations selected=$cf.location}
@@ -80,11 +75,22 @@ rev :
       		&nbsp;
       		{/if}
       		</td>
-      		           
+
       		<td><input type="checkbox" name="active_cfield[{$cf.id}]" 
       		                           {if $cf.active eq 1} checked="checked" {/if} /> 
       		    <input type="hidden" name="hidden_active_cfield[{$cf.id}]"  value="{$cf.active}" /> 
       		</td>
+
+          <td><input type="checkbox" name="required_cfield[{$cf.id}]" 
+                                     {if $cf.required eq 1} checked="checked" {/if} /> 
+              <input type="hidden" name="hidden_required_cfield[{$cf.id}]"  value="{$cf.required}" /> 
+          </td>
+
+          <td><input type="checkbox" name="monitorable_cfield[{$cf.id}]" 
+                                     {if $cf.monitorable eq 1} checked="checked" {/if} /> 
+              <input type="hidden" name="hidden_monitorable_cfield[{$cf.id}]"  value="{$cf.monitorable}" /> 
+          </td>
+
       	</tr>
       	{/foreach}
       </table>
@@ -96,7 +102,7 @@ rev :
     		<input type="submit" name="doUnassign" value="{$labels.btn_unassign}" 
     		                     onclick="doAction.value=this.name"/>
     		                     
-    		<input type="submit" name="doActiveMgmt" value="{$labels.btn_cfields_active_mgmt}"
+    		<input type="submit" name="doBooleanMgmt" value="{$labels.btn_cfields_boolean_mgmt}"
     		                     onclick="doAction.value=this.name"/>
 
     		<input type="submit" name="doReorder" value="{$labels.btn_cfields_display_attr}" 
@@ -120,7 +126,7 @@ rev :
       <table class="simple_tableruler" style="width: 50%;">
       	<tr>
       		<th align="center"  style="width: 5px;background-color:#005498;"> 
-      		    <img src="{$smarty.const.TL_THEME_IMG_DIR}/toggle_all.gif"
+      		    <img src="{$tlImages.toggle_all}"
       		             onclick='cs_all_checkbox_in_div("free_cf","free_cfield","memory_free_cf");'
       		             title="{$labels.check_uncheck_all_checkboxes}" />
       		</th>
@@ -131,7 +137,7 @@ rev :
       	</tr>
       	{foreach key=cf_id item=cf from=$gui->other_cf}
       	<tr>
-      		<td class="clickable_icon"> <input type="checkbox" id="free_cfield{$cf.id}" name="cfield[{$cf.id}]" /></td>
+      		<td class="clickable_icon"> <input type="checkbox" id="free_cfield{$cf.id}" name="checkedCF[{$cf.id}]" /></td>
       		<td class="bold"><a href="lib/cfields/cfieldsEdit.php?do_action=edit&amp;cfield_id={$cf.id}"
    		   	                    title="{$labels.manage_cfield}">{$cf.name|escape}</a></td>
       		<td class="bold">{$cf.label|escape}</td>

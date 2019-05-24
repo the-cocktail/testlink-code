@@ -1,28 +1,27 @@
-{* TestLink Open Source Project - http://testlink.sourceforge.net/
-@filesource	keywordsExport.tpl
+{* 
+TestLink Open Source Project - http://testlink.sourceforge.net/
+@filesource keywordsExport.tpl
 Purpose: smarty template - keyword export 
-
-@internal revisions
+rev:
 *}
+{lang_get var='lbl'
+          s='file_type,btn_export,export_filename,
+             view_file_format_doc,keywords_file,btn_cancel'}
 
-{$action_url = "lib/keywords/keywordsExport.php?doAction=do_export"}
-{$cfg_section = $smarty.template|basename|replace:".tpl":""}
+{$cfg_section=$smarty.template|basename|replace:".tpl":"" }
 {config_load file="input_dimensions.conf" section=$cfg_section}
 {include file="inc_head.tpl" openHead="yes" jsValidate="yes"}
 
-{lang_get var='labels'
-          s='export_filename,file_type,view_file_format_doc,btn_export,btn_cancel,warning_empty_filename'}
-
-
 <script type="text/javascript">
-var warning_empty_filename = "{$labels.warning_empty_filename}";
+var warning_empty_filename = "{lang_get s='warning_empty_filename'}";
+
 function validateForm(f)
 {
   if (isWhitespace(f.export_filename.value)) 
   {
-      alert(warning_empty_filename);
-      selectField(f, 'export_filename');
-      return false;
+    alert(warning_empty_filename);
+    selectField(f, 'export_filename');
+    return false;
   }
   return true;
 }
@@ -37,13 +36,13 @@ function validateForm(f)
 <h1 class="title">{$gui->action_descr|escape}</h1>
 
   <form method="post" id="export_xml" enctype="multipart/form-data" 
-        action="{$action_url}"
+        action="{$gui->actionUrl}"
         onSubmit="javascript:return validateForm(this);">
   
     <table>
     <tr>
 	    <td>
-		    {$labels.export_filename}
+		    {$lbl.export_filename}
 	    </td>
 	    <td>
 		  	<input type="text" name="export_filename" maxlength="{#FILENAME_MAXLEN#}" 
@@ -52,22 +51,21 @@ function validateForm(f)
 	  	</td>
   	<tr>
 	  	<td>
-	  		{$labels.file_type}
+	  		{$lbl.file_type}
 	  	</td>
 	  	<td>
 		  	<select name="exportType">
 		  		{html_options options=$gui->exportTypes}
 		  	</select>
-		 	<a href={$basehref}{$smarty.const.PARTIAL_URL_TL_FILE_FORMATS_DOCUMENT}>{$labels.view_file_format_doc}</a>
+		 	<a href={$basehref}{$smarty.const.PARTIAL_URL_TL_FILE_FORMATS_DOCUMENT}>{$lbl.view_file_format_doc}</a>
 	  	</td>
 	</tr>
   	</table>
   	
   	<div class="groupBtn">
-  		<input type="hidden" name="tproject_id" id="tproject_id" value="{$gui->tproject_id}">
-  		<input type="submit" name="export" value="{$labels.btn_export}" />
-  		<input type="button" name="cancel" value="{$labels.btn_cancel}" 
-			onclick="javascript: location.href=fRoot+'lib/keywords/keywordsView.php?tproject_id={$gui->tproject_id}';" />
+  		<input type="submit" name="export" value="{$lbl.btn_export}" />
+  		<input type="button" name="cancel" value="{$lbl.btn_cancel}" 
+			onclick="javascript: location.href=fRoot+'{$gui->cancelUrl}';" />
   	</div>
   </form>
 </div>

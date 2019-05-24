@@ -5,12 +5,11 @@
  *
  * @filesource  object.class.php
  * @package     TestLink
- * @copyright   2007-2012, TestLink community 
- * @link        http://www.teamst.org/index.php
+ * @copyright   2007-2016, TestLink community 
+ * @link        http://www.testlink.org
  *
  * @internal revisions
- * @since 2.0
- *
+ * @since 1.9.15
  **/
  
 /** 
@@ -78,7 +77,18 @@ abstract class tlObject implements iSerialization
    *    value: table name WITH PREFIX
    * @see getDBTables() 
    */
-    protected $tables = null;
+  protected $tables = null;
+
+  /**
+   * @var array useful to manage DB where TL view names must have a prefix.
+   *    key: view name WITHOUT prefix
+   *    value: view name WITH PREFIX
+   * @see getDBViews()  
+   */
+  protected $views = null;
+
+  protected $auditCfg;
+
   
   /** class constructor */
   public function __construct()
@@ -86,10 +96,15 @@ abstract class tlObject implements iSerialization
     if (!isset($this->tables))
     {
       $this->tables = self::getDBTables();
+      $this->views = self::getDBViews();
     }
 
     $this->objectID = str_replace(".","",uniqid("", true));
-    
+  
+    $this->auditCfg = new stdClass();
+    $this->auditCfg->eventSource = 'GUI';
+    $this->auditCfg->logEnabled = true;
+  
     /*
       Any supported import/Export Serialization Interface must be prefixed with iSerializationTo 
       so we can automatically detected the interfaces
@@ -115,6 +130,30 @@ abstract class tlObject implements iSerialization
       }
     }
     $this->getSupportedSerializationFormatDescriptions();
+  }
+
+  /**
+   *
+   */ 
+  function setAuditLogOn()
+  {
+    $this->auditCfg->logEnabled = true;
+  }
+
+  /**
+   *
+   */ 
+  function setAuditLogOff()
+  {
+    $this->auditCfg->logEnabled = false;
+  }
+
+  /**
+   *
+   */ 
+  function setAuditEventSource($val)
+  {
+    $this->auditCfg->eventSource = $val;
   }
 
   /**
@@ -202,7 +241,6 @@ abstract class tlObject implements iSerialization
      * @param $tableNames array of tablenames, to get only some of the tables
    * @return map key=table name without prefix, value=table name on db
    *
-   * @since 20090615 - franciscom - fixed bug that render useless function when using $tableNames argument
     */
   static public function getDBTables($tableNames = null)
   {
@@ -210,6 +248,7 @@ abstract class tlObject implements iSerialization
                     'assignment_types' => DB_TABLE_PREFIX . 'assignment_types', 
                     'attachments' => DB_TABLE_PREFIX . 'attachments',
                     'builds' => DB_TABLE_PREFIX . 'builds',
+                    'cfield_build_design_values' => DB_TABLE_PREFIX . 'cfield_build_design_values',
                     'cfield_design_values' => DB_TABLE_PREFIX . 'cfield_design_values',
                     'cfield_execution_values' => DB_TABLE_PREFIX . 'cfield_execution_values',
                     'cfield_node_types' => DB_TABLE_PREFIX . 'cfield_node_types',
@@ -219,35 +258,45 @@ abstract class tlObject implements iSerialization
                     'db_version' => DB_TABLE_PREFIX . 'db_version',
                     'events' => DB_TABLE_PREFIX . 'events',
                     'execution_bugs' => DB_TABLE_PREFIX . 'execution_bugs',
+                    'execution_tcsteps' => DB_TABLE_PREFIX . 'execution_tcsteps',
                     'executions' => DB_TABLE_PREFIX . 'executions',
                     'inventory' => DB_TABLE_PREFIX . 'inventory',
                     'issuetrackers' => DB_TABLE_PREFIX . 'issuetrackers',
+                    'testproject_issuetracker' => DB_TABLE_PREFIX . 'testproject_issuetracker',
+                    'codetrackers' => DB_TABLE_PREFIX . 'codetrackers',
+                    'testproject_codetracker' => DB_TABLE_PREFIX . 'testproject_codetracker',
                     'keywords' => DB_TABLE_PREFIX . 'keywords',
                     'milestones' => DB_TABLE_PREFIX . 'milestones',
                     'node_types' => DB_TABLE_PREFIX . 'node_types',
                     'nodes_hierarchy' => DB_TABLE_PREFIX . 'nodes_hierarchy',
                     'object_keywords' => DB_TABLE_PREFIX . 'object_keywords',
                     'platforms' => DB_TABLE_PREFIX . 'platforms',
+                    'plugins' => DB_TABLE_PREFIX . 'plugins',
+                    'plugins_configuration' => DB_TABLE_PREFIX . 'plugins_configuration', 
                     'req_coverage' => DB_TABLE_PREFIX . 'req_coverage',
                     'req_relations' => DB_TABLE_PREFIX . 'req_relations',
                     'req_specs' => DB_TABLE_PREFIX . 'req_specs',
                     'req_specs_revisions' => DB_TABLE_PREFIX . 'req_specs_revisions',
-                    'req_suites' => DB_TABLE_PREFIX . 'req_suites',
+                    'reqmgrsystems' => DB_TABLE_PREFIX . 'reqmgrsystems',
+                    'testproject_reqmgrsystem' => DB_TABLE_PREFIX . 'testproject_reqmgrsystem',
                     'requirements' => DB_TABLE_PREFIX . 'requirements',
                     'req_versions' => DB_TABLE_PREFIX . 'req_versions',
                     'req_revisions' => DB_TABLE_PREFIX . 'req_revisions',
+                    'req_notify_assignments' => DB_TABLE_PREFIX . 'req_notify_assignments',
+                    'req_monitor' => DB_TABLE_PREFIX . 'req_monitor',
                     'rights' => DB_TABLE_PREFIX . 'rights',
                     'risk_assignments' => DB_TABLE_PREFIX . 'risk_assignments',
                     'role_rights' => DB_TABLE_PREFIX . 'role_rights',
                     'roles' => DB_TABLE_PREFIX . 'roles',
+                    'testcase_relations' => DB_TABLE_PREFIX . 'testcase_relations',
                     'tcversions' => DB_TABLE_PREFIX . 'tcversions',
                     'tcsteps' => DB_TABLE_PREFIX . 'tcsteps',
                     'testcase_keywords' => DB_TABLE_PREFIX . 'testcase_keywords',
                     'testplan_platforms' => DB_TABLE_PREFIX . 'testplan_platforms',
+                    'testcase_script_links' => DB_TABLE_PREFIX . 'testcase_script_links',
                     'testplan_tcversions' => DB_TABLE_PREFIX . 'testplan_tcversions',
                     'testplans' => DB_TABLE_PREFIX . 'testplans',
                     'testprojects' => DB_TABLE_PREFIX . 'testprojects',
-                    'testproject_issuetracker' => DB_TABLE_PREFIX . 'testproject_issuetracker',
                     'testsuites' => DB_TABLE_PREFIX . 'testsuites',
                     'text_templates' => DB_TABLE_PREFIX . 'text_templates',
                     'transactions' => DB_TABLE_PREFIX . 'transactions',
@@ -256,7 +305,7 @@ abstract class tlObject implements iSerialization
                     'user_group_assign' => DB_TABLE_PREFIX . 'user_group_assign',
                     'user_testplan_roles' => DB_TABLE_PREFIX . 'user_testplan_roles',
                     'user_testproject_roles' => DB_TABLE_PREFIX . 'user_testproject_roles',
-                    'users' => DB_TABLE_PREFIX . 'users' ); 
+                    'users' => DB_TABLE_PREFIX . 'users'); 
 
     if ($tableNames != null)
     { 
@@ -266,11 +315,47 @@ abstract class tlObject implements iSerialization
       if (sizeof($tables) != sizeof($tableNames))
       {
         throw new Exception("Wrong table name(s) for getDBTables() detected!");
-      }  
+      } 
     }
+    
     return $tables;
   }
-}   
+
+  /**
+   *
+   */
+  static public function getDBViews($itemNames = null) {
+    $items = array('tcversions_last_active' => null,
+                   'tcversions_without_keywords' => null,
+                   'last_executions' => null,
+                   'last_executions_by_platforms' => null,
+                   'latest_tcase_version_number' => null,
+                   'latest_tcase_version_id' => null,
+                   'latest_req_version' => null,
+                   'latest_req_version_id' => null,
+                   'latest_rspec_revision' => null,); 
+    
+    foreach($items as $key => $value) {
+      $items[$key] = DB_TABLE_PREFIX . $key;
+    }
+
+
+
+    if ($itemNames != null) { 
+      $itemNames = (array)$itemNames;
+      $itemNames = array_flip($itemNames);      
+      $items = array_intersect_key($items,$itemNames);
+      if (sizeof($items) != sizeof($itemNames)) {
+        $msg = "Wrong view name(s) for " . __FUNCTION__ . " detected!";
+        throw new Exception($msg);
+      } 
+    }
+    
+    return $items;
+  }
+
+}
+
 
 /**
  * The base class for all managed TestLink objects which need a db connection
@@ -292,6 +377,12 @@ abstract class tlObjectWithDB extends tlObject
     tlObject::__construct();
     $this->db = &$db;
   }
+
+  function setDB(&$db)
+  {
+    $this->db = &$db;
+  }
+
 }
 
 /**
@@ -325,14 +416,15 @@ abstract class tlObjectWithAttachments extends tlObjectWithDB
    * gets all infos about the attachments of the object specified by $id
    *    
    * @param integer $id this is the fkid of the attachments table
-   * @return array returns map with the infos of the attachment, 
-   *         keys are the column names of the attachments table 
+     * @return array returns map with the infos of the attachment, 
+     *         keys are the column names of the attachments table 
    *
+   * @TODO schlundus: legacy function to keep existing code, should be replaced by a 
+   *                  function which returns objects 
    */
-  function getAttachmentInfos($id,$storeListInSession = true,$counter = 0)
+  function getAttachmentInfos($id)
   {
-    return $this->attachmentRepository->getAttachmentInfosFor($id,$this->attachmentTableName,
-                                                              $storeListInSession,$counter);
+    return $this->attachmentRepository->getAttachmentInfosFor($id,$this->attachmentTableName);
   }
   
   /**
@@ -359,26 +451,6 @@ abstract class tlObjectWithAttachments extends tlObjectWithDB
   {
     return $this->attachmentTableName;  
   }
-  
-  
-  function buildAttachSetup($id,$options = null)
-  {
-    $opt = array('show_mode' => null);
-    $opt = array_merge($opt,(array)$options);
-    
-    $systemWideCfg = config_get('attachments');
-    $info = $this->getAttachmentInfos($id);
-
-    $cfg = tlAttachment::getGuiCfg();  
-    $cfg->display = $systemWideCfg->enabled && !is_null($info);
-    $cfg->uploadEnabled = ($cfg->showUploadBtn && ($opt['show_mode'] != 'readonly'));
- 
-    $dummy = $this->attachmentRepository->checkRepositoryStatus();
-    $cfg->enabled = $dummy['enabled'];
-    return array($info,$cfg);
-  }
-  
-  
   
 }
 
@@ -460,15 +532,13 @@ abstract class tlDBObject extends tlObject implements iDBSerialization
    * 
    * @return the newly created object on success, or null else
    */
-  static public function createObjectFromDB(&$db,$id,$className,$options = self::TLOBJ_O_SEARCH_BY_ID,
-                                            $detailLevel = self::TLOBJ_O_GET_DETAIL_FULL)
-  {
-    if ($id)
-    {
+  static public function createObjectFromDB(&$db,$id,$className,
+                                            $options = self::TLOBJ_O_SEARCH_BY_ID,
+                                            $detailLevel = self::TLOBJ_O_GET_DETAIL_FULL) {
+    if ($id) {
       $item = new $className($id);
       $item->setDetailLevel($detailLevel);
-      if ($item->readFromDB($db,$options) >= tl::OK)
-      {
+      if ($item->readFromDB($db,$options) >= tl::OK) {
         return $item;
       } 
     }
@@ -553,21 +623,20 @@ abstract class tlDBObject extends tlObject implements iDBSerialization
                                              $detailLevel = self::TLOBJ_O_GET_DETAIL_FULL)
   {
     $items = null;
-    if (sizeof($ids))
-    { 
+    if (null != $ids && sizeof($ids)) { 
       $dummyItem = new $className();
       $query = $dummyItem->getReadFromDBQuery($ids,self::TLOBJ_O_SEARCH_BY_ID,$detailLevel);
       $result = $db->exec_query($query);
-      if ($result)
-      {
-        while($row = $db->fetch_array($result))
-        {
+      if ($result) {
+        while($row = $db->fetch_array($result)) {
           $item = new $className();
           $item->readFromDBRow($row);
-          if ($returnAsMap)
+          
+          if ($returnAsMap) {
             $items[$item->dbID] = $item;
-          else
+          } else {
             $items[] = $item;
+          }
         }
       }
     }   
@@ -583,10 +652,8 @@ abstract class tlDBObject extends tlObject implements iDBSerialization
    * 
    * @return integer result code
    */
-  static public function deleteObjectFromDB(&$db,$id,$className)
-  {
-    if ($id)
-    {
+  static public function deleteObjectFromDB(&$db,$id,$className) {
+    if ($id) {
       $item = new $className($id);
       return $item->deleteFromDB($db);
     }
@@ -598,10 +665,10 @@ abstract class tlDBObject extends tlObject implements iDBSerialization
    * 
    * @return integer returns always tl::OK
    */
-  protected function addToCache()
-  {
-    if ($this->activateCaching)
+  protected function addToCache() {
+    if ($this->activateCaching) {
       self::$objectCache[get_class($this)][$this->detailLevel][$this->dbID] = $this;
+    }
     return tl::OK; 
   }
   
@@ -610,10 +677,10 @@ abstract class tlDBObject extends tlObject implements iDBSerialization
    * 
    * @return integer returns always tl::OK
    */
-  protected function removeFromCache()
-  {
-    if ($this->activateCaching)
+  protected function removeFromCache() {
+    if ($this->activateCaching) {
       unset(self::$objectCache[get_class($this)][$this->detailLevel][$this->dbID]);
+    }
     return tl::OK;
   }
   
@@ -624,8 +691,7 @@ abstract class tlDBObject extends tlObject implements iDBSerialization
    * @param $object the object to read from
    * @return integer returns always tl::OK
    */
-  protected function copyFromCache($object)
-  {
+  protected function copyFromCache($object) {
     return tl::OK;
   }
   
@@ -633,16 +699,14 @@ abstract class tlDBObject extends tlObject implements iDBSerialization
    * @return integer returns tl::ERROR if caching is not activated or a cache miss happens
    *          else it returns the result of copyFromCache
    */
-  public function readFromCache()
-  {
-    if (!$this->activateCaching)
+  public function readFromCache() {
+    if (!$this->activateCaching) {
       return tl::ERROR;
+    }
 
-    if (isset(self::$objectCache[get_class($this)][$this->detailLevel][$this->dbID]))
-    {
+    if (isset(self::$objectCache[get_class($this)][$this->detailLevel][$this->dbID])) {
       $object = self::$objectCache[get_class($this)][$this->detailLevel][$this->dbID];
       return $this->copyFromCache($object);
-      
     }
     return tl::ERROR;
   }

@@ -1,13 +1,15 @@
 {*
 TestLink Open Source Project - http://testlink.sourceforge.net/
-@filesource	tcDelete.tpl
-Purpose: smarty template - delete test case in test specification
 
+delete test case in test specification
+
+@filesource	tcDelete.tpl
 @internal revisions
+20110529 - TICKET 4322: New Option to block delete of executed test cases.
 *}
 {lang_get var="labels"
           s='btn_yes_iw2del,btn_no,th_version,th_linked_to_tplan,title_delete_testcases,
-             th_executed,platform,btn_cancel,question_del_tc'}
+             th_executed,question_del_tc,platform,question_del_tc_version,btn_yes_iw2del_version'}
 {include file="inc_head.tpl"}
 
 <body>
@@ -37,25 +39,33 @@ Purpose: smarty template - delete test case in test specification
 	  			      {if $gui->display_platform}
 	  			        <td align="left">{$status.platform_name|escape}</td>
 	  			      {/if}
-	  				    <td style="width:4%;text-align:center;">{if $status.executed != ""}<img src="{$smarty.const.TL_THEME_IMG_DIR}/apply_f2_16.png" />{/if}</td>
+	  				    <td style="width:4%;text-align:center;">
+	  				    {if $status.executed != ""}<img src="{$tlImages.checked}" />{/if}</td>
 	  				  </tr>
 	  			  {/foreach}
 	  			{/foreach}
 	  		{/foreach}
 	      </table>
       	{$gui->delete_message}
-    {/if}
-
+      {/if}
+    
     {if $gui->delete_enabled}
-	  <form method="post" 
-	        action="lib/testcases/tcEdit.php?tproject_id={$gui->tproject_id}&testcase_id={$gui->testcase_id}&tcversion_id={$gui->tcversion_id}">
-	  	<input type="submit" id="do_delete" name="do_delete" value="{$labels.btn_yes_iw2del}" />
-	  	<input type="button" name="cancel_delete"
-	  	       onclick='javascript: location.href=fRoot+"lib/testcases/archiveData.php?tproject_id={$gui->tproject_id}&version_id=undefined&edit=testcase&id={$gui->testcase_id}";'
-	  	       value="{$labels.btn_cancel}" />
-	  </form>
+	  {if $gui->tcversion_id neq 0}
+		{$local_question=$labels.question_del_tc_version}
+		{$local_button=$labels.btn_yes_iw2del_version}
+	  {else}
+	    {$local_question=$labels.question_del_tc}
+		{$local_button=$labels.btn_yes_iw2del}
+	  {/if}
+	  <p>{$local_question}</p>
+		  <form method="post" 
+				action="{$basehref}lib/testcases/tcEdit.php?testcase_id={$gui->testcase_id}&tcversion_id={$gui->tcversion_id}">
+			<input type="submit" id="do_delete" name="do_delete" value="{$local_button}" />
+			<input type="button" name="cancel_delete"
+								 onclick="javascript:{$gui->cancelActionJS};" value="{$labels.btn_no}" />
+		  </form>	  
     {/if}
-  
+ 
   
   {else}
 	  {if $gui->exec_status_quo != ''}
@@ -81,17 +91,16 @@ Purpose: smarty template - delete test case in test specification
       	{$gui->delete_message}
     {/if}
     
-    {if $gui->delete_enabled}
+    {if $gui->delete_enabled} {* TICKET 4322 *}
 	  <p>{$labels.question_del_tc}</p>
 	  <form method="post" 
-	        action="lib/testcases/tcEdit.php?tproject_id={$gui->tproject_id}&testcase_id={$gui->testcase_id}&tcversion_id={$gui->tcversion_id}">
+	        action="{$basehref}lib/testcases/tcEdit.php?testcase_id={$gui->testcase_id}&tcversion_id={$gui->tcversion_id}">
 	  	<input type="submit" id="do_delete" name="do_delete" value="{$labels.btn_yes_iw2del}" />
 	  	<input type="button" name="cancel_delete"
-	  	       onclick='javascript: location.href=fRoot+"lib/testcases/archiveData.php?tproject_id={$gui->tproject_id}&version_id=undefined&edit=testcase&id={$gui->testcase_id}";'
-               value="{$labels.btn_no}" />
+	  	                     onclick='javascript: location.href=fRoot+"lib/testcases/archiveData.php?version_id=undefined&edit=testcase&id={$gui->testcase_id}";'
+	  	                     value="{$labels.btn_no}" />
 	  </form>
-    {/if}
-    
+  	{/if}
   {/if}	  
 {/if}
 </div>

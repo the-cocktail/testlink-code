@@ -1,19 +1,19 @@
 /*  
 TestLink Open Source Project - http://testlink.sourceforge.net/
-$Id: tl_ckeditor_config.js,v 1.12 2011/01/12 09:27:50 mx-julian Exp $
-
+@filesource: tl_ckeditor_config.js
 Configure CKEditor
 See: http://docs.cksource.com/ for more information
 
 List of all config parameters that can be set here can be found on:
-http://docs.cksource.com/ckeditor_api/symbols/CKEDITOR.config.html
+http://docs.cksource.com/Main_Page
 */
 
 CKEDITOR.editorConfig = function( config )
 {
 	// choose your prefered ckedtior skin
-	// available skins: kama, office2003, v2
-	config.skin = 'office2003';
+	// available skins for version 4.x: moono-lisa => default
+	// For skins present on version 3.x => http://ckeditor.com/addons/skins/all
+	config.skin = 'moonocolor';
 	
 	// set css of ckeditor content to testlink.css
 	config.contentsCss = 'gui/themes/default/css/testlink.css';
@@ -35,7 +35,7 @@ CKEDITOR.editorConfig = function( config )
 		  'Link','Image','Anchor','SpecialChar']
 	];
 	
-	// mini Toolbar - BUGID 4163
+	// mini Toolbar
 	config.toolbar_TestlinkMini = 
 	[
 		['NumberedList','BulletedList','-',
@@ -79,4 +79,4 @@ CKEDITOR.editorConfig = function( config )
 	//config.filebrowserUploadUrl = '/third_party/ckfinder/core/connector/php/connector.php?command=QuickUpload&type=Files';
 	//config.filebrowserImageUploadUrl = '/third_party/ckfinder/core/connector/php/connector.php?command=QuickUpload&type=Images';
 	//config.filebrowserFlashUploadUrl = '/third_party/ckfinder/core/connector/php/connector.php?command=QuickUpload&type=Flash';
-};
+}

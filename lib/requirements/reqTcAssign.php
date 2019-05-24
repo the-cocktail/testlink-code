@@ -2,142 +2,134 @@
 /** 
  * TestLink Open Source Project - http://testlink.sourceforge.net/
  *  
- * @filesource	reqTcAssign.php
- * @author 		Martin Havlat
- *
- * @internal revisions
- * 20110401 - franciscom - BUGID 3615 - right to allow ONLY MANAGEMENT of requirements link to testcases
- * 20100602 - franciscom - BUGID 3495 - Requirements Bulk Assignment crash. (typo error)
- * 20100408 - franciscom - BUGID 3361 - FatalError after trying to assign requirements to an empty test suite
+ * @filesource  reqTcAssign.php
  *
 **/
 require_once("../../config.inc.php");
 require_once("common.php");
 require_once('requirements.inc.php');
-testlinkInitPage($db);
+testlinkInitPage($db,false,false,"checkRights");
 
 $templateCfg = templateConfiguration();
 $args = init_args();
-checkRights($db,$_SESSION['currentUser'],$args);
-
-$gui = new stdClass();
-$gui->showCloseButton = $args->showCloseButton;
-$gui->user_feedback = '';
-$gui->tcTitle = null;
-$gui->arrAssignedReq = null;
-$gui->arrUnassignedReq = null;
-$gui->arrReqSpec = null;
-$gui->selectedReqSpec = $args->idReqSpec;
+$gui = initializeGui($db,$args);
 
 $bulkCounter = 0;
 $bulkDone = false;
 $bulkMsg = null;
 $pfn = null;
-switch($args->doAction)
-{
+
+switch($args->doAction) {
     case 'assign':
-	    $pfn = "assign_to_tcase";
-	    break;  
+      $pfn = "assign_to_tcase";
+    break;  
 
     case 'unassign':
-	    $pfn = "unassign_from_tcase";
-	    break;  
+      $pfn = "delReqVersionTCVersionLinkByID";
+    break;  
 
     case 'bulkassign':
-    	// BUGID 3361 - need to check if we have test cases to work on
-       	// BUGID 3495 - Requirements Bulk Assignment crash. (typo error) (dbHandler -> db)
-       	$tsuite_mgr = new testsuite($db);
-        $tcase_set = $tsuite_mgr->get_testcases_deep($args->id,'only_id');
-		$bulkCounter = 0;
-      	$bulkDone = true;
-      	$args->edit = 'testsuite';
-		if( !is_null($tcase_set) && count($tcase_set) > 0 )
-		{
-      		$bulkCounter = doBulkAssignment($db,$args,$tcase_set);
-      	}
-	    break;  
+      // need to check if we have test cases to work on
+      $tcase_set = getTargetTestCases($db,$args);
+      $bulkCounter = 0;
+      $bulkDone = true;
+      $args->edit = 'testsuite';
+      if( !is_null($tcase_set) && count($tcase_set) > 0 ) {
+        $bulkCounter = doBulkAssignment($db,$args,$tcase_set);
+      }
+    break;  
 
     case 'switchspec':
-      	$args->edit = 'testsuite';
-	    break;  
+      $args->edit = 'testsuite';
+    break;  
 }
 
-if(!is_null($pfn))
-{
-    $gui = doSingleTestCaseOperation($db,$args,$gui,$pfn);
+if(!is_null($pfn)) {
+  $gui = doSingleTestCaseOperation($db,$args,$gui,$pfn);
 }
 
-switch($args->edit)
-{
-    case 'testproject':
-	    show_instructions('assignReqs');
-	    exit();
-    break;
+switch($args->edit) {
+  case 'testproject':
+    show_instructions('assignReqs');
+    exit();
+  break;
     
-    case 'testsuite':
-         $gui = processTestSuite($db,$args,$gui);
-         $templateCfg->default_template = 'reqTcBulkAssignment.tpl';
-         if($bulkDone)
-         {
-             $gui->user_feedback = sprintf(lang_get('bulk_assigment_done'),$bulkCounter); 
-         }    
-    break;
+  case 'testsuite':
+    $gui = processTestSuite($db,$args,$gui);
+    $templateCfg->default_template = 'reqTcBulkAssignment.tpl';
+    if($bulkDone) {
+      $gui->user_feedback = sprintf(lang_get('bulk_assigment_done'),$bulkCounter); 
+    }    
+  break;
       
-   	case 'testcase':
-        $gui = processTestCase($db,$args,$gui);
-   	break;
+  case 'testcase':
+    $gui = processTestCase($db,$args,$gui);
+  break;
   
-	default:
-		tlog("Wrong GET/POST arguments.", 'ERROR');
-		exit();
-	break;
+  default:
+    tlog("Wrong GET/POST arguments.", 'ERROR');
+    exit();
+  break;
 }
 
+$tpl = $templateCfg->template_dir . $templateCfg->default_template;
 $smarty = new TLSmarty();
 $smarty->assign('gui', $gui);
-$smarty->assign('modify_req_rights', $args->user->hasRights($db,"mgt_modify_req",$args->tproject_id)); 
-$smarty->display($templateCfg->template_dir . $templateCfg->default_template);
+$smarty->display($tpl);
 
 
-function init_args()
-{
-	// take care of proper escaping when magic_quotes_gpc is enabled
-	$_REQUEST=strings_stripSlashes($_REQUEST);
+/**
+ *
+ */
+function init_args() {
+  $iParams = array("id" => array(tlInputParameter::INT_N),
+                   "req_id" => array(tlInputParameter::ARRAY_INT),
+                   "link_id" => array(tlInputParameter::ARRAY_INT),
 
-	$iParams = array("id" => array(tlInputParameter::INT_N),
-			         "req_id" => array(tlInputParameter::ARRAY_INT),
-			         "req" => array(tlInputParameter::INT_N),
-			         "showCloseButton" => array(tlInputParameter::STRING_N,0,1),
-			         "doAction" => array(tlInputParameter::STRING_N,0,100),
-			         "edit" => array(tlInputParameter::STRING_N,0,100),
-			         "unassign" => array(tlInputParameter::STRING_N,0,1),
-			         "assign" => array(tlInputParameter::STRING_N,0,1),
-			         "idSRS" => array(tlInputParameter::INT_N),
-			         "tproject_id" => array(tlInputParameter::INT_N) );	
-		
-	$args = new stdClass();
-	R_PARAMS($iParams,$args);
+                   "req" => array(tlInputParameter::INT_N),
+                   "showCloseButton" => array(tlInputParameter::STRING_N,0,1),
+                   "doAction" => array(tlInputParameter::STRING_N,0,100),
+                   "edit" => array(tlInputParameter::STRING_N,0,100),
+                   "unassign" => array(tlInputParameter::STRING_N,0,1),
+                   "assign" => array(tlInputParameter::STRING_N,0,1),
+                   "form_token" => array(tlInputParameter::INT_N),
+                   "callback" => array(tlInputParameter::STRING_N,0,1),
+                   "idSRS" => array(tlInputParameter::INT_N));  
+    
+  $args = new stdClass();
+  R_PARAMS($iParams,$args);
 
-
-	$args->idReqSpec = null;
+  // take care of proper escaping when magic_quotes_gpc is enabled
+  $_REQUEST = strings_stripSlashes($_REQUEST);
+  
+  $args->idReqSpec = null;
   $args->idReq = $args->req;
   $args->reqIdSet = $args->req_id;
-  if(is_null($args->doAction))
-  {
-  	$args->doAction = ($args->unassign != "") ? "unassign" : null;
-  }
-  if(is_null($args->doAction))
-  {
-      $args->doAction = ($args->assign != "") ? "assign" : null;
+  $args->tproject_id = isset($_SESSION['testprojectID']) ? intval($_SESSION['testprojectID']) : 0;
+
+  $args->tcaseSet = null;
+  if(isset($_SESSION['edit_mode'][$args->form_token]['testcases_to_show'])) {
+    $args->tcaseSet = $_SESSION['edit_mode'][$args->form_token]['testcases_to_show'];
+  }  
+
+  if(is_null($args->doAction)) {
+    $args->doAction = ($args->unassign != "") ? "unassign" : null;
   }
 
-	// using session creates issue when using TABBED BROWSING => has to be avoided
-	if ($args->idSRS)
-	{
-	  	$args->idReqSpec = $args->idSRS;
-	}
+  if(is_null($args->doAction)){
+    $args->doAction = ($args->assign != "") ? "assign" : null;
+  }
 
-  $args->user = $_SESSION['currentUser'];	
+  if ($args->idSRS) {
+    $args->idReqSpec = $args->idSRS;
+    $_SESSION['currentSrsId'] = $args->idReqSpec;
+  }
+  else if(isset($_SESSION['currentSrsId']) && intval($_SESSION['currentSrsId']) > 0) {
+    $args->idReqSpec = intval($_SESSION['currentSrsId']);
+  }
+
+  
+  $args->user = $_SESSION['currentUser'];
   return $args;
 }
 
@@ -145,46 +137,56 @@ function init_args()
  * 
  *
  */
-function processTestSuite(&$dbHandler,&$argsObj,&$guiObj)
-{
-    $tproject_mgr = new testproject($dbHandler);
+function processTestSuite(&$dbHandler,&$argsObj,&$guiObj) {
+  $tproject_mgr = new testproject($dbHandler);
 
-    $guiObj->bulkassign_warning_msg = '';
-    $guiObj->tsuite_id = $argsObj->id;
+  $guiObj->bulkassign_warning_msg = '';
+  $guiObj->tsuite_id = $argsObj->id;
     
-    $tsuite_info = $tproject_mgr->tree_manager->get_node_hierarchy_info($guiObj->tsuite_id);
-    $guiObj->pageTitle = lang_get('test_suite') . config_get('gui_title_separator_1') . $tsuite_info['name'];
+  $tsuite_info = $tproject_mgr->tree_manager->get_node_hierarchy_info($guiObj->tsuite_id);
+  $guiObj->pageTitle = lang_get('test_suite') . config_get('gui_title_separator_1') . $tsuite_info['name'];
      
-	$guiObj->req_specs = $tproject_mgr->getOptionReqSpec($argsObj->tproject_id,testproject::GET_NOT_EMPTY_REQSPEC);
-    $guiObj->selectedReqSpec = $argsObj->idReqSpec;
-    $guiObj->tcase_number = 0;
-    $guiObj->has_req_spec = false;
-    $guiObj->tsuite_id = $argsObj->id;
-    if(!is_null($guiObj->req_specs) && count($guiObj->req_specs))
-    {  
-		$guiObj->has_req_spec = true;
+  $guiObj->req_specs = $tproject_mgr->genComboReqSpec($argsObj->tproject_id,'dotted',"&nbsp;");
+  
+  $guiObj->selectedReqSpec = $argsObj->idReqSpec;
+  $guiObj->selectedReqSpecName = '';
+
+  $guiObj->tcase_number = 0;
+  $guiObj->has_req_spec = false;
+
+  if(!is_null($guiObj->req_specs) && count($guiObj->req_specs)) {  
+    $guiObj->has_req_spec = true;
        
-       	if(is_null($argsObj->idReqSpec))
-       	{
-			$guiObj->selectedReqSpec = key($guiObj->req_specs);
-       	}
-       
-       	$req_spec_mgr = new requirement_spec_mgr($dbHandler);
-       	$guiObj->requirements =$req_spec_mgr->get_requirements($guiObj->selectedReqSpec);
-       	
-       	$tsuite_mgr = new testsuite($dbHandler);
-       	$tcase_set = $tsuite_mgr->get_testcases_deep($argsObj->id,'only_id');
-       	$guiObj->tcase_number = count($tcase_set);    
-       	if( $guiObj->tcase_number > 0 )
-       	{
-			$guiObj->bulkassign_warning_msg = sprintf(lang_get('bulk_req_assign_msg'),$guiObj->tcase_number);
-		}
-		else
-		{
-			$guiObj->bulkassign_warning_msg = lang_get('bulk_req_assign_no_test_cases');
-		}	
+    if(is_null($argsObj->idReqSpec)) {
+      $guiObj->selectedReqSpec = key($guiObj->req_specs);
     }
-    return $guiObj;
+    $guiObj->selectedReqSpecName = 
+      trim($guiObj->req_specs[$guiObj->selectedReqSpec],'&nbsp;');
+
+    $req_spec_mgr = new requirement_spec_mgr($dbHandler);
+       
+    $getOpt = array('output' => 'array');   
+    $guiObj->requirements = 
+      $req_spec_mgr->getAllLatestRQVOnReqSpec($guiObj->selectedReqSpec,$getOpt);
+
+    $guiObj->reqCountOnReqSpec = count((array)$guiObj->requirements);
+
+    $guiObj->reqCountFeedback = 
+      sprintf(lang_get('req_on_req_spec'),$guiObj->reqCountOnReqSpec,
+              $guiObj->selectedReqSpecName);
+
+
+    $tcase_set = getTargetTestCases($dbHandler,$argsObj);
+    $guiObj->tcase_number = count($tcase_set);            
+    if( $guiObj->tcase_number > 0 ) {
+      $guiObj->bulkassign_warning_msg = 
+        sprintf(lang_get('bulk_req_assign_msg'),$guiObj->tcase_number,$tsuite_info['name']);
+    } else {
+      $guiObj->bulkassign_warning_msg = 
+        lang_get('bulk_req_assign_no_test_cases');
+    } 
+  }
+  return $guiObj;
 }
 
 /**
@@ -193,91 +195,111 @@ function processTestSuite(&$dbHandler,&$argsObj,&$guiObj)
  */
 function doBulkAssignment(&$dbHandler,&$argsObj,$targetTestCaseSet = null)
 {
-	$req_mgr = new requirement_mgr($dbHandler);
-    $assignmentCounter = 0;
-	$requirements = array_keys($argsObj->reqIdSet);
-    if(!is_null($requirements) && count($requirements) > 0)
+  $req_mgr = new requirement_mgr($dbHandler);
+  $assignmentCounter = 0;
+  $requirements = array_keys($argsObj->reqIdSet);
+  if(!is_null($requirements) && count($requirements) > 0)
+  {
+    $tcase_set = $targetTestCaseSet;
+    if( is_null($tcase_set) )
     {
-		$tcase_set = $targetTestCaseSet;
-    	if( is_null($tcase_set) )
-    	{
-        	$tsuite_mgr = new testsuite($dbHandler);
-        	echo 'DEBUG BEFORE';
-        	$tcase_set = $tsuite_mgr->get_testcases_deep($argsObj->id,'only_id');
-   		}
-   		if( !is_null($tcase_set) && count($tcase_set) )
-   		{
-        	$assignmentCounter = $req_mgr->bulk_assignment($requirements,$tcase_set);
-        }
+      $tsuite_mgr = new testsuite($dbHandler);
+      $tcase_set = $tsuite_mgr->get_testcases_deep($argsObj->id,'only_id');
+    }
 
-    } 
-    return $assignmentCounter;
+    if( !is_null($tcase_set) && count($tcase_set) )
+    {
+      // $assignmentCounter = $req_mgr->bulk_assignment($requirements,$tcase_set,$argsObj->user->dbID);
+
+      $assignmentCounter = 
+        $req_mgr->bulkAssignLatestREQVTCV($requirements,$tcase_set,$argsObj->user->dbID);
+
+    }
+
+  } 
+  return $assignmentCounter;
 }
 
-function doSingleTestCaseOperation(&$dbHandler,&$argsObj,&$guiObj,$pfn)
-{
-	$msg = '';
-	$req_ids = array_keys($argsObj->reqIdSet);
-	if (count($req_ids))
-	{
-    	$req_mgr = new requirement_mgr($dbHandler);
-		foreach ($req_ids as $idOneReq)
-		{
-			$result = $req_mgr->$pfn($idOneReq,$argsObj->id);
+/**
+ *
+ */
+function doSingleTestCaseOperation(&$dbHandler,&$argsObj,&$guiObj,$pfn) {
+  $msg = '';
 
-			if (!$result)
-			{
-				$msg .= $idOneReq . ', ';
-			}	
-		}
-		if (!empty($msg))
-		{
-			$guiObj->user_feedback = lang_get('req_msg_notupdated_coverage') . $msg;
-		}	
-	}
-	else
-	{
-		$guiObj->user_feedback = lang_get('req_msg_noselect');
-  	}
-	return $guiObj;
+  switch($pfn) {
+    case 'assign_to_tcase':
+      $items = array_keys($argsObj->reqIdSet);
+    break;
+
+    case 'delReqVersionTCVersionLinkByID':
+      $items = array_keys($argsObj->link_id);
+    break;
+  }
+
+  if( count($items) == 0 ) {
+    $guiObj->user_feedback = lang_get('req_msg_noselect');
+    return $guiObj;
+  }
+  
+  $req_mgr = new requirement_mgr($dbHandler);
+
+
+  switch($pfn) {
+    case 'assign_to_tcase':
+      foreach ($items as $idOneReq) {
+        $res = $req_mgr->$pfn($idOneReq,$argsObj->id,$argsObj->user->dbID);
+        if (!$res) {
+          $msg .= $idOneReq . ', ';
+        } 
+      }
+      if (!empty($msg)) {
+        $guiObj->user_feedback = lang_get('req_msg_notupdated_coverage') . $msg;
+      } 
+    break;
+
+    case 'delReqVersionTCVersionLinkByID':
+      foreach ($items as $idLink) {
+        $res = $req_mgr->$pfn($idLink);
+        if (!$res) {
+          $msg .= $idOneReq . ', ';
+        } 
+      }
+      if (!empty($msg)) {
+        $guiObj->user_feedback = lang_get('req_msg_notupdated_coverage') . $msg;
+      } 
+    break;
+  }
+
+  return $guiObj;
 } 
 
 
-/** @todo should be refactored; used by function processTestCase only */
-// Old comment: MHT: I'm not able find a simple SQL (subquery is not supported
-// in MySQL 4.0.x); probably temporary table should be used instead of the next
-function array_diff_byId ($arrAll, $arrPart)
-{
-	// solve empty arrays
-	if (!count($arrAll) || is_null($arrAll))
-	{
-		return(null);
-	}
-	if (!count($arrPart) || is_null($arrPart))
-	{
-		return $arrAll;
-	}
+/**
+ *
+ *
+ */
+function array_diff_byId($arrAll, $arrPart) {
 
-	$arrTemp = array();
-	$arrTemp2 = array();
+  if (is_null($arrAll) || !count($arrAll)) {
+    return null;
+  }
 
-	// converts to associated arrays
-	foreach ($arrAll as $penny) {
-		$arrTemp[$penny['id']] = $penny;
-	}
-	foreach ($arrPart as $penny) {
-		$arrTemp2[$penny['id']] = $penny;
-	}
+  if (is_null($arrPart) || !count($arrPart)) {
+    return $arrAll;
+  }
 
-	// exec diff
-	$arrTemp3 = array_diff_assoc($arrTemp, $arrTemp2);
+  $arrTempAll = array();
+  foreach ($arrAll as $penny) {
+    $highLander[$penny['id']] = $penny;
+  }
 
-	$arrTemp4 = null;
-	// convert to numbered array
-	foreach ($arrTemp3 as $penny) {
-		$arrTemp4[] = $penny;
-	}
-	return $arrTemp4;
+  foreach ($arrPart as $penny) {
+    if(isset($highLander[$penny['id']])) {
+      unset($highLander[$penny['id']]);
+    }  
+  }
+
+  return array_values($highLander);
 }
 
 
@@ -285,49 +307,90 @@ function array_diff_byId ($arrAll, $arrPart)
  * processTestCase
  *
  */
-function processTestCase(&$dbHandler,&$argsObj,&$guiObj)
-{
-   	$tproject_mgr = new testproject($dbHandler);
-	// $guiObj->arrReqSpec = $tproject_mgr->getOptionReqSpec($argsObj->tproject_id,testproject::GET_NOT_EMPTY_REQSPEC);
-    
-    $guiObj->arrReqSpec = $tproject_mgr->genComboReqSpec($argsObj->tproject_id);
-	$SRS_qty = count($guiObj->arrReqSpec);
+function processTestCase(&$dbHandler,&$argsObj,&$guiObj) {
+  $tproject_mgr = new testproject($dbHandler);
+  $guiObj->arrReqSpec = $tproject_mgr->genComboReqSpec($argsObj->tproject_id,'dotted',"&nbsp;");
+  $SRS_qty = count($guiObj->arrReqSpec);
   
-	if($SRS_qty > 0)
-	{
-		$tc_mgr = new testcase($dbHandler);
-	   	$arrTc = $tc_mgr->get_by_id($argsObj->id);
-	   	if($arrTc)
-	   	{
-	   		$guiObj->tcTitle = $arrTc[0]['name'];
-	   	
-	   		// get first ReqSpec if not defined
-	   		if(is_null($argsObj->idReqSpec))
-	   		{
-	   			reset($guiObj->arrReqSpec);
-	   			$argsObj->idReqSpec = key($guiObj->arrReqSpec);
-	   		}
+  if($SRS_qty > 0) {
+    $tc_mgr = new testcase($dbHandler);
+    $tcase = $tc_mgr->get_by_id($argsObj->id,testcase::LATEST_VERSION);
+    $tcase = current($tcase);
+    if($tcase) {
+      $guiObj->tcTitle = $tcase['name'];
+      $guiObj->tcVersion = $tcase['version'];
 
-	   		if($argsObj->idReqSpec)
-	   		{
-	   		  	$req_spec_mgr = new requirement_spec_mgr($dbHandler);
-	   			$guiObj->arrAssignedReq = $req_spec_mgr->get_requirements($argsObj->idReqSpec, 'assigned', $argsObj->id);
-	   			$guiObj->arrAllReq = $req_spec_mgr->get_requirements($argsObj->idReqSpec);
-	   			$guiObj->arrUnassignedReq = array_diff_byId($guiObj->arrAllReq, $guiObj->arrAssignedReq);
-	   		}
-	   	}
-	 } 
-	 return $guiObj;
+      // get test case version execution status
+      $tcversion_id = $tcase['id'];
+      $statusQuo = $tc_mgr->get_versions_status_quo($argsObj->id,$tcversion_id);
+
+      $statusQuo = current($statusQuo);
+      $guiObj->tcaseHasBeenExecuted = (intval($statusQuo['executed']) > 0);
+
+      // get first ReqSpec if not defined
+      if(is_null($argsObj->idReqSpec)) {
+        reset($guiObj->arrReqSpec);
+        $argsObj->idReqSpec = key($guiObj->arrReqSpec);
+      }
+
+      if($argsObj->idReqSpec) {
+        $req_spec_mgr = new requirement_spec_mgr($dbHandler);
+        $fx = array('link_status' => array(LINK_TC_REQ_OPEN,LINK_TC_REQ_CLOSED_BY_EXEC));
+        $theAssigned = $req_spec_mgr->getReqsOnSpecForLatestTCV($argsObj->idReqSpec,$argsObj->id,null,$fx);
+
+        $guiObj->assignedReq = $theAssigned;
+        $guiObj->allReq = $req_spec_mgr->get_requirements($argsObj->idReqSpec);
+
+        $guiObj->unassignedReq = array_diff_byId($guiObj->allReq, $guiObj->assignedReq);
+      }
+    }
+  } 
+  return $guiObj;
+}
+
+/**
+ *
+ */
+function initializeGui(&$dbH,$argsObj) { 
+  $guiObj = new stdClass();
+  $guiObj->user_feedback = '';
+  $guiObj->tcTitle = $guiObj->assignedReq = null;
+  $guiObj->unassignedReq = $guiObj->arrReqSpec = null;
+  
+  $guiObj->showCloseButton = $argsObj->showCloseButton;
+  $guiObj->selectedReqSpec = $argsObj->idReqSpec;
+  $guiObj->form_token = $argsObj->form_token;
+
+  $guiObj->tcase_id = $argsObj->id;
+  $guiObj->callback = $argsObj->callback;
+  
+  $reqCfg = getWebEditorCfg('requirement');
+  $guiObj->reqEditorType = $reqCfg['type'];
+  $reqCfg = getWebEditorCfg('requirement_spec');
+  $guiObj->reqSpecEditorType = $reqCfg['type'];
+
+  $guiObj->req_tcase_link_management = 
+    $argsObj->user->hasRight($dbH,'req_tcase_link_management');
+
+  return $guiObj;
+}
+
+/**
+ *
+ */
+function getTargetTestCases(&$dbHandler,&$argsObj) {
+  $mgr = new testsuite($dbHandler);
+  $items = $mgr->get_testcases_deep($argsObj->id,'only_id');
+  
+  if(!is_null($argsObj->tcaseSet)) {  
+    $rr = array_intersect($items,$argsObj->tcaseSet);
+    $items = $rr;
+  }
+
+  return $items;
 }
 
 
-/**                                                                                        
- * checkRights                                                                             ?>
- *                                                                                         
- */                                                                                        
-function checkRights(&$db,&$userObj,$argsObj)                                              
-{                                                                                          
-	$env['tproject_id'] = isset($argsObj->tproject_id) ? $argsObj->tproject_id : 0;        
-	$env['tplan_id'] = isset($argsObj->tplan_id) ? $argsObj->tplan_id : 0;                 
-	checkSecurityClearance($db,$userObj,$env,array('mgt_view_req','req_tcase_link_management','mgt_modify_req'),'and');
-}                                                                                          
+function checkRights(&$db,&$user) {
+  return ($user->hasRight($db,'req_tcase_link_management'));
+}

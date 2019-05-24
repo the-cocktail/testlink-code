@@ -3,7 +3,7 @@
  * ♔ TestLink Open Source Project - http://testlink.sourceforge.net/ 
  * This script is distributed under the GNU General Public License 2 or later. 
  * 
- * Localisation: English (en_GB) texts - default development localisation (World-wide English)
+ * Localization: English (en_GB) texts - default development localization (World-wide English)
  *
  * 
  * The file contains global variables with html text. These variables are used as 
@@ -11,7 +11,7 @@
  * prefix '$TLS_hlp_' or '$TLS_txt_'. This must be a reserved prefix.
  * 
  * Contributors howto:
- * Add your localisation to TestLink tracker as attachment to update the next release
+ * Add your localization to TestLink tracker as attachment to update the next release
  * for your language.
  *
  * No revision is stored for the the file - see CVS history
@@ -20,321 +20,243 @@
  * @package 	TestLink
  * @author 		Martin Havlat
  * @copyright 	2003-2009, TestLink community 
- * @version    	CVS: $Id: description.php,v 1.17 2010/09/13 09:52:42 mx-julian Exp $
+ * @version    	CVS: $Id: description.php,v 1.2 2010/06/24 17:25:53 asimon83 Exp $
  * @link 		http://www.teamst.org/index.php
  *
  * @internal Revisions:
  * 20100409 - eloff - BUGID 3050 - Update execution help text
  **/
 
-// LET OP: om consistente vertalingen te bewerkstelligen, maak gebruik van de standaard
-// woordvertalingen (inclusief hoofdlettergebruik) die bovenaan het bestand  nl_NL/strings.txt 
-// zijn aangegeven.
-
 
 // printFilter.html
 $TLS_hlp_generateDocOptions = "<h2>Opties voor een gegenereerd document</h2>
 
-<p>Met deze tabel kan de gebruiker Testgevallen filteren voordat ze worden getoond.
-Als aangevinkt wordt de data getoond. Om de getoonde gegevens te wijzigen, de item
-aan- of uitvinken, klik op 'Filter' en selecteer het gewenste dataniveau van de
-boomstructuur.</p>
+<p>In deze tabel kan de gebruiker testcases filteren voordat ze worden bekeken. 
+Geselecteerde (aangevinkte) gegevens zullen worden getoond. Om de voorgestelde gegevens te wijzigen,
+, vink aan of uit, klikt u op Filter, en selecteer het gewenste data
+niveau van de boom.</p>
 
-<p><b>Document kop:</b> Gebruikers kunnen documentkop informatie filteren, waaronder
-Inleiding, Scope, Verwijzingen, Test Methodologie, Test Beperkingen.</p>
+<p><b>Document Hoofding:</b> Gebruikers kunnen informatie in de hoofding filteren. 
+Document hoofding informatie omvat: inleiding, bereik, referenties, 
+testmethodologie en test beperkingen.</p>
 
-<p><b>Testgeval:</b> Gebruikers kunnen Testgeval informatie filteren, waaronder
-Samenvatting, Stappen, Verwachte resultaten en Steekwoorden.</p>
+<p><b>Testcase Body:</b> Gebruikers kunnen testcase body informatie filteren. Testcase Body informatie
+bestaat uit: samenvatting, stappen, verwachte resultaten en sleutelwoorden </p>
 
-<p><b>Testgeval Samenvatting:</b> Gebruikers kunnen Testgeval samenvatting informatie
-filteren voor de Testgeval Titel, maar niet voor de Testgeval Body. Testgeval Titel
-is alleen gedeeltelijk gescheiden van Testgeval Body om het mogelijk te maken om
-Titels te bekijken met een beknopte samenvatting. Als een gebruiker de Testgeval Body 
-wil bekijken, de samenvatting zit er altijd bij.</p>
+<p><b>Testcase samenvatting:</b> Gebruikers kunnen testcase samenvattingen filteren van de testcase titel,
+ze kunnen echter geen informatie uit de testcase samenvatting testcase
+body. Testcase samenvatting is slechts gedeeltelijk gescheiden van testcase
+body ter ondersteuning van het bekijken van de titels met een korte samenvatting en het ontbreken van
+stappen, verwachte resultaten en trefwoorden. Als een gebruiker besluit om een testcase body te bekijken
+, zal de tescase samenvatting altijd worden opgenomen. </p>
 
-<p><b>Inhoudsopgave:</b> TestLink neemt een lijst titles op met hyperlinks.</p>
+<p><b>Inhoudsopgave:</b> TestLink voegt een overzicht toe van alle geselecteerde titels met interne hyperlinks</p>
 
-<p><b>Output formaat:</b> Er zijn twee opties: HTML en MS Word. In het tweede geval roept de browser het MSWord component 
-aan.</p>";
+<p><b>Uitvoerformaat:</b> Er zijn twee mogelijkheden: HTML en MS Word. Browser roept MS Word component aan 
+in het tweede geval.</p>";
 
 // testPlan.html
 $TLS_hlp_testPlan = "<h2>Testplan</h2>
 
 <h3>Algemeen</h3>
-<p>Een Testplan is een systematisch aanpak voor het testen van een systeem, bijvoorbeeld software.
-Men kan testwerkzaamheden voor een Testplan organiseren met Builds (versies van een product op verschillende
-momenten), en men kan de resultaten vastleggen en volgen.</p>
- 
-<h3>Test Uitvoering</h3>
-<p>In deze sectie kan men Testgevallen uitvoeren &ndash; d.w.z. test resultaten invoeren &ndash;
-en Test Suites afdrukken.</p>
+<p>Een testplan is een systematische aanpak voor het testen van een systeem zoals software. U kunt het testen van de activiteit organiseren 
+met bepaalde builds van het product in de tijd en resultaten traceren.</p>
 
-<h2>Testplan Beheer</h2>
-<p>In deze sectie, die alleen voor testleiders toegankelijk is, kunnen Testplannen worden beheerd.
-Het beheer van Testplannen omhelst het aanmaken, bewerken en verwijderen van Testplannen, 
-het toevoegen, bewerken en verwijderen van Testgevallen, het aanmaken van Builds en definieren van wie
-de rechten heeft om elk Testplan in te zien.
+<h3>Tests Uitvoeren</h3>
+<p>Dit gedeelte is waar de gebruikers testcases kunnen uitvoeren (testresultaten schrijven) en 
+een testcase suite van het testplan afdrukken. Deze sectie is waar gebruikers de resultaten kunnen bijhouden 
+van het uitvoeren van een testcase. </p> 
 
-<p>Testleiders kunnen ook de prioriteit, risico en eigendom van Test Suites, en testmijlpalen aanmaken.</p>
+<h2>Testplan beheer</h2>
+<p>Deze sectie, die alleen toegankelijk is voor leiders, stelt gebruikers in staat om testplannen te beheren. 
+Administratie van testplannen omvat het maken/bewerken/verwijderen van de plannen, 
+toevoegen/bewerken/verwijderen/updaten van testcases in de plannen, builds creëren evenals bepalen wie welke 
+plannen kan zien.<br />
+Gebruikers met leider permissies kunnen ook de prioriteit/risico en de eigendom van 
+testcase suites (categorieën) en test mijlpalen maken.</p> 
 
-<p>NB: het is mogelijk dat gebruikers geen dropdown zien met Testplannen en geen bruikbare links. 
-Als je dit tegen komt moet u contact opnemen met een testleider of beheerder om een Testplan te laten
-aanmaken of de juiste rechten te krijgen.</p>"; 
+<p>Opmerking: Het is mogelijk dat gebruikers geen dropdown met testplannen kunnen zien. 
+In deze situatie zullen alle links (behalve deze geactiveerd door een leider) losgekoppeld zijn. Als u zich 
+in deze situatie bent moet u contact opnemen met een leider of administrator om u de juiste rechten voor het testplan toe te kennen 
+or een testplan voor u aan te maken.</p>";
 
 // custom_fields.html
 $TLS_hlp_customFields = "<h2>Gebruikersvelden</h2>
-<p>Informatie over gebruikersvelden:</p>
+<p>Hier volgen enkele feiten over de implementatie van de gebruikersvelden: </p>
 <ul>
-	<li>Gebruikersveld worden systeembreed gedefinieerd.</li>
-	<li>Zij kunnen voor meerdere Testprojecten worden gebruikt.</li>
-	<li>Zij worden gekoppeld aan een bepaald element (Test Suite of Testgeval).</li>
-	<li>De volgorde waarin ze worden getoond kan per Testproject worden ingesteld.</li>
-	<li>Het aantal gebruikersvelden is onbeperkt.</li>
-</ul>
-
-<p>De definitie van een gebruikersveld bevat de volgende attributen:</p>
+<li>Gebruikersvelden worden gedefinieerd het hele systeem.</li>
+<li>Gebruikersvelden zijn gekoppeld aan een type element (Testsuite, Testcase)</li>
+<li>Gebruikersvelden kunnen worden gekoppeld aan meerdere testprojecten.</li>
+<li>De volgorde van de weergave van gebruikersvelden kunnen verschillen per testproject.</li>
+<li>Gebruikersvelden kunnen inactief worden gezet voor een specifiek testproject.</li>
+<li>Het aantal gebruikersvelden is onbeperkt.</li>
 <ul>
-	<li>Naam veld</li>
-	<li>Variabele caption naam; dit wordt als parameter aan de lang_get() API
-	voor vertaling, of wordt aan de gebruiker getoond als hij niet in het
-	taalbestand wordt gevonden.</li>
-	<li>Type veld (string, numeric, float, enum, email).</li>
-	<li>Enumeration waarden. Gebruik '|' karakters om de waarden te scheiden (eg: ROOD|GEEL|BLAUW).
-	Van toepassing op list,
-	multiselection list en combobox types. </li>
-	<li>Default waarde (Nog niet geïmplementeerd).</li>
-	<li>Minimum/maximum lengte voor het gebruikersveld. 0 om uit te schakelen. (Nog niet geïmplementeerd).</li>
-	<li>'Regular expression' voor validatie gebruikersinput. Gebruik de syntaxis van 
-	<a href=\"http://au.php.net/manual/en/function.ereg.php\">ereg()</a>  (Nog niet geïmplementeerd).</li>
-	<li>Toon in testspecificatie</li>
-	<li>Beschikbaar stellen in testspecificatie. Gebruiker kan de waarde wijzigen tijdens het ontwerp
-	van Testgevallen.</li>
-	<li>Toon bij testuitvoering.</li>
-	<li>Beschikbaar stellen in testuitvoering. Gebruiker kan de waarde wijzigen tijdens testuitvoering.</li>
-	<li>Toon bij ontwerp Testplan.</li>
-	<li>Beschikbaar stellen in ontwerp Testplan. Gebruiker kan de waarde wijzigen tijdens 
-	ontwerp Testplan (toevoegen Testgevallen aan Testplan).</li>
-	<li>Beschikbaar voor. Geeft aan wat bij wat voor type item het veld hoort.</li>
-</ul>
 
-<p>Alle gebruikersvelden worden in een database veld opgeslagen van type  VARCHAR(255).</p>
+<p>De definitie van een gebruikersveld bevat de volgende logische
+attributen:</p>
+<ul>
+<li>Gebruikersveld naam</li>
+<li>Bijschrift naam van de variabele (bijvoorbeeld: Dit is de waarde die
+geleverd wordt aan lang_get () API, of zo weergegeven wordt als deze niet wordt gevonden in een taalbestand).</li>
+<li>Type gebruikersveld (string, numeric, float, enum, e-mail)</li>
+<li>Het bepalen mogelijke waarden (bijvoorbeeld: ROOD|GEEL|BLAUW), die van toepassing zijn in een lijst 
+en combo types.<br/>
+<i>Gebruik het pijp ('|') karakter
+om mogelijke waarden voor een opsomming te scheiden. Een mogelijke waarde
+kan een lege tekenreeks zijn. </i>
+</li>
+<li>Standaard waarde: NOG NIET GEIMPLEMENTEERD</li>
+<li>Minimum/maximum lengte voor de gebruikersveld waarde (gebruik 0 om uit te schakelen). (NOG NIET GEIMPLEMENTEERD)</li>
+<li>Reguliere expressie te gebruiken voor het valideren van input van de gebruiker
+(<a href=\"http://au.php.net/manual/en/function.ereg.php\">ereg()</a>
+syntaxis). <b>(NOG NIET GEIMPLEMENTEERD)</b></li>
+<li>Alle gebruikersvelden worden momenteel opgeslagen in een veld van het type VARCHAR (255) in de database.</li>
+<li>Toon in testspecificatie.</li>
+<li>Aanpassen bij testspecificatie. De gebruiker kan tijdens het testcase specificatie ontwerp de waarde veranderen</li>
+<li>Toon bij testuitvoering. </li>
+<li>Aanpassen bij testuitvoering. De gebruiker kan tijdens testcase uitvoering de waarde veranderen</li>
+<li>Toon op testplan ontwerp.</li>
+<li>Aanpassen bij testplan ontwerp. De gebruiker kan de waarde veranderen tijdens het testplan ontwerp (testgevallen aan testplan toevoegen)</li>
+<li>Beschikbaar voor. De gebruiker kan kiezen om wat voor soort punt het veld gaat.</li>
+<ul>
 ";
 
 // execMain.html
-$TLS_hlp_executeMain = "<h2>Testgevallen uitvoeren</h2>
-<p>Hier kan men Testgevallen uitvoeren. Uitvoering houdt in dat men een Testgeval een testresultaat
-(succes, gefaald, geblokkeerd) toewijst voor een bepaalde Build. </p>
-
-<p>Men kan ook rechtstreeks meldingen invoeren in een Issue Tracking Systeem. 
-Dat moet wel door de beheerder zijn ingesteld. Zie de installatie handleiding voor meer informatie. </p>";
-
+$TLS_hlp_executeMain = "<h2>Testcases uitvoeren</h2>
+<p>Hiermee kunnen gebruikers testcases 'uitvoeren'. Uitvoeren zelf is louter
+het toewijzen van resultaat aan een testcase (OK, gefaald, geblokkeerd) in een geselecteerde build. </p>
+<p>De toegang tot een bug tracking systeem kan worden geconfigureerd. De gebruiker kan dan direct nieuwe bugs toevoegen
+en door bestaande bladeren. Zie installatiehandleiding voor meer informatie.</p> ";
 
 //bug_add.html
-$TLS_hlp_btsIntegration = "<h2>Bugs toevoegen aan Testgeval</h2>
-<p><i>(Alleen beschikbaar als bug tracker geconfigureerd is)</i>
-TestLink heeft een heel eenvoudige integratie met Bug Tracking Systems (BTS).
-Dit wordt bereikt door links naar BTS pagina's voor de volgende features: </p>
+$TLS_hlp_btsIntegration = "<h2>Bugs toevoegen aan een testcase </h2>
+<p><i>(alleen als dit geconfigureerd is)</i>
+TestLink heeft een zeer eenvoudige integratie met Bug Tracking Systems (BTS),
+zonder te een verzoek om een bug aan te maken te versturen aan BTS, noch het terugkrijgen bug id.
+De integratie wordt gedaan met behulp van links naar pagina's op BTS, die de volgende functies oproepen:
 <ul>
-	<li>Nieuwe bug toevoegen</li>
-	<li>Toon informatie over een bestaande bug</li>
-</ul>
+<li>Nieuwe bug toevoegen.</li>
+<li>Toon bestaande bug info.</li>
+<ul>
+</p>  
 
-<h3>Proces om een bug toe te voegen</h3>
-   <ol>
-   <li>Gebruik de BTS link om het BTS te openen om een bug toe te voegen.</li>
-   <li>Kopieer de BUGID toegekend door het BTS (Ctrl-C of opschrijven).</li>
-   <li>Voer de BUGID in het TestLink invoer veld.</li>
-   <li>Gebruik de 'bug toevoegen' knop.</li>
-   </ol>  
+<h3> Proces om een bug toe te voegen </h3>
+</p>
+   <ul>
+   <li>Stap 1: Gebruik de link naar BTS openen naar een nieuwe bug in te voegen.</li>
+   <li>Stap 2: Noteer de BUGID toegewezen door BTS</li>
+   <li>Stap 3: Schrijf BUGID in het invoerveld</li>
+   <li>Stap 4: Gebruik bug  toevoegen knop</li>
+   <ul>  
 
-<p>Na het sluiten van de 'bug toevoegen' pagina, verschijnen de bug gegevens op de uitvoer pagina.</p>
-";
-
+Na het sluiten van de bug toevoegen pagina vindt u de relevante bug gegevens op de tests uitvoeren pagina te zien.
+</p> ";
 
 // execFilter.html
 $TLS_hlp_executeFilter = "<h2>Instellingen</h2>
 
-<p>In het Instellingen paneel kunt u het Testplan, Oplevering en Platform (als beschikbaar)
-selecteren voor het uitvoeren van testen.</p>
+<p>In instellingen kunt u het testplan, build en platform (indien aanwezig) om uit te voeren selecteren
+</p>
 
 <h3>Testplan</h3>
-<p>U kiest het gewenste Testplan. Op basis hiervan worden de beschikbare Opleveringen 
-getoond. Na het kiezen van een Testplan worden de filters reset.</p>
+<p>U kunt het gewenste testplan kiezen. Volgens de gekozen testplan zullen de geschikte
+builds worden getoond. Na het kiezen van een testplan zullen filters gereset worden.</p>
 
 <h3>Platform</h3>
-<p>Als de Platform feature in gebruik is, moet u het gewenste Platform kiezen voordat
-u testen kunt uitvoeren.</p>
+<p>Als de functie platformen wordt gebruikt, moet u het juiste platform te kiezen om een test uit te voeren.</p>
 
-<h3>Oplevering</h3>
-<p>U kiest de Oplevering waarvoor u Testgevallen wilt uitvoeren.</p>
+<h3>Uit te voeren build</h3>
+<p>U kunt de build kiezen waarvoore u de testcases wukt uitvoeren.</p>
 
 <h2>Filters</h2>
-<p>Filters geven de mogelijkheid om het aantal getoonde Testgevallen te beperken.
-Stel de gewenste filters in en klik 'Toepassen'</p>
+<p>Filters bieden de mogelijkheid de set van de getoonde testcases verder te beinvloeden
+voor ze uit te voeren. U kunt de set van getoonde testcases verkleinen door filters op te geven
+en op de \"Apply\" knop te klikken.</p>
 
-<p>Met geavanceerde filters kunt u een lijst van waarden voor een filter kiezen
-door Ctrl-klik te gebruiken in een Multi-Select ListBox.</p>
+<p>Met geavanceerde filters kunt u een reeks waarden opgeven voor de filters door
+CTRL-klik te gebruiken in de multi-select listbox.</p>
 
-<h3>Steekwoord Filter</h3>
 
-<p>U kunt Testgevallen filteren d.m.v. de toegekende steekwoorden. U kunt
-meerdere steekwoorden kiezen met Ctrl-klik. Als u meerdere steekwoorden selecteert
-kunt u kiezen tussen het tonen van alleen Testgevallen waaraan alle gekozen steekwoorden
-zijn toegekend (radioknop 'En') of de Testgevallen waaraan tenminste één van de steekwoorden 
-toegekend is (radioknop 'Of'). </p>
+<h3>Trefwoord filter</h3>
+<p>U kunt testcases filteren op de trefwoorden die eraan zijn toegewezen. Je kan meerdere trefwoorden kiezen " .
+"met CTRL-klik. Als u meer dan één trefwoord koos kun je ".
+"beslissen of alleen testcases worden getoond waaraan alle gekozen trefwoorden zijn toegewezen".
+"(Radiobutton \"en\") of ten minste één van de gekozen trefwoorden (radioknop \"Of\"). </p>
 
-<h3>Filter op prioriteit</h3>
-<p>U kunt Testgevallen filteren op basis van testprioriteit. De prioriteit is de combinatie
-van 'belang' en 'urgentie' in het huidige Testplan.</p>
+<h3>Prioriteitsfilter</h3>
+<p>U kunt testcases filteren op test prioriteit. De test prioriteit is \"testcase belang\" ".
+"gecombineerd met \"test dringendheid\" in het huidige testplan.</p> 
 
-<h3>Filter op tester</h3>
-<p>U kunt Testgevallen selecteren die niet aan een tester zijn toegekend ('niemand') of
-wel ('iemand'). U kunt ook Testgevallen selecteren die aan een specifieke tester zijn
-toegekend. In dit laatste geval kunt u tevens Testgevallen selecteren die aan niemand
-zijn toegekend. Dit is handig als u alle Testgevallen wilt selecteren die niet aan
-iemand anders zijn toegekend. </p>
+<h3>Gebruiker filter</h3>
+<p>U kunt testcases filteren die niet zijn toegewezen (\"Niemand\") of toegewezen aan \"Iemand\". ".
+"Je kunt ook testcases filteren die aan een specifieke tester zijn toegewezen. Als je een specifieke tester kiest ".
+"heb je ook de mogelijkheid om testcases die niet toegewezen zijn erbij te laten zien".
+"(geavanceerde filters zijn beschikbaar). </p>
 
-<h3>Filter op resultaat</h3>
-<p>U kunt Testgevallen selecteren die een bepaald resultaat hebben. Daarnaast kiest u een Oplevering:
-de huidige Oplevering voor testuitvoering, een specifieke Oplevering, alle Opleveringen, enige Oplevering
-of het laatste resultaat.
-Met de combinatie kunt u verscheidene nuttige selecties maken: bijvoorbeeld alle 
-testen die nooit zijn uitgevoerd, of alle testen die bij de vorige Oplevering hebben
-gefaald.</p>
-";
+<h3>Resultaat filter</h3>
+<p>U kunt testcases filteren op resultaat (geavanceerde filters zijn beschikbaar). U kunt filteren op ".
+"Resultaat \"op gekozen build \", \"op de nieuwste uitvoering\", \"op ALLE builds\", ".
+"\"op om het even welke build\" en \"op specifieke build\". Als \"specifieke build\" gekozen is dan kan u".
+"de build opgeven.</p>";
 
 
 // newest_tcversions.html
-$TLS_hlp_planTcModified = "<h2>Nieuwste versies van gekoppelde Testgevallen</h2>
-<p>Een lijst wordt getoond van alle Testgevallen in het huidige Testplan waarvoor
-een nieuwere versie beschikbaar is.</p>";
+$TLS_hlp_planTcModified = "<h2>De nieuwste versies van gekoppelde testcases</h2>
+<p>De hele set testcases gekoppeld aan testplan wordt geanalyseerd, en een lijst van testcases
+waarvan de nieuwste versie wordt weergegeven (vergeleken met de huidige set van het testplan).
+</p>";
 
 
 // requirementsCoverage.html
-$TLS_hlp_requirementsCoverage = "<h3>Requirements Dekking</h3>
-<p>Deze feature toont de dekking van gebruikers- of systeemrequirements door
-Testgevallen. Navigeer via link 'Requirement Specificatie' op het startscherm.</p>
+$TLS_hlp_requirementsCoverage = "<h3>Vereisten dekking</h3>
+<br />
+<p>Deze functie maakt het mogelijk om de ​​dekking in kaart te brengen van de gebruiker- of systeemvereisten door
+testcases Openen via link \"Vereisten specificatie\" in het hoofdscherm.</p>
 
-<h3>Requirements Specificatie</h3>
-<p>Requirements zijn gegroepeerd in 'Requirements Specificaties' die verwant zijn
-aan een Testproject. Men kan een omschrijving of aantekeningen in het <b>Scope</b>
-veld plaatsen.</p>
+<h3>Vereisten specificatie</h3>
+<p>Vereisten worden gegroepeerd door een 'Vereisten specificatie' document dat betrekking heeft op het 
+testproject. <br /> TestLink ondersteunt geen versiebeheer voor vereisten specificaties  
+of vereisten. Dus moet de versie van document worden toegevoegd na 
+een specificatie <b>Titel</b>.
+Een gebruiker kan eenvoudige beschrijvingen of opmerkingen toevoegen aan het <b>Bereik</b> veld.</p> 
 
-<p><b><a name='total_count'>Overschreven aantal REQs</a></b>  wordt gebruikt om
-requirements dekking te berekenen in het geval dat nog niet alle requirements
-zijn ingevoerd. De waarde 0 betekent dat het werkelijk aantal Requirements wordt gebruikt
-voor de berekening. Bij een waarde groter dan nul wordt de waarde van het veld gebruikt.
-Als bijvoorbeeld 50 Requirements zijn ingevoerd, die allemaal Testgevallen hebben, maar 
-dit getal op 200 wordt gezet, dan is de dekking 25% (i.p.v. 100%).
-</p>
+<p><b><a name='total_count'>Overschreven telling van vereisten</a></b> dient voor 
+evaluatie van vereisten dekking in het geval dat niet aan alle vereisten toegevoegd (of geïmporteerd) zijn. 
+De waarde <b> 0 </b> betekent dat de huidige telling van eisen wordt gebruikt voor de statistieken.</p> 
+<p><i>Bv SRS omvat 200 vereisten, maar slechts 50 worden toegevoegd in TestLink. Test 
+dekking is 25% (indien alle toegevoegde vereisten worden getest).</i></p>
 
-<h3><a name=\"req\">Requirements</a></h3>
-<p>Klik op de titel van een Requirements Specificatie. U kunt Requirements creëren,
-bewerken, verwijderen of importeren. Elke Requirement heeft een titel, scope en status.
-De status kan 'normaal' zijn of 'niet testbaar'. Niet testbare Requirements worden niet
-in de metrieken meegeteld. Deze waarde kan worden gebruikt voor features die nog niet 
-geïmplementeerd zijn of Requirements die nog niet correct zijn.</p> 
+<h3><a name=\"req\">Vereisten</a></h3>
+<p>Klik op de titel van een bestaande Vereisten specificatie. U kunt vereisten maken, bewerken, verwijderen
+of importeren voor het document. Elke vereiste heeft een titel, bereik en status.
+Status moet \"normaal\" of \"Niet toetsbaar\" zijn. Niet toetsbare vereisten worden niet meegeteld
+in statistieken. Deze parameter moet worden gebruikt voor niet geïmplementeerde functies en 
+verkeerd ontworpen vereisten.</p> 
 
-<p>U kunt automatisch Testgeval skeletten creëren voor de aangevinkte Requirements
-in de specificatie lijst. Deze Testgevallen worden aangemaakt in de Test Suite met de 
-geconfigureerde naam <i>(default is: &#36;tlCfg->req_cfg->default_testsuite_name = 
-\"Test suite created by Requirement - Auto\";)</i>. De titel en scope zijn naar deze
-Testgevallen gekopieerd.</p>
+<p>U kunt nieuwe testcases voor de vereisten aanmaken door het gebruik van multi actie met gecontroleerde 
+vereisten in het specificaties scherm. Deze testcases worden gemaakt in testsuite
+met de naam opgegeven in configuratie <i>(standaard is: &#36;tlCfg->req_cfg->default_testsuite_name = 
+\"Test suite created by Requirement - Auto\";) </i>. Titel en bereik worden gekopieerd naar deze testcases. </p>
 ";
 
-
 $TLS_hlp_req_coverage_table = "<h3>Dekking:</h3>
-Een waarde van bijvoorbeeld \"40% (8/20)\" betekent dat 20 Testgevallen moeten voor deze Requirement
-worden creëerd om hem volledig te testen. 8 bestaan al en zijn aan deze Requirement gekoppeld,
-wat betekent dat de dekking 40 procent is.
+Een waarde van bijvoorbeeld \"40% (8/20)\" betekent dat 20 testcases moeten worden gemaakt om deze vereiste 
+volledig testen. 8 ervan al zijn gemaakt en gekoppeld aan deze vereiste, die 
+zo een dekking van 40 procent uitmaken.
 ";
 
 
 // planAddTC_m1.tpl
-$TLS_hlp_planAddTC = "<h2>Gebruikersvelden</h2>
-Als u gebruikersvelden aan het Testproject heeft toegekend met:<br />
- Aanzetten bij: Testplan ontwerp, en <br />
- Beschikbaar voor: Testplan'<br />
-dan ziet u deze velden hier alleen voor Testgevallen die aan het Testplan zijn gekoppeld.
+$TLS_hlp_planAddTC = "<h2> Metbetrekking tot 'Gebruikersvelden opslaan'</h2>
+Als u gebruikersvelden met <br/>
+'Toon bij testplan ontwerp'<br/>
+en 'Beschikbaar bij testplan ontwerp' <br/>
+hebt gedefinieerd en toegewezen aan een testproject, <br /> 
+zult u deze op deze pagina alleen zien voor testcases gekoppeld aan het testplan.
 ";
-
-
-// resultsByTesterPerBuild.tpl
-$TLS_hlp_results_by_tester_per_build_table = "<b>Meer informatie over testers:</b><br />
-Als u op de naam van een tester klik in deze tabel krijgt u een meer gedetailleerd
-overzicht van alle Testgevallen die aan die tester zijn toegewezen en zijn/haar test voortgang.<br /><br />
-<b>NB:</b><br />
-Dit rapport toont de Testgevallen die zijn toegekend aan een specifieke gebruiker en voor een bepaalde
-Oplevering zijn uitgevoerd. Ook als het Testgeval daadwerkelijk door een andere tester is uitgevoerd
-verschijnt het Testgeval voor de toegewezen tester.
-";
-
-
-// req_edit
-$TLS_hlp_req_edit = "<h3>Interne links voor scope:</h3>
-
-<p>Interne links verwijzen naar andere Requirements / Requirement Specificaties. 
-Zij hebben een bijzonder syntaxis. Het gedrag van interne links kan gewijzigd worden
-in het configuratiebestand. </p>
-<h3>Gebruik:</h3>
-<p>
-Link naar Requirements: [req]req_doc_id[/req]<br />
-Link naar Requirements Specificatie: [req_spec]req_spec_doc_id[/req_spec]</p>
-<p>Het Testproject van de Requirement, een versie en een doellocatie (anchor) kan ook 
-worden gespecificeerd:<br />
-[req tproj=&lt;tproj_prefix&gt; anchor=&lt;anchor_name&gt; version=&lt;version_number&gt;]req_doc_id[/req]<br />
-Dit syntaxis werkt ook voor Requirement Specifications (versie heeft in dat geval geen effect).
-Als u geen versie opgeeft wordt de hele Requirement getoond, met alle versies.</p>
-
-<h3>Logbericht voor wijzigingen:</h3>
-<p>Wanneer een wijziging wordt gemaakt vraagt TestLink om een logbericht. Dit bericht
-is ten behoeve van de traceerbaarheid van de eisen en testen. Als alleen de scope is 
-gewijzigd bent u vrij om te kiezen of u een nieuwe revisie wilt maken of niet.
-Als iets anders dan de scope wordt gewijzigd dan moet u een nieuwe revisie maken.</p>
-";
-
-
-// req_view
-$TLS_hlp_req_view = "<h3>Directe Links:</h3>
-<p>Om dit document gemakkelijk met anderen te kunnen delen, klik op de wereldbol bovenaan
-dit document om een direct link aan te maken.</p>
-
-<h3>Geschiedenis Bekijken</h3>
-<p>Hiermee kunt u versies van Requirements vergelijken (als er meer dan één bestaat).
-Het overzicht geeft het logbericht voor elke versie, een tijdstempel en de auteur van de laatste
-versie.</p>
-
-<h3>Dekking:</h3>
-<p>Toont alle toegekende Testgevallen voor deze Requirement.</p>
-
-<h3>Relaties:</h3>
-<p>Requirement Relaties worden gebruikt om relaties tussen Requirements te modelleren.
-Eigen relaties en de optie om relaties tussen verschillende Testprojecten toe te staan
-kunnen in het configuratiebestand worden ingesteld.
-Als u de relatie instelt 'Requirement A is moeder van Requirement B',
-TestLink zet natuurlijk ook de relatie 'Requirement B is dochter van Requirement A'.</p>
-";
-
-
-// req_spec_edit
-$TLS_hlp_req_spec_edit = "<h3>Interne links:</h3>
-<p>Interne links verwijzen naar andere Requirements / Requirement Specificaties. 
-Zij hebben een bijzonder syntaxis. Het gedrag van interne links kan gewijzigd worden
-in het configuratiebestand. </p>
-<h3>Gebruik:</h3>
-<p>
-Link naar Requirements: [req]req_doc_id[/req]<br />
-Link naar Requirements Specificatie: [req_spec]req_spec_doc_id[/req_spec]</p>
-<p>Het Testproject van de Requirement, een versie en een doellocatie (anchor) kan ook 
-worden gespecificeerd:<br />
-[req tproj=&lt;tproj_prefix&gt; anchor=&lt;anchor_name&gt; version=&lt;version_number&gt;]req_doc_id[/req]<br />
-Dit syntaxis werkt ook voor Requirement Specifications (versie heeft in dat geval geen effect).
-Als u geen versie opgeeft wordt de hele Requirement getoond, met alle versies.</p>
-";
-
 
 // xxx.html
-//$TLS_hlp_xxx = "";
+// $TLS_hlp_xxx = "";
 
 // ----- END ------------------------------------------------------------------
 ?>

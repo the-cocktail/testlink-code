@@ -31,7 +31,7 @@ rev :
   <br />
 {/if}
 
-	<form method="post" action="lib/requirements/reqSpecEdit.php?req_spec_id={$gui->req_spec_id}">
+	<form method="post" action="{$basehref}lib/requirements/reqSpecEdit.php?req_spec_id={$gui->req_spec_id}">
 		<p>{$labels.choose_target} {$parent|escape}:
 			<select name="containerID">
 				{html_options options=$gui->containers}
@@ -50,7 +50,12 @@ rev :
 
 	</form>
 {/if}
-{if isset($gui->refreshTree) && $gui->refreshTree} {$tlRefreshTreeJS} {/if}
+
+{* BUGID 3854 *}
+{if isset($gui->refreshTree) && $gui->refreshTree}
+   {include file="inc_refreshTreeWithFilters.tpl"}
+{/if}
+
 </div>
 </body>
 </html>

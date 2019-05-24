@@ -1,11 +1,7 @@
 {* 
 TestLink Open Source Project - http://testlink.sourceforge.net/
 @filesource	reqViewRevisionRO.tpl
-view requirement with version + revision in READ ONLY MODE
-
-@internal revisions
-20110309 - Julian - removed duplicate title
-20110305 - franciscom - fixed unable to load template due to Smarty 3.0.7
+Purpose: view requirement with version + revision - READ ONLY
 *}
 {lang_get var='labels' 
           s='relation_id, relation_type, relation_document, relation_status, relation_project,
@@ -13,15 +9,34 @@ view requirement with version + revision in READ ONLY MODE
              relation_destination_doc_id, in, btn_add, img_title_delete_relation, current_req,
              no_records_found,other_versions,version,title_test_case,match_count, warning'}
 
-
-{include file="inc_head.tpl" openHead='yes' jsValidate="yes"}
+{$this_template_dir=$smarty.template|dirname}
 {config_load file="input_dimensions.conf"}
 {$my_style=""}
 {if $gui->hilite_item_name}
-    {$my_style="background:#059; color:white; margin:0px 0px 4px 0px;padding:3px;"}
+  {$my_style="background:#059; color:white; margin:0px 0px 4px 0px;padding:3px;"}
 {/if}
 
-{$this_template_dir=$smarty.current_dir}
+{include file="inc_head.tpl" openHead='yes' jsValidate="yes"}
+{include file="inc_ext_js.tpl"}
+
+<script type="text/javascript">
+Ext.onReady(function(){ 
+tip4log({$gui->item.target_id});
+});
+
+function tip4log(itemID) {
+	var fUrl = fRoot+'lib/ajax/getreqlog.php?item_id=';
+	new Ext.ToolTip({
+        target: 'tooltip-'+itemID,
+        width: 500,
+        autoLoad:{ url: fUrl+itemID },
+        dismissDelay: 0,
+        trackMouse: true
+    });
+}
+</script>
+
+</head>
 <body>
 <h1 class="title">{$gui->main_descr|escape}</h1>
 <div class="workBack">

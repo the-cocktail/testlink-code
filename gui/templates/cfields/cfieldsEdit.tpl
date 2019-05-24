@@ -1,7 +1,6 @@
 {*
 TestLink Open Source Project - http://testlink.sourceforge.net/
-$Id: cfieldsEdit.tpl,v 1.28 2011/01/08 09:19:34 franciscom Exp $
-
+@filesource cfieldsEdit.tpl
 
 Important Development note:
 Input names:
@@ -9,8 +8,6 @@ Input names:
             cf_show_on_execution
             cf_enable_on_design
             cf_enable_on_execution
-
-            20080809 - franciscom - BUGID 1650
             cf_show_on_testplan_design
             cf_enable_on_testplan_design
 
@@ -21,33 +18,30 @@ As you can see these names are build adding 'cf_' prefix to name
 of columns present on custom fields tables.
 This is done to simplify logic.
 
-
-@internal revisions
-20110108 - franciscom - BUGID 4000
 *}
 
-{$cfg_section=$smarty.template|basename|replace:".tpl":""}
+{$cfg_section=$smarty.template|basename|replace:".tpl":"" }
 {config_load file="input_dimensions.conf" section=$cfg_section}
 
 {$managerURL="lib/cfields/cfieldsEdit.php"}
 {$viewAction="lib/cfields/cfieldsView.php"}
 
-{lang_get s='warning_delete_cf' var="warning_msg"}
-{lang_get s='delete' var="del_msgbox_title"}
+{lang_get s='warning_delete_cf' var="warning_msg" }
+{lang_get s='delete' var="del_msgbox_title" }
 
 {lang_get var="labels"
           s="btn_ok,title_cfields_mgmt,warning_is_in_use,warning,name,label,type,possible_values,
              warning_empty_cfield_name,warning_empty_cfield_label,testproject,assigned_to_testprojects,
-             enable_on_design,show_on_exec,enable_on_exec,enable_on_testplan_design,Yes,No,required,
+             enable_on_design,show_on_exec,enable_on_exec,enable_on_testplan_design,
              available_on,btn_upd,btn_delete,warning_no_type_change,enable_on,
-             btn_add,btn_cancel,show_on_design,show_on_testplan_design"}
+             btn_add,btn_cancel,show_on_design,show_on_testplan_design,btn_add_and_assign_to_current,"}
 
 {include file="inc_head.tpl" jsValidate="yes" openHead="yes"}
-{include file="inc_action_onclick.tpl"} {* includes ext-js *}
+{include file="inc_del_onclick.tpl"}
 
 <script type="text/javascript">
-/* All this stuff is needed for logic contained in inc_action_onclick.tpl */
-var target_action=fRoot+'{$managerURL}'+'?do_action=do_delete&cfield_id=';
+/* All this stuff is needed for logic contained in inc_del_onclick.tpl */
+var del_action=fRoot+'{$managerURL}'+'?do_action=do_delete&cfield_id=';
 </script>
 
 <script type="text/javascript">
@@ -93,7 +87,6 @@ js_show_on_cfg['testplan_design'] = new Array();  // BUGID 1650 (REQ)
   js_enable_on_cfg['design'][{$node_type}]={$cfg_def};
 {/foreach}
 
-// BUGID 1650 (REQ)
 {foreach key=node_type item=cfg_def from=$gui->cfieldCfg->enable_on_cfg.testplan_design}
   js_enable_on_cfg['testplan_design'][{$node_type}]={$cfg_def};
 {/foreach}
@@ -107,7 +100,6 @@ js_show_on_cfg['testplan_design'] = new Array();  // BUGID 1650 (REQ)
   js_show_on_cfg['design'][{$node_type}]={$cfg_def};
 {/foreach}
 
-// BUGID 1650 (REQ)
 {foreach key=node_type item=cfg_def from=$gui->cfieldCfg->show_on_cfg.testplan_design}
   js_show_on_cfg['testplan_design'][{$node_type}]={$cfg_def};
 {/foreach}
@@ -119,21 +111,20 @@ var js_possible_values_cfg = new Array();
 {/foreach}
 
 
-
 function validateForm(f)
 {
   if (isWhitespace(f.cf_name.value))
   {
-      alert_message(alert_box_title,warning_empty_cfield_name);
-      selectField(f, 'cf_name');
-      return false;
+    alert_message(alert_box_title,warning_empty_cfield_name);
+    selectField(f, 'cf_name');
+    return false;
   }
 
   if (isWhitespace(f.cf_label.value))
   {
-      alert_message(alert_box_title,warning_empty_cfield_label);
-      selectField(f, 'cf_label');
-      return false;
+    alert_message(alert_box_title,warning_empty_cfield_label);
+    selectField(f, 'cf_label');
+    return false;
   }
   return true;
 }
@@ -172,9 +163,8 @@ function configure_cf_attr(id_nodetype,enable_on_cfg,show_on_cfg)
   
   keys2loop[0]='execution';
   keys2loop[1]='design';
-  keys2loop[2]='testplan_design'; // BUGID 1650 - 20080809 - franciscom
+  keys2loop[2]='testplan_design'; 
 
-  // 20090524 - franciscom - refactoring
   style_display='';
   for(idx=0;idx < keys2loop.length; idx++)
   {
@@ -196,6 +186,7 @@ function configure_cf_attr(id_nodetype,enable_on_cfg,show_on_cfg)
       enabled_option_counter++;
     }
   }
+  
   // Set Always to Test Spec Design that is valid for TL elements
   if( enabled_option_counter == 0 )
   {
@@ -208,6 +199,10 @@ function configure_cf_attr(id_nodetype,enable_on_cfg,show_on_cfg)
   // ------------------------------------------------------------
   // Display on
   // ------------------------------------------------------------
+
+  // exception if node type = test case && enable_on == execution
+  // the display on execution combo has not to be displayed.
+
   for(idx=0;idx < keys2loop.length; idx++)
   {
     key=keys2loop[idx];
@@ -221,10 +216,9 @@ function configure_cf_attr(id_nodetype,enable_on_cfg,show_on_cfg)
       
       if( show_on_cfg[key][o_nodetype.value] == 0 )
       {
-        // 20071124 - need to understand if can not set to 0
-        o_display[key].value=0;
         o_display[key].disabled='disabled';
         o_display_container[key].style.display='none';
+        o_display[key].value=0;
       }
       else
       {
@@ -299,6 +293,7 @@ function initShowOnExec(id_master,show_on_cfg)
   var o_combo=document.getElementById(combo_oid);
   
   var o_master=document.getElementById(id_master);
+  
   if( o_master.value == 'execution')
   {
     o_container.style.display='none';
@@ -315,7 +310,7 @@ function initShowOnExec(id_master,show_on_cfg)
 <body onload="configure_cf_attr('combo_cf_node_type_id',js_enable_on_cfg,js_show_on_cfg);">
 
 <h1 class="title">
-  	{$labels.title_cfields_mgmt} 
+ 	{$labels.title_cfields_mgmt} 
 	{include file="inc_help.tpl" helptopic="hlp_customFields" show_help_icon=true}
 </h1>
 
@@ -346,7 +341,7 @@ function initShowOnExec(id_master,show_on_cfg)
 			<td><input type="text" name="cf_name"
 			                       size="{#CFIELD_NAME_SIZE#}"
 			                       maxlength="{#CFIELD_NAME_MAXLEN#}"
-    			 value="{$gui->cfield.name|escape}" />
+    			 value="{$gui->cfield.name|escape}" required />
            {include file="error_icon.tpl" field="cf_name"}
     	</td>
 		</tr>
@@ -355,7 +350,7 @@ function initShowOnExec(id_master,show_on_cfg)
 			<td><input type="text" name="cf_label"
 			                       size="{#CFIELD_LABEL_SIZE#}"
 			                       maxlength="{#CFIELD_LABEL_MAXLEN#}"
-			           value="{$gui->cfield.label|escape}"/>
+			           value="{$gui->cfield.label|escape}" required />
 		           {include file="error_icon.tpl" field="cf_label"}
     	</td>
 	  </tr>
@@ -363,9 +358,8 @@ function initShowOnExec(id_master,show_on_cfg)
 			<th style="background:none;">{$labels.available_on}</th>
 			<td>
 			  {if $gui->cfield_is_used} {* Type CAN NOT BE CHANGED *}
-			    {$idx=$gui->cfield.node_type_id}
+			    {assign var="idx" value=$gui->cfield.node_type_id}
 			    {$gui->cfieldCfg->cf_allowed_nodes.$idx}
-			    {$hidden_cf_node_type_id}
 			    <input type="hidden" id="combo_cf_node_type_id"
 			           value={$gui->cfield.node_type_id} name="cf_node_type_id" />
 			  {else}
@@ -400,9 +394,10 @@ function initShowOnExec(id_master,show_on_cfg)
 			</td>
 		</tr>
 
-    {$display_style="none"}
-    {if $gui->show_possible_values}
+    {if $gui->show_possible_values }
       {$display_style=""}
+    {else}
+      {$display_style="none"}
 		{/if}
 		<tr id="possible_values" style="display:{$display_style};">
 			<th style="background:none;">{$labels.possible_values}</th>
@@ -423,7 +418,7 @@ function initShowOnExec(id_master,show_on_cfg)
 				<select name="cf_enable_on" id="cf_enable_on"
 				        onchange="initShowOnExec('cf_enable_on',js_show_on_cfg);">
         {foreach item=area_cfg key=area_name from=$gui->cfieldCfg->cf_enable_on}
-          {$access_key="enable_on_$area_name"}
+          {assign var="access_key" value="enable_on_$area_name"}
 				  <option value={$area_name} id="option_{$area_name}" 
 				          {if $area_cfg.value == 0} style="display:none;" {/if} 
 				  {if $gui->cfield.$access_key} selected="selected"	{/if}>{$area_cfg.label}</option>
@@ -433,15 +428,8 @@ function initShowOnExec(id_master,show_on_cfg)
 		</tr>
 
 
-    {* ------------------------------------------------------------------------------- *}
+    {* ----------------------------------------------------------------------- *}
     {*   Execution  *}
-    {* 
-    {if $gui->cfieldCfg->disabled_cf_show_on.execution != ''}
-      {$display_style="none"}
-    {else}
-      {$display_style=""}
-    {/if}
-    *}
     		<tr id="container_cf_show_on_execution" {$gui->cfieldCfg->cf_show_on.execution.style}>
 			<th style="background:none;">{$labels.show_on_exec}</th>
 			<td>
@@ -450,19 +438,6 @@ function initShowOnExec(id_master,show_on_cfg)
 				</select>
 			</td>
 		</tr>
-
-    <tr>
- 		  <th style="background:none;">{$labels.required}</th>
-      <td>
-        <label for="required_radio_no">
-          <input type="radio" name="cf_required" id="cf_required_no" 
-                 {if $gui->cfield.required == 0} checked="checked" {/if} value="0">{$labels.No}</label>
-        <label for="required_radio_yes">
-          <input type="radio" name="cf_required" id="cf_required_yes" 
-                 {if $gui->cfield.required == 1} checked="checked" {/if} value="1">{$labels.Yes}</label>
-      </td>    
-    </tr>
-
 
 	</table>
 
@@ -479,7 +454,6 @@ function initShowOnExec(id_master,show_on_cfg)
 
 	<div class="groupBtn">
 	<input type="hidden" name="do_action" value="" />
-	<input type="hidden" name="tproject_id" id="tproject_id" value="{$gui->tproject_id}" />
 	{if $user_action eq 'edit'  or $user_action eq 'do_update'}
 		<input type="submit" name="do_update" value="{$labels.btn_upd}"
 		       onclick="do_action.value='do_update'"/>
@@ -487,16 +461,19 @@ function initShowOnExec(id_master,show_on_cfg)
 		{*  {if $gui->cfield_is_used eq 0} *}
 		{* Allow delete , just give warning *}
   		<input type="button" name="do_delete" value="{$labels.btn_delete}"
-  		       onclick="action_confirmation('{$gui->cfield.id}&tproject_id={$gui->tproject_id}','{$gui->cfield.name|escape:'javascript'|escape}',
+  		       onclick="delete_confirmation({$gui->cfield.id},'{$gui->cfield.name|escape:'javascript'|escape}',
   		                                    '{$del_msgbox_title}','{$warning_msg}');">
     {* {/if} *}
 
 	{else}
 		<input type="submit" name="do_update" value="{$labels.btn_add}"
 		       onclick="do_action.value='do_add'"/>
+
+    <input type="submit" name="do_add_and_assign" id="do_add_and_assign" value="{$labels.btn_add_and_assign_to_current}"
+           onclick="do_action.value='do_add_and_assign'"/>
 	{/if}
 		<input type="button" name="cancel" value="{$labels.btn_cancel}"
-			onclick="javascript: location.href=fRoot+'lib/cfields/cfieldsView.php?tproject_id={$gui->tproject_id}';" />
+			onclick="javascript: location.href=fRoot+'lib/cfields/cfieldsView.php';" />
 
 	</div>
 </form>

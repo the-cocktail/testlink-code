@@ -5,30 +5,24 @@
  *
  * Shows all users
  *
- * @package 	  TestLink
- * @author 		  -
- * @copyright 	2007-2012, TestLink community 
- * @filesource  usersView.php
- * @link 		    http://www.teamst.org/index.php
+ * @package     TestLink
+ * @author      Francisco Mancardi
+ * @copyright   2012,2018 TestLink community 
+ * @filesource  usersViewNew.php
+ * @link        http://www.testlink.org/
  *
- * @internal revisions
+ * 
  */
-require_once("../../config.inc.php");
+require_once("../../config.inc.php");            
+require_once('exttable.class.php');
 require_once("users.inc.php");
-testlinkInitPage($db);
-$templateCfg = templateConfiguration();
-$args = init_args();
-checkRights($db,$_SESSION['currentUser'],$args);
+testlinkInitPage($db,false,false,"checkRights");
+
+$smarty = new TLSmarty();
 
 
-$sqlResult = null;
-$action = null;
-$user_feedback = '';
+list($args,$gui) = initEnv($db);
 
-$orderBy = new stdClass();
-$orderBy->type = 'order_by_login';
-$orderBy->dir = array('order_by_login_dir' => 'asc');
-	
 switch($args->operation)
 {
 	case 'disable':
@@ -36,140 +30,80 @@ switch($args->operation)
 		if ($args->user_id != $args->currentUserID)
 		{
 			$user = new tlUser($args->user_id);
-			$sqlResult = $user->readFromDB($db);
-			if ($sqlResult >= tl::OK)
+			$gui->result = $user->readFromDB($db);
+			if ($gui->result >= tl::OK)
 			{
-				$userLogin = $user->login;
-				$sqlResult = $user->setActive($db,0);
-				if ($sqlResult >= tl::OK)
+				$gui->result = $user->setActive($db,0);
+				if ($gui->result >= tl::OK)
 				{
 					logAuditEvent(TLS("audit_user_disabled",$user->login),"DISABLE",$args->user_id,"users");
-					$user_feedback = sprintf(lang_get('user_disabled'),$userLogin);
+					$gui->user_feedback = sprintf(lang_get('user_disabled'),$user->login);
 				}
 			}
 		}
-    	
-		if ($sqlResult != tl::OK)
+		if ($gui->result != tl::OK)
 		{
-			$user_feedback = lang_get('error_user_not_disabled');
-	    }
-		
-		$orderBy->type = $args->user_order_by;
-		$orderBy->dir = $args->order_by_dir;
+			$gui->user_feedback = lang_get('error_user_not_disabled');
+    }
 	break;
 		
-	case 'order_by_role':
-	case 'order_by_login':
-		$orderBy->type = $args->operation;
-		$orderBy->dir = $args->order_by_dir;
-		$args->user_order_by = $args->operation;
-		$order_by_clause = get_order_by_clause($orderBy);
-
-		$the_k = $args->operation . "_dir";
-		$args->order_by_dir[$the_k] = $args->order_by_dir[$the_k] == 'asc' ? 'desc' : 'asc';
-		break;
-
 	default:
-		$order_by_dir['order_by_login_dir'] = 'desc';
-		break;
+	break;
 }
 
+$gui->images = $smarty->getImages();
+$gui->matrix = getAllUsersForGrid($db);
+$gui->tableSet[] = buildMatrix($gui, $args);
 
-$gui = initializeGui($db,$args,$orderBy);
-
-$smarty = new TLSmarty();
+$tplCfg = templateConfiguration();
 $smarty->assign('gui',$gui);
-$smarty->assign('user_feedback',$user_feedback);
-$smarty->assign('result',$sqlResult);
-$smarty->assign('action',$action);
-$smarty->display($templateCfg->template_dir . $templateCfg->default_template);
+$smarty->display($tplCfg->tpl);
 
 
-function toggle_order_by_dir($which_order_by,$order_by_dir_map)
+/**
+ *
+ */
+function initEnv(&$dbHandler)
 {
-	$obm[$which_order_by] = $order_by_dir_map[$which_order_by] == 'asc' ? 'desc' : 'asc';
-	return $obm;
-}
+  $_REQUEST=strings_stripSlashes($_REQUEST);
 
-/*
-  function: get_order_by_clause()
-            get order by SQL clause to use to order user info
+  // input from GET['HelloString3'], 
+  // type: string,  
+  // minLen: 1, 
+  // maxLen: 15,
+  // regular expression: null
+  // checkFunction: applys checks via checkFooOrBar() to ensure its either 'foo' or 'bar' 
+  // normalization: done via  normFunction() which replaces ',' with '.' 
+  // "HelloString3" => array("GET",tlInputParameter::STRING_N,1,15,'checkFooOrBar','normFunction'),
+  //
+  $iParams = array("operation" => array(tlInputParameter::STRING_N,0,50),
+                   "user" => array(tlInputParameter::INT_N));
+  
+  $pParams = R_PARAMS($iParams);
+  $args = new stdClass();
+  $args->operation = $pParams["operation"];
+  $args->user_id = $pParams['user'];
+  
+  $args->currentUser = $_SESSION['currentUser'];
+  $args->currentUserID = $_SESSION['currentUser']->dbID;
+  $args->basehref =  $_SESSION['basehref'];
+  
 
-  args:
+  $gui = new stdClass();
+  $gui->grants = getGrantsForUserMgmt($dbHandler,$args->currentUser);
+  $gui->main_title = lang_get('title_user_mgmt');
+  $gui->result = null;
+  $gui->action = null;
+  $gui->user_feedback = '';
+  $gui->update_title_bar = 0;
+  $gui->reload = 0;
 
-  returns: string
+  $gui->basehref = $args->basehref; 
 
-*/
-function get_order_by_clause($order)
-{
-	switch($order->type)
-	{
-		case 'order_by_role':
-			$order_by_clause = " ORDER BY description " . $order->dir['order_by_role_dir'];
-			break;
+  $gui->highlight = initialize_tabsmenu();
+  $gui->highlight->view_users = 1;
 
-		case 'order_by_login':
-			$order_by_clause = " ORDER BY login " . $order->dir['order_by_login_dir'];
-			break;
-	}
-	return $order_by_clause;
-}
-
-
-/*
-  function: init_args()
-            get info from request and session
-
-  args:
-
-  returns: object
-
-*/
-function init_args()
-{
-	// input from GET['HelloString3'], 
-	// type: string,  
-	// minLen: 1, 
-	// maxLen: 15,
-	// regular expression: null
-	// checkFunction: applys checks via checkFooOrBar() to ensure its either 'foo' or 'bar' 
-	// normalization: done via  normFunction() which replaces ',' with '.' 
-	// "HelloString3" => array("GET",tlInputParameter::STRING_N,1,15,'checkFooOrBar','normFunction'),
-	$iParams = array("operation" => array(tlInputParameter::STRING_N,0,50),
-			         "user_order_by" => array(tlInputParameter::STRING_N,0,50,null,'checkUserOrderBy'),			
-			         "order_by_role_dir" => array(tlInputParameter::STRING_N,0,4),
-			         "order_by_login_dir" => array(tlInputParameter::STRING_N,0,4),
-			         "user" => array(tlInputParameter::INT_N),
-			         "tproject_id" => array(tlInputParameter::INT_N),
-			         "tplan_id" => array(tlInputParameter::INT_N),
-			         "hide_inactive_users" => array(tlInputParameter::CB_BOOL));
-
-	$pParams = R_PARAMS($iParams);
-
-	// BUGID 4066 - take care of proper escaping when magic_quotes_gpc is enabled	
-	$_REQUEST=strings_stripSlashes($_REQUEST);
-
-	$args = new stdClass();
-	$args->operation = $pParams["operation"];
-    $args->user_order_by = ($pParams["user_order_by"] != '') ? $pParams["user_order_by"] : 'order_by_login';
-    $args->order_by_dir["order_by_role_dir"] = ($pParams["order_by_role_dir"] != '') ? $pParams["order_by_role_dir"] : 'asc';
-    $args->order_by_dir["order_by_login_dir"] = ($pParams["order_by_login_dir"] != '') ? $pParams["order_by_login_dir"] : 'asc';
-    $args->user_id = $pParams['user'];
-    $args->tproject_id = $pParams['tproject_id'];
-    $args->tplan_id = $pParams['tplan_id'];
-	
-	
-	// BUGID 3355: A user can not be deleted from the list
-	$args->hide_inactive_users = $pParams["hide_inactive_users"];
-	$args->checked_hide_inactive_users = $args->hide_inactive_users ? 'checked="checked"' : '';
-	$display = $args->hide_inactive_users ? 'none' : 'table-row';
-	$args->body_onload = "onload=\"toggleRowByClass('hide_inactive_users','inactive_user','{$display}')\"";
-
-    $args->currentUser = $_SESSION['currentUser'];
-    $args->currentUserID = $_SESSION['currentUser']->dbID;
-    $args->basehref =  $_SESSION['basehref'];
-    
-    return $args;
+  return array($args,$gui);
 }
 
 /*
@@ -189,18 +123,92 @@ function init_args()
 */
 function getRoleColourCfg(&$db)
 {
-    $role_colour = config_get('role_colour');
-    $roles = tlRole::getAll($db,null,null,null,tlRole::TLOBJ_O_GET_DETAIL_MINIMUM);
-    unset($roles[TL_ROLES_UNDEFINED]);
-    foreach($roles as $roleObj)
+  $role_colour = config_get('role_colour');
+  $roles = tlRole::getAll($db,null,null,null,tlRole::TLOBJ_O_GET_DETAIL_MINIMUM);
+  unset($roles[TL_ROLES_UNDEFINED]);
+  foreach($roles as $roleObj)
+  {
+    if(!isset($role_colour[$roleObj->name]))
     {
-    	if(!isset($role_colour[$roleObj->name]))
-        {
-            $role_colour[$roleObj->name] = '';
-        }
+      $role_colour[$roleObj->name] = '';
     }
-    return $role_colour;
+  }
+  return $role_colour;
 }
+
+
+/**
+ * Builds ext-js rich table to display matrix results
+ *
+ *
+ * return tlExtTable
+ *
+ */
+function buildMatrix(&$guiObj,&$argsObj)
+{
+  // th_first_name,th_last_name,th_email
+  // IMPORTANT DEVELOPER NOTICE
+  // Column order is same that present on query on getAllUsersForGrid()
+  //
+  // Where col_id is not specified, col_id will be generated this way: 'id_' . $v['title_key'].
+  // Example: id_th_first_name.
+  // 
+  // 'tlType' => TestLinkType: will be analized and mapped accordingly on tlExtTable::buildColumns()
+  //
+  $columns = array(array('title_key' => 'th_login', 'col_id' => 'handle', 'width' => 100),
+                   array('title_key' => 'th_first_name', 'width' => 150),
+                   array('title_key' => 'th_last_name', 'width' => 150),
+                   array('title_key' => 'th_email', 'width' => 150),
+                   array('title_key' => 'th_role', 'width' => 150),
+                   array('title_key' => 'th_locale', 'width' => 150),
+                   array('title_key' => 'th_active', 'type' => 'oneZeroImage', 'width' => 50),
+                   array('title_key' => 'expiration_date', 'width' => 50),
+                   array('title' => 'disableUser', 'tlType' => 'disableUser', 'width' => 150),
+                   array('hidden' => true, 'title' => 'hidden_role_id', 'col_id' => 'role_id'),
+                   array('hidden' => true, 'title' => 'hidden_user_id', 'col_id' => 'user_id'),
+                   array('hidden' => true, 'title' => 'hidden_login', 'col_id' => 'login'),
+                   array('hidden' => true, 'title' => 'hidden_is_special', 'col_id' => 'is_special'));
+
+  $lbl = init_labels(array('th_login' => null,'th_first_name' => null,
+                           'th_last_name' => null,'expiration' => null,
+                           'th_email' => null));
+
+  $loop2do = count($guiObj->matrix);
+ 
+  // login added as workaround for SORTING, because the whole string is used then user_id
+  // in url takes precedence over the login displayed 
+  $actionUrl = '<a href="' . $argsObj->basehref .  
+               'lib/usermanagement/usersEdit.php?doAction=edit&' .
+               'loginJustToFixSort=';
+
+  for($zdx = 0; $zdx < $loop2do; $zdx++)
+  {
+    $guiObj->matrix[$zdx]['handle'] = $actionUrl . 
+      urlencode($guiObj->matrix[$zdx]['login']) . '&user_id=' .
+      $guiObj->matrix[$zdx]['user_id'] . '">' . $guiObj->matrix[$zdx]['login'] . 
+      "</a>";
+  }
+  
+
+  $matrix = new tlExtTable($columns, $guiObj->matrix, 'tl_users_list');
+  
+  // => addCustomBehaviour(columnType, );
+  $matrix->addCustomBehaviour('oneZeroImage', array('render' => 'oneZeroImageRenderer'));
+  $matrix->moreViewConfig = " ,getRowClass: function(record, index) {" .
+                            " var x = record.get('role_id');" .
+                            " return('roleCode'+x); " .
+                            " } " ;
+  
+  $matrix->setImages($guiObj->images);
+  $matrix->allowMultiSort = false;
+  $matrix->sortDirection = 'DESC';
+  $matrix->showToolbar = true;
+  $matrix->toolbarShowAllColumnsButton = true;
+  unset($columns);
+  
+  return $matrix;
+}
+
 
 
 /**
@@ -215,46 +223,81 @@ function checkUserOrderBy($input)
 	return $status_ok;
 }
 
-
-function initializeGui(&$dbHandler,&$argsObj,$orderBy)
-{
-	$guiObj = new stdClass();
-	
-	$guiObj->highlight = initialize_tabsmenu();
-	$guiObj->highlight->view_users = 1;
-
-	$guiObj->update_title_bar = 0;
-	$guiObj->reload = 0;
-	$guiObj->user_order_by = $argsObj->user_order_by;
-	$guiObj->order_by_role_dir = $argsObj->order_by_dir['order_by_role_dir'];
-	$guiObj->order_by_login_dir = $argsObj->order_by_dir['order_by_login_dir'];
-	$guiObj->checked_hide_inactive_users = $argsObj->checked_hide_inactive_users;
-	$guiObj->base_href = $argsObj->basehref;
-	$guiObj->body_onload = $argsObj->body_onload;
-
-	$guiObj->role_colour = tlRole::getRoleColourCfg($dbHandler);
-	$guiObj->users = tlUser::getAllUsersRoles($dbHandler,get_order_by_clause($orderBy));
-	$guiObj->grants = $argsObj->currentUser->getGrantsForUserMgmt($dbHandler,$argsObj->tproject_id);
-	$guiObj->tproject_id = $argsObj->tproject_id;
-
-	return $guiObj;
-}
-
-
-
 /**
- * 
  *
  */
-function checkRights(&$db,&$userObj,$argsObj)
+function getAllUsersForGrid(&$dbHandler)
 {
-	// For this feature check must be done on Global Rights => those that belong to
-	// role assigned to user when user was created (Global/Default Role)
-	// => enviroment is ignored.
-	// To instruct method to ignore enviromente, we need to set enviroment but with INEXISTENT ID 
-	// (best option is negative value)
-	$env['tproject_id'] = -1;
-	$env['tplan_id'] = -1;
-	checkSecurityClearance($db,$userObj,$env,array('mgt_users'),'and');
+  $tables = tlObject::getDBTables(array('users','roles'));
+  
+  // Column extraction order is CRITIC for correct behaviour of Ext-JS
+  $sql = " SELECT '' AS handle,U.first,U.last,U.email,R.description," .
+         " U.locale,U.active,U.expiration_date," .
+         " /* this columns will not visible on GUI */ " .
+         " '' AS place_holder,R.id AS role_id,U.id AS user_id,U.login, 0 AS is_special " . 
+         " FROM {$tables['users']} U " .
+         " JOIN {$tables['roles']} R ON U.role_id = R.id  ORDER BY U.login ";
+
+  $users = $dbHandler->get_recordset($sql);
+
+  // because we need to render this on EXT-JS, we have issues with <no rights> role
+  // due to <, then we are going to escape values in description column
+  $loop2do = count($users);
+  $dummy = '';
+  for($idx=0; $idx < $loop2do; $idx++)
+  {
+    $users[$idx]['description'] = htmlentities($users[$idx]['description']);    
+
+    // localize dates
+    $ed = trim($users[$idx]['expiration_date']);
+    if($ed != '')
+    {
+      $users[$idx]['expiration_date'] = 
+        localize_dateOrTimeStamp(null,$dummy,'date_format',$ed);
+    }  
+  }  
+
+
+  // Still need to understand why, but with MSSQL we use on ADODB 
+  // fetch mode = ADODB_FETCH_BOTH, this generates numeric AND literal keys
+  // on row maps => for each column on result set we get to elements on row map.
+  // example 0,handle,1,first, and so on.
+  // This drives crazy EXT-JS grid 
+  if(!is_null($users) && $dbHandler->dbType == 'mssql')
+  {
+    $clean = array();
+    foreach($users as $row)
+    {
+      $cr = array();
+      $elem = array_keys($row);
+      foreach($elem as $accessKey)
+      {
+        if(!is_numeric($accessKey))
+        {
+          $cr[$accessKey] = $row[$accessKey];
+        }
+      }
+      $clean[] = $cr;
+    }
+    $users = $clean;
+  }
+ 
+	if( config_get('demoMode') )
+	{
+  	$loop2do = count($users);
+	  $specialK = array_flip((array)config_get('demoSpecialUsers'));
+  	for($idx=0; $idx < $loop2do; $idx++)
+	  {
+		  $users[$idx]['is_special'] = isset($specialK[$users[$idx]['login']]) ? 1 : 0;
+	  }
+  }
+
+  return $users;
 }
-?>
+
+
+
+function checkRights(&$db,&$user)
+{
+	return $user->hasRight($db,'mgt_users');
+}

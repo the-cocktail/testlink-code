@@ -15,9 +15,9 @@ function validateForm(f)
 {
   if (isWhitespace(f.keyword.value))
   {
-      alert(warning_empty_keyword);
-      selectField(f, 'keyword');
-      return false;
+    alert(warning_empty_keyword);
+    selectField(f, 'keyword');
+    return false;
   }
   return true;
 }

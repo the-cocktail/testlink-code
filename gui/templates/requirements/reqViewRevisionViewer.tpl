@@ -1,12 +1,8 @@
 {*
 TestLink Open Source Project - http://testlink.sourceforge.net/
-viewer for requirement revision
-
 @filesource	reqViewRevisionViewer.tpl
-@internal revisions:
-20110305 - franciscom - BUGID 4273: Option to print single requirement
-20110305 - franciscom - BUGID 4045: Smarty 3.0 compatibility
-20101127 - franciscom - BUGID 4056: Requirement Revisioning
+viewer for requirement
+
 *}
 {lang_get var="labels"
           s="requirement_spec,Requirements,scope,status,type,expected_coverage,  
@@ -14,28 +10,28 @@ viewer for requirement revision
              btn_del_this_version, btn_freeze_this_version, version, can_not_edit_req,
              testproject,title_last_mod,title_created,by,btn_compare_versions,showing_version,
              btn_revisions,revision,btn_print_view"}
+
              
-{if $args_show_title}
+{if $args_show_title }
     {if $args_tproject_name != ''}
      <h2>{$labels.testproject} {$args_tproject_name|escape} </h2>
     {/if}
     {if $args_req_spec_name != ''}
      <h2>{$labels.req_spec} {$args_req_spec_name|escape} </h2>
     {/if}
-	<h2>{$args_req.title|escape} </h2>
+	  <h2>{$labels.title_test_case} {$args_req.title|escape} </h2>
 {/if}
+
 {$warning_edit_msg=""}
 
-{* BUGID 4273: Option to print single requirement *}
+{* Option to print single requirement *}
 <div>
 	<form method="post" action="" name="reqPrinterFriendly">
 		<input type="button" name="printerFriendly" value="{$labels.btn_print_view}"
 		       onclick="javascript:openPrintPreview('req',{$args_req.id},{$args_req.version_id},
-		                                            {$args_req.revision},
-		                                            'lib/requirements/reqPrint.php?tproject_id={$args_gui->tproject_id}');"/>
+		                                          {$args_req.revision},'lib/requirements/reqPrint.php');"/>
 	</form>
 </div>
-
 
 <table class="simple">
   {if $args_show_title}
@@ -50,8 +46,9 @@ viewer for requirement revision
 
   {if $args_show_version}
 	  <tr>
-	  	<td class="bold" colspan="2">{$labels.version}
+	  	<td class="bold" id="tooltip-{$args_req.target_id}" colspan="2">{$labels.version}
 	  	{$args_req.version} {$labels.revision} {$args_req.revision}
+	  	<img src="{$tlImages.log_message_small}" style="border:none" />
 	  	</td>
 	  </tr>
 	{/if}
@@ -76,15 +73,23 @@ viewer for requirement revision
 		</td>
 	</tr>
 	<tr>
-			<td>&nbsp;</td>
+			<td>
+      {include file="$this_template_dir/displayReqCoverageRO.inc.tpl"
+               argsReqCoverage = $gui->reqCoverage}
+      </td>
 	</tr>
+
+  <tr>
+      <td>&nbsp;</td>
+  </tr>
 
 	<tr class="time_stamp_creation">
   		<td >
-      		{$labels.title_created}&nbsp;{localize_timestamp ts=$args_req.creation_ts}&nbsp;
+      		{$labels.title_created}&nbsp;{localize_timestamp ts=$args_req.creation_ts }&nbsp;
       		{$labels.by}&nbsp;{$args_req.author|escape}
   		</td>
   </tr>
+
 	{if $args_req.modifier != ""}
   <tr class="time_stamp_creation">
   		<td >

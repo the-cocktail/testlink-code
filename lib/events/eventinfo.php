@@ -5,34 +5,33 @@
  *
  * Filename $RCSfile: eventinfo.php,v $
  *
- * @version $Revision: 1.14 $
- * @modified $Date: 2011/01/10 15:38:55 $ by $Author: asimon83 $
+ * @version $Revision: 1.12 $
+ * @modified $Date: 2010/05/18 05:07:52 $ by $Author: amkhullar $
 **/
 require_once("../../config.inc.php");
 require_once("common.php");
-
-testlinkInitPage($db);
+testlinkInitPage($db,false,false,"checkRights");
 $templateCfg = templateConfiguration();
-$args = init_args();
-checkRights($db,$_SESSION['currentUser'],$args);
 
 $user = null;
 $event = null;
+
+$args = init_args();
 if ($args->id)
 {
-	$event = new tlEvent($args->id);
-	if ($event->readFromDB($db,tlEvent::TLOBJ_O_GET_DETAIL_TRANSACTION) >= tl::OK)
-	{
-		$user = new tlUser($event->userID);
-		if ($user->readFromDB($db) < tl::OK)
-		{
-			$user = null;
-		}
-	}
-	else
-	{
-		$event = null;
-	}
+  $event = new tlEvent($args->id);
+  if ($event->readFromDB($db,tlEvent::TLOBJ_O_GET_DETAIL_TRANSACTION) >= tl::OK)
+  {
+    $user = new tlUser($event->userID);
+    if ($user->readFromDB($db) < tl::OK)
+    {
+      $user = null;
+    }
+  }
+  else
+  {
+    $event = null;
+  }
 }
 
 $smarty = new TLSmarty();
@@ -46,31 +45,22 @@ $smarty->display($templateCfg->template_dir . $templateCfg->default_template);
  */
 function init_args()
 {
-	$iParams = array("id" => array(tlInputParameter::STRING_N,0,50));
-	$args = new stdClass();
-	P_PARAMS($iParams,$args);
+  $iParams = array("id" => array(tlInputParameter::INT_N));
+  $args = new stdClass();
+  P_PARAMS($iParams,$args);
 
-	// BUGID 4066 - take care of proper escaping when magic_quotes_gpc is enabled
-	$_REQUEST=strings_stripSlashes($_REQUEST);
-
-	return $args;
+  return $args;
 }
-
 
 /**
- * Checks the user rights for using the page
+ * Checks the user rights for viewing the page
+ * 
+ * @param $db resource the database connection handle
+ * @param $user tlUser the object of the current user
  *
- * checkRights
- *
+ * @return boolean return true if the page can be viewed, false if not
  */
-function checkRights(&$db,&$userObj,$argsObj)
+function checkRights(&$db,&$user)
 {
-	$checkStatus = $userObj->hasRight($db,"mgt_view_events");
-	if(!$checkStatus)
-	{
-	  	redirect($_SESSION['basehref'],"top.location");
-		exit();
-	}
+  return ($user->hasRight($db,"mgt_view_events")) ? true : false;
 }
-
-?>
