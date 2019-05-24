@@ -51,4 +51,6 @@ sudo cp -r testlink-code-the-cocktail_1_9_19/gui/themes/default/images/* testlin
 sudo cp testlink-code-the-cocktail_1_9_19/lib/functions/print.inc.php testlink_htdocs/lib/functions/
 sudo cp testlink-code-the-cocktail_1_9_19/locale/es_ES/strings.txt testlink_htdocs/locale/es_ES
 sudo cp testlink-code-the-cocktail_1_9_19/third_party/ext-js/css/ext-all.css testlink_htdocs/third_party/ext-js/css/
+sudo cp testlink-code-the-cocktail_1_9_19/gui/templates/login-model-marcobiedermann.tpl testlink_htdocs/gui/templates/login-model-marcobiedermann.tpl
+sudo cp testlink-code-the-cocktail_1_9_19/gui/themes/default/login/codepen.io/marcobiedermann/css/style.css testlink_htdocs/gui/themes/default/login/codepen.io/marcobiedermann/css
 ```
