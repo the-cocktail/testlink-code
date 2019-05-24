@@ -11,10 +11,10 @@
 
     <link rel="stylesheet" href="gui/themes/default/login/codepen.io/marcobiedermann/css/style.css">
   </head>
-  <body class="align">
+  <body class="align login">
     <div class="site__container">
       <div class="grid__container">
-      <img src="{$tlCfg->theme_dir}images/{$tlCfg->logo_login}">
+      <img src="{$tlCfg->theme_dir}images/the-cocktail-logo-black.png">
       </div>
       
       {if $gui->note != ''}
@@ -57,7 +57,7 @@
             </div>
 
             <div class="form__field">
-              <input type="submit" style="background-color:#EDFFBD;" value="{$labels.btn_login}">
+              <input type="submit" style="background-color:#262626;" value="{$labels.btn_login}">
             </div>
 
           </form>
