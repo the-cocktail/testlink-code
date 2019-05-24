@@ -1101,7 +1101,9 @@ function renderTestCaseForPrinting(&$db,&$node,&$options,$env,$context,$indentLe
     $tcInfo = $tcInfo[0];
   }
   
-  $tcversion_id = $tcInfo['id'];
+  if (is_null($tcversion_id) && !is_null($tcInfo)) {
+      $tcversion_id = $tcInfo['id'];
+  }
 
   $external_id = $tcase_prefix . $tcInfo['tc_external_id'];
   $name = htmlspecialchars($node['name']);
