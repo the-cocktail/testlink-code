@@ -18,11 +18,8 @@
  *
  * @filesource  config.inc.php
  * @package     TestLink
- * @copyright   2005-2015, TestLink community
+ * @copyright   2005-2018, TestLink community
  * @link        http://www.testlink.org
- *
- * @internal revisions
- * @since 1.9.13
  *
  *
  **/
@@ -33,6 +30,7 @@
 /** @global array Global configuration class */
 $tlCfg = new stdClass();
 $tlCfg->api = new stdClass();
+$tlCfg->cookie = new stdClass();
 $tlCfg->document_generator = new stdClass();
 
 $tlCfg->spec_cfg = new stdClass();
@@ -62,17 +60,51 @@ $tlCfg->tplanDesign = new stdClass();
 $tlCfg->notifications = new stdClass();
 $tlCfg->proxy = new stdClass();
 
+$tlCfg->reqTCLinks = new stdClass();
+
+
+$tlCfg->keywords = new stdClass();
+$tlCfg->keywords->onDeleteCheckFrozenTCVersions = TRUE;
+$tlCfg->keywords->onDeleteCheckExecutedTCVersions = TRUE;
 
 
 /** @uses database access definition (generated automatically by TL installer) */ 
 @include_once('config_db.inc.php');
-if( !defined('DB_TABLE_PREFIX') )
-{
+if( !defined('DB_TABLE_PREFIX') ) {
     define('DB_TABLE_PREFIX','' );
 }
 
 /** The root dir for the testlink installation with trailing slash */
 define('TL_ABS_PATH', dirname(__FILE__) . DIRECTORY_SEPARATOR);
+
+/** Just for documentation */
+$tlCfg->testlinkdotorg = 'http://www.testlink.org';
+
+/** GUI themes (base for CSS and images)- modify if you create own one */
+$tlCfg->theme_dir = 'gui/themes/default/';
+
+/** Dir for compiled templates */
+$tlCfg->temp_dir = TL_ABS_PATH . 'gui' . DIRECTORY_SEPARATOR . 
+                   'templates_c' . DIRECTORY_SEPARATOR;
+
+/** default filenames of CSS files of current GUI theme */
+define('TL_CSS_MAIN', 'testlink.css');
+define('TL_CSS_PRINT', 'tl_print.css');
+define('TL_CSS_DOCUMENTS', 'tl_documents.css');
+
+define('TL_THEME_BASE_DIR', $tlCfg->theme_dir);
+define('TL_THEME_IMG_DIR', $tlCfg->theme_dir . 'images/');
+define('TL_THEME_CSS_DIR', $tlCfg->theme_dir . 'css/');
+define('TL_TESTLINK_CSS', TL_THEME_CSS_DIR . TL_CSS_MAIN);
+define('TL_PRINT_CSS', TL_THEME_CSS_DIR . TL_CSS_PRINT);
+
+// name of your custom.css, place it in same folder that standard TL css
+// null or '' => do not use
+$tlCfg->custom_css = null;
+
+// if you do not want to use this, redefine $tlCfg->custom_css as '' or null
+define('TL_TESTLINK_CUSTOM_CSS', TL_THEME_CSS_DIR . $tlCfg->custom_css);
+
 
 /** Include constants and magic numbers (users should not change it)*/
 require_once(TL_ABS_PATH . 'cfg' . DIRECTORY_SEPARATOR . 'const.inc.php');
@@ -82,20 +114,75 @@ require_once(TL_ABS_PATH . 'cfg' . DIRECTORY_SEPARATOR . 'const.inc.php');
 /** @var string used to have (when needed) a possibility to identify different TL instances
     @since 1.9.4 used on mail subject when mail logger is used
  */
-$tlCfg->instance_id = 'Main TestLink Instance';
+$tlCfg->instance_name = 'Main TestLink Instance';
 
+// do not use blanks or special characters, use a short string
+$tlCfg->instance_id = 'TLM';
+
+
+/**
+ * Copied from MantisBT
+ * 
+ * Prefix for all TestLink cookies
+ * This should be an identifier which does not include spaces or periods,
+ * and should be unique per TestLink installation, especially if
+ * $tlCfg->cookie_path is not restricting the cookies' scope to the actual
+ * TestLink directory.
+ * @see $tlCfg->cookie->path
+ * @global string $tlCfg->cookie->prefix
+ */
+$tlCfg->cookie->prefix = 'TESTLINK197';
+
+
+/**
+ * @link http://php.net/function.setcookie
+ *
+ */
+$tlCfg->cookie->expire = (time()+60*60*24*30); // 30 days;
+$tlCfg->cookie->domain = '';
+$tlCfg->cookie->secure = false;
+$tlCfg->cookie->httponly = false;
 
 /**
  * Copied from MantisBT
  *
  * Specifies the path under which a cookie is visible
  * All scripts in this directory and its sub-directories will be able
- * to access MantisBT cookies.
- * It is recommended to set this to the actual MantisBT path.
+ * to access TestLink cookies.
+ * It is recommended to set this to the actual TestLink path.
  * @link http://php.net/function.setcookie
- * @global string $tlCfg->cookie_path
+ * @global string $tlCfg->cookie->path
  */
- $tlCfg->cookie_path = '/';
+ $tlCfg->cookie->path = '/';
+
+
+/* [ROLE INHERITANCE] */
+/**
+ * possible values
+ *
+ * 'testproject'
+ * 'global'
+ *
+ * 'testproject' 
+ * till a role is specifically assigned to test plan, test plan role 
+ * will be inherited from test project role.
+ *
+ * IMPORTANT NOTICE
+ * test project role can be specifically assigned or inherited from
+ * user's global role.
+ *
+ * if test project specifically assigned role changes, and test plan role was inherited, then it will also changes, due to inheritance.
+ *
+ *
+ * 'global'
+ * till a role is specifically assigned to test plan, test plan role 
+ * will be inherited from user's global role, and NOT from test project 
+ * specifically assigned role.
+ *
+ * if test project specifically assigned role changes, will not be changed.
+ *
+ */
+ $tlCfg->testplan_role_inheritance_mode = 'testproject';
 
 
 /* [LOCALIZATION] */
@@ -202,18 +289,18 @@ $tlCfg->smarty_debug = false;
  *  for security reasons (see http://itsecuritysolutions.org/2012-08-13-TestLink-1.9.3-multiple-vulnerabilities/)
  *  put it out of reach via web or configure access denied.
  */
-$tlCfg->log_path = '/var/testlink/logs/'; /* unix example */
+$tlCfg->log_path = '/opt/bitnami/apps/testlink/htdocs/logs/'; /* unix example */
 
 
 /**
  * @var string How to warning user when security weak points exists.
  *
- * 'SCREEN': messages will displayed on login screen, and tl desktop (default)
+ * 'SCREEN': messages will displayed on login screen, and tl desktop
  * 'FILE': a file with a list is created but users are not notified via GUI
- *         user will receive a message on screen.
+ *         user will receive a message on screen. (default)
  * 'SILENT': same that FILE, but user will not receive message on screen.
  */
-$tlCfg->config_check_warning_mode = 'SILENT';
+$tlCfg->config_check_warning_mode = 'SCREEN';
 
 /**
  * ONCE_FOR_SESSION
@@ -261,12 +348,12 @@ $tlCfg->loggerFilter = null; // default defined on logger.class.php ;
  * Configure using custom_config.inc.php
  * @uses lib/functions/email_api.php
  */
-$g_smtp_host        = '[smtp_host_not_configured]';  # SMTP server MUST BE configured
+$g_smtp_host        = '';  # SMTP server MUST BE configured
 
 # Configure using custom_config.inc.php
-$g_tl_admin_email     = '[testlink_sysadmin_email_not_configured]'; # for problem/error notification
-$g_from_email         = '[from_email_not_configured]';  # email sender
-$g_return_path_email  = '[return_path_email_not_configured]';
+$g_tl_admin_email     = 'user@example.com'; # for problem/error notification
+$g_from_email         = 'user@example.com';  # email sender
+$g_return_path_email  = 'user@example.com';
 
 /**
  * Email notification priority (low by default)
@@ -318,10 +405,7 @@ $g_SMTPAutoTLS = false;
  *  'LDAP' => use password from LDAP Server
  */
 $tlCfg->authentication['domain'] = array('DB' => array('description' => 'DB', 'allowPasswordManagement' => true) ,
-										 'LDAP' => array('description' => 'LDAP', 'allowPasswordManagement' => false) );
-
-
-// $tlCfg->authentication['domain'] = array('DB','LDAP')
+                     'LDAP' => array('description' => 'LDAP', 'allowPasswordManagement' => false) );
 
 /* Default Authentication method */
 $tlCfg->authentication['method'] = 'DB';
@@ -329,11 +413,11 @@ $tlCfg->authentication['method'] = 'DB';
 // Applies only if authentication methos is DB.
 // Used when:
 // 1. user sign up
-// 
+//
 // null => only check password IS NOT EMPTY
-// 
+//
 // $tlCfg->passwordChecks = array('minlen' => 8,'maxlen' => 20,'number' => true,'letter' => true,
-//	                              'capital' => true, 'symbol' => true);
+//                                'capital' => true, 'symbol' => true);
 $tlCfg->passwordChecks = null;
 
 // Applies ONLY to the HTML input.
@@ -341,18 +425,80 @@ $tlCfg->passwordChecks = null;
 $tlCfg->loginPagePasswordMaxLenght = 40;
 
 /**
+ * Standard logout url, used also when SSO is used and hint to skip SSO is used.
+ * '' => use standard TestLink page
+ */
+$tlCfg->logoutUrl = '';
+
+// users that will not allow expiration date management on GUI
+$tlCfg->noExpDateUsers = array('admin');
+
+
+/**
+ * OAUTH auth
+ * Configure this on custom_config.inc.php
+ */
+
+$tlCfg->OAuthServers = array();
+
+// Google
+// $tlCfg->OAuthServers = array();
+// $tlCfg->OAuthServers[1]['oauth_enabled'] = true;
+// $tlCfg->OAuthServers[1]['oauth_name'] = 'google';
+
+// Get from /gui/themes/default/images
+// $tlCfg->OAuthServers[1]['oauth_icon'] = 'google.png'; 
+// $tlCfg->OAuthServers[1]['oauth_client_id'] = 'CLIENT_ID';
+// $tlCfg->OAuthServers[1]['oauth_client_secret'] = 'CLIENT_SECRET';
+// Can be authorization_code (by default), client_credentials or password
+// $tlCfg->OAuthServers[1]['oauth_grant_type'] = 'authorization_code';  
+// $tlCfg->OAuthServers[1]['oauth_url'] = 'https://accounts.google.com/o/oauth2/auth';
+// $tlCfg->OAuthServers[1]['token_url'] = 'https://accounts.google.com/o/oauth2/token';
+// false => then the only user will be selected automatically (applied for google)
+// $tlCfg->OAuthServers[1]['oauth_force_single'] = false; 
+// the domain you want to whitelist
+// $tlCfg->OAuthServers[1]['oauth_domain'] = 'google.com'; 
+// $tlCfg->OAuthServers[1]['oauth_profile'] = 'https://www.googleapis.com/oauth2/v1/userinfo';
+// $tlCfg->OAuthServers[1]['oauth_scope'] = 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile';
+
+// Github
+// $tlCfg->OAuthServers[2]['oauth_enabled'] = true;
+// $tlCfg->OAuthServers[2]['oauth_name'] = 'github';
+// $tlCfg->OAuthServers[2]['oauth_icon'] = 'github.png'; //Get from /gui/themes/default/images
+// $tlCfg->OAuthServers[2]['oauth_client_id'] = 'CLIENT_ID';
+// $tlCfg->OAuthServers[2]['oauth_client_secret'] = 'CLIENT_SECRET';
+
+// Can be authorization_code (by default), client_credentials or password
+// $tlCfg->OAuthServers[2]['oauth_grant_type'] = 'authorization_code';  
+// $tlCfg->OAuthServers[2]['oauth_url'] = 'https://github.com/login/oauth/authorize';
+
+// $tlCfg->OAuthServers[2]['token_url'] = 'https://github.com/login/oauth/access_token';
+// false => then the only user will be selected automatically (applied for google)
+// $tlCfg->OAuthServers[2]['oauth_force_single'] = false; 
+// $tlCfg->OAuthServers[2]['oauth_profile'] = 'https://api.github.com/user';
+// $tlCfg->OAuthServers[2]['oauth_scope'] = 'user:email';
+
+
+/**
  * Single Sign On authentication
- * This will be used with $tlCfg->authentication['method'] <<= INCOMPLETE COMMENT
  *
- * This works with apache webserver
+ * SSO_method: CLIENT_CERTIFICATE, tested with Apache Webserver
+ * SSP_method: WEBSERVER_VAR, tested with Apache and Shibboleth Service Provider.
  */
 $tlCfg->authentication['SSO_enabled'] = false; 
-$tlCfg->authentication['SSO_method'] = 'CLIENT_CERTIFICATE';
-$tlCfg->authentication['SSO_uid_field'] = 'SSL_CLIENT_S_DN_Email';
+$tlCfg->authentication['SSO_logout_destination'] = 'YOUR LOGOUT DESTINATION';
+
+// Tested with Apache Webserver
+//$tlCfg->authentication['SSO_method'] = 'CLIENT_CERTIFICATE';
+//$tlCfg->authentication['SSO_uid_field'] = 'SSL_CLIENT_S_DN_Email';
+
+// Tested with Apache and Shibboleth Service Provider 
+//$tlCfg->authentication['SSO_method'] = 'WEBSERVER_VAR';
+//$tlCfg->authentication['SSO_uid_field'] = 'REMOTE_USER';
+//$tlCfg->authentication['SSO_user_target_dbfield'] = 'email';
 
 
-
-/** 
+/**
  * LDAP authentication credentials, Multiple LDAP Servers can be used. 
  * User will be authenticaded against each server (one after other using array index order)
  * till authentication succeed or all servers have been used.
@@ -378,6 +524,11 @@ $tlCfg->authentication['ldap'][1]['ldap_tls'] = false; // true -> use tls
 $tlCfg->authentication['ldap'][1]['ldap_organization'] = ''; // e.g. '(organizationname=*Traffic)'
 $tlCfg->authentication['ldap'][1]['ldap_uid_field'] = 'uid'; // Use 'sAMAccountName' for Active Directory
 
+// Configure following fields in custom_config.inc.php according your configuration
+$tlCfg->authentication['ldap'][1]['ldap_email_field'] = 'mail';
+$tlCfg->authentication['ldap'][1]['ldap_firstname_field'] = 'givenname';
+$tlCfg->authentication['ldap'][1]['ldap_surname_field'] = 'sn';
+
 
 // Follows Mantisbt idea.
 // True if user does not exist on DB, but can be get from LDAP, 
@@ -387,15 +538,6 @@ $tlCfg->authentication['ldap'][1]['ldap_uid_field'] = 'uid'; // Use 'sAMAccountN
 // name
 // surname
 $tlCfg->authentication['ldap_automatic_user_creation'] = false;
-
-// Configure following fields in custom_config.inc.php according your configuration
-// IMPORTANT NOTICE
-// Same for all LDAP Servers if you are using MULTIPLE LDAP Servers configuration 
-$tlCfg->authentication['ldap_email_field'] = 'mail';
-$tlCfg->authentication['ldap_firstname_field'] = 'givenname';
-$tlCfg->authentication['ldap_surname_field'] = 'sn';
-
-
 
 
 /** Enable/disable Users to create accounts on login page */
@@ -449,19 +591,16 @@ $tlCfg->api->enabled = TRUE;
 $tlCfg->api->id_format = "[ID: %s ]";
 
 
-// --------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------
 /* [GUI LAYOUT] */
 
-/** GUI themes (base for CSS and images)- modify if you create own one */
-$tlCfg->theme_dir = 'gui/themes/default/';
-
-/** Dir for compiled templates */
-$tlCfg->temp_dir = TL_ABS_PATH . 'gui' . DIRECTORY_SEPARATOR . 'templates_c' . DIRECTORY_SEPARATOR;
 
 /** Company logo (used by navigation bar and login page page) */
 $tlCfg->logo_login = 'the-cocktail.png';
 $tlCfg->logo_navbar = 'the-cocktail-xxs.png';
 
+/** Height of the navbar always displayed  */
+$tlCfg->navbar_height = 70;
 
 /** Login page could show an informational text */
 $tlCfg->login_info = ''; // Empty by default
@@ -485,6 +624,10 @@ $tlCfg->gui->planView = new stdClass();
 $tlCfg->gui->planView->pagination = new stdClass();
 $tlCfg->gui->planView->pagination->enabled = true;
 $tlCfg->gui->planView->pagination->length = '[20, 40, 60, -1], [20, 40, 60, "All"]';
+$tlCfg->gui->planView->itemQtyForTopButton = 10;
+
+$tlCfg->gui->buildView = new stdClass();
+$tlCfg->gui->buildView->itemQtyForTopButton = 10;
 
 
 /** 
@@ -704,8 +847,14 @@ $tlCfg->reportsCfg->start_date_offset = (7*24*60*60); // one week
 $tlCfg->reportsCfg->start_time = '00:00';
 
 // Result matrix (resultsTC.php)
-// Shows an extra column which gives the status of the last executed build
-$tlCfg->resultMatrixReport->buildColumns['showStatusLastExecuted'] = true;
+// Shows an extra column with the result of the latest execution on
+// the lastest CREATED build
+$tlCfg->resultMatrixReport->buildColumns['showExecutionResultLatestCreatedBuild'] = true;
+
+// Result matrix (resultsTC.php)
+// Shows an extra column with the note of latest execution on 
+// the lastest CREATED build
+$tlCfg->resultMatrixReport->buildColumns['showExecutionNoteLatestCreatedBuild'] = true;
 
 // Show build columns in revers order. The latest build is to the left
 $tlCfg->resultMatrixReport->buildColumns['latestBuildOnLeft'] = false;
@@ -753,7 +902,7 @@ $tlCfg->document_generator->requirement_css_template = 'css/tl_documents.css';
 // Display test case version when creating:
 // - test spec document
 // - test reports
-$tlCfg->document_generator->tc_version_enabled = FALSE;
+$tlCfg->document_generator->tc_version_enabled = TRUE;
 
 
 
@@ -867,6 +1016,12 @@ $tlCfg->exec_cfg->exec_mode->new_exec='clean';
 // save_and_move = 'unlimited'
 $tlCfg->exec_cfg->exec_mode->save_and_move='unlimited';
 
+/**
+ * @since 1.9.17
+ *
+ */
+$tlCfg->exec_cfg->exec_mode->addLinkToTLChecked = false;
+
 /** User filter in Test Execution navigator - default value */
 // logged_user -> combo will be set to logged user
 // none        -> no filter applied by default
@@ -932,6 +1087,33 @@ $tlCfg->exec_cfg->features->attachments = new stdClass();
 $tlCfg->exec_cfg->features->attachments->enabled = true;
 $tlCfg->exec_cfg->features->exec_duration = new stdClass();
 $tlCfg->exec_cfg->features->exec_duration->enabled = true;
+
+$tlCfg->exec_cfg->issues = new stdClass();
+$tlCfg->exec_cfg->issues->tcase_level = new stdClass();
+$tlCfg->exec_cfg->issues->tcstep_level = new stdClass();
+
+/**
+ * %%STEPNUMBER%%,%%TCNAME%%,%%PROJECTNAME%%,%%PLANNAME%%
+ * %%BUILDNAME%%,%%PLATFNAME%%,%%EXECTSISO%%,
+ * %%TCPATHNAME%%
+ *
+ * /saado/TS100/SAA-4:WSTEPS  Executed ON (ISO FORMAT): 2018-02-25CET10:00
+ */
+$tlCfg->exec_cfg->issues->tcase_level->subject = 
+'$$issue_subject_tcname %%TCPATHNAME%% - $$issue_subject_execon %%EXECTSISO%% ';
+
+/*
+$tlCfg->exec_cfg->issues->tcstep_level->subject = 
+'$$issue_on_step %%STEPNUMBER%% - $$issue_subject_tcname %%TCNAME%% - ' .
+'$$issue_subject_projectname %%PROJECTNAME%% - ' .
+'$$issue_subject_planname %%PLANNAME%% - ' .
+'$$issue_subject_buildname %%BUILDNAME%% - ' . 
+'$$issue_subject_platfname %%PLATFNAME%%';
+*/
+
+$tlCfg->exec_cfg->issues->tcstep_level->subject = '$$issue_on_step %%STEPNUMBER%% - $$issue_subject_tcname %%TCNAME%% ';
+
+
 
 
 // ----------------------------------------------------------------------------
@@ -1022,6 +1204,79 @@ $tlCfg->testcase_cfg->relations->type_labels = array(
 $tlCfg->testcase_cfg->relations->type_description = array(TL_REL_TYPE_PARENT_CHILD => 'parent_child',
                                                           TL_REL_TYPE_BLOCKS_DEPENDS => 'blocks_depends',
                                                           TL_REL_TYPE_RELATED => 'related_to');
+
+
+
+
+// @since 1.9.18
+// TRUE => After a test case version has been executed 
+//         attachment on test case spec can not be added/removed
+//         
+// FALSE  
+//
+// This means that at GUI Level, will not be possible:
+// add a new attachment to an Executed Test Case Version
+// delete an attachment from Executed Test Case Version
+$tlCfg->testcase_cfg->downloadOnlyAfterExec = TRUE;
+
+// This means that at GUI Level, will not be possible:
+// add a new req version link to an Executed Test Case Version
+// delete a req version link from Executed Test Case Version
+$tlCfg->testcase_cfg->reqLinkingDisabledAfterExec = TRUE;
+
+// Effects on Linked Requirements Version after 
+// execution of a Test Case Version
+$tlCfg->testcase_cfg->freezeReqVersionAfterExec = TRUE;
+
+
+// Effects on TCVersion N when TCVersion N+1 is created 
+$tlCfg->testcase_cfg->freezeTCVersionOnNewTCVersion = TRUE;
+$tlCfg->testcase_cfg->freezeTCVRelationsOnNewTCVersion = TRUE;
+
+// Because: 
+// The Relation must be frozen (cannot be deleted) when 
+// a new version of the test case is created.
+//
+// It seems confusing that relation can be added, then
+// this new configuration will allow this operation
+// only on latest test case version
+// 
+$tlCfg->testcase_cfg->addTCVRelationsOnlyOnLatestTCVersion = TRUE;
+
+
+// Not Already Implemented
+//$tlCfg->testcase_cfg->allowAddTCVRelationsOnOldTCVersion = TRUE;
+
+//$tlCfg->testcase_cfg->frozenNotExecutedTCVDelAttachtments = FALSE;
+//$tlCfg->testcase_cfg->frozenNotExecutedTCVAddAttachtments = FALSE;
+//$tlCfg->testcase_cfg->frozenNotExecutedTCVAddTCVRel = FALSE;
+//$tlCfg->testcase_cfg->frozenNotExecutedTCVDelTCVRel = FALSE;
+//$tlCfg->testcase_cfg->frozenNotExecutedTCVAddREQVLink = FALSE;
+//$tlCfg->testcase_cfg->frozenNotExecutedTCVDelREQVLink = FALSE;
+
+
+
+
+// Effects on Req Version to TCVersion LINK 
+// when a new version of a linked Test Case is created
+$tlCfg->reqTCLinks->freezeLinkOnNewTCVersion = TRUE;
+
+// Effects on Req Version to TCVersion LINK 
+// when a new version of a linked Req Version is created
+$tlCfg->reqTCLinks->freezeLinkOnNewREQVersion = TRUE;
+
+
+// Effects on BOTH ends of Req Version to TCVersion LINK 
+// when a new version of a linked TC Version is created
+$tlCfg->reqTCLinks->freezeBothEndsOnNewTCVersion = TRUE;
+
+// Effects on BOTH ends of Req Version to TCVersion LINK 
+// when a new version of a linked REQ Version is created
+$tlCfg->reqTCLinks->freezeBothEndsOnNewREQVersion = TRUE;
+
+
+// Effects on REQ Version N when REQ Version N+1 is created 
+$tlCfg->req_cfg->freezeREQVersionOnNewREQVersion = TRUE;
 
 
 
@@ -1122,32 +1377,6 @@ $tlCfg->platform_template->notes->value = '';
 $g_attachments = new stdClass();
 $g_attachments->enabled = TRUE;
 
-/** the type of the repository can be database or filesystem
- * TL_REPOSITORY_TYPE_DB => database
- * TL_REPOSITORY_TYPE_FS => filesystem
- **/
-$g_repositoryType = TL_REPOSITORY_TYPE_FS;
-
-/**
- * TL_REPOSITORY_TYPE_FS: the where the filesystem repository should be located
- * We recommend to change the directory for security reason.
- * (see http://itsecuritysolutions.org/2012-08-13-TestLink-1.9.3-multiple-vulnerabilities/)
- * Put it out of reach via web or configure access denied.
- *
- **/
-$g_repositoryPath = '/var/testlink/upload_area/';  /* unix example */
-
-/**
- * compression used within the repository
- * TL_REPOSITORY_COMPRESSIONTYPE_NONE => no compression
- * TL_REPOSITORY_COMPRESSIONTYPE_GZIP => gzip compression
- */
-$g_repositoryCompressionType = TL_REPOSITORY_COMPRESSIONTYPE_NONE;
-
-// the maximum allowed file size for each repository entry, default 1MB.
-// Also check your PHP settings (default is usually 2MBs)
-$tlCfg->repository_max_filesize = 1; //MB
-
 // TRUE -> when you upload a file you can give no title
 $g_attachments->allow_empty_title = TRUE;
 
@@ -1166,13 +1395,44 @@ $g_attachments->action_on_save_empty_title = 'none';
 // 'show_label' -> the value of $g_attachments->access_string will be used .
 $g_attachments->action_on_display_empty_title = 'show_icon';
 
+// Set display order of uploaded files 
+$g_attachments->order_by = " ORDER BY date_added DESC ";
+
+
 // need to be moved AFTER include of custom_config
 //
 // $g_attachments->access_icon = '<img src="' . $tlCfg->theme_dir . 'images/new_f2_16.png" style="border:none" />';
 $g_attachments->access_string = "[*]";
 
-// Set display order of uploaded files 
-$g_attachments->order_by = " ORDER BY date_added DESC ";
+
+
+
+/** the type of the repository can be database or filesystem
+ * TL_REPOSITORY_TYPE_DB => database
+ * TL_REPOSITORY_TYPE_FS => filesystem
+ **/
+$g_repositoryType = TL_REPOSITORY_TYPE_FS;
+
+/**
+ * TL_REPOSITORY_TYPE_FS: the where the filesystem repository should be located
+ * We recommend to change the directory for security reason.
+ * (see http://itsecuritysolutions.org/2012-08-13-TestLink-1.9.3-multiple-vulnerabilities/)
+ * Put it out of reach via web or configure access denied.
+ *
+ **/
+$g_repositoryPath = '/opt/bitnami/apps/testlink/htdocs/upload_area/';  /* unix example */
+
+/**
+ * compression used within the repository
+ * TL_REPOSITORY_COMPRESSIONTYPE_NONE => no compression
+ * TL_REPOSITORY_COMPRESSIONTYPE_GZIP => gzip compression
+ */
+$g_repositoryCompressionType = TL_REPOSITORY_COMPRESSIONTYPE_NONE;
+
+// the maximum allowed file size for each repository entry, default 1MB.
+// Also check your PHP settings (default is usually 2MBs)
+$tlCfg->repository_max_filesize = 1; //MB
+
 
 
 
@@ -1184,7 +1444,9 @@ $g_attachments->order_by = " ORDER BY date_added DESC ";
 // false: you want req_doc_id UNIQUE INSIDE a SRS
 // $tlCfg->req_cfg->reqdoc_id->is_system_wide = FALSE;
 
-// 20101212 - truncate log message to this amount of chars for reqCompareVersions
+$tlCfg->req_cfg->monitor_enabled = true;
+
+// truncate log message to this amount of chars for reqCompareVersions
 $tlCfg->req_cfg->log_message_len = 200;
 
 /**
@@ -1639,9 +1901,6 @@ if the name exist.
 */
 $g_prefix_name_for_copy = strftime("%Y%m%d-%H:%M:%S", time());
 
-// name of your custom.css, place it in same folder that standard TL css
-// null or '' => do not use
-$tlCfg->custom_css = null;
 
 
 /** 
@@ -1661,6 +1920,11 @@ $g_tpl = array('inc_exec_controls' => 'inc_exec_img_controls.tpl');
 //                 'tcSearchView' => 'myOwnTCSearchView.tpl',
 //                 'tcEdit' => 'tcEdit_ultraCool.tpl');
 
+/** Add o replace images */
+$tlCfg->images = array();
+
+
+
 // ----------------------------------------------------------------------------
 /* [PROXY] */
 /* Used only */ 
@@ -1678,27 +1942,33 @@ define('TL_PLUGIN_PATH', dirname(__FILE__) . DIRECTORY_SEPARATOR . 'plugins' . D
 
 // ----- End of Config ------------------------------------------------------------------
 // --------------------------------------------------------------------------------------
-// DO NOT CHANGE NOTHING BELOW
+// DO NOT DO CHANGES BELOW
 // --------------------------------------------------------------------------------------
 
 /** Functions for check request status */
 require_once('configCheck.php');
 
-clearstatcache();
-if ( file_exists( TL_ABS_PATH . 'custom_config.inc.php' ) )
-{
-  require_once( TL_ABS_PATH . 'custom_config.inc.php' );
-}
 
 if( !defined('TL_JQUERY') )
 {
-    define('TL_JQUERY','jquery-2.2.4.min.js' );
+  define('TL_JQUERY','jquery-2.2.4.min.js' );
+}
+
+if( !defined('TL_DATATABLES_DIR') )
+{
+  define('TL_DATATABLES_DIR','DataTables-1.10.4' );
 }
 
 /** root of testlink directory location seen through the web server */
 /*  20070106 - franciscom - this statement it's not 100% right
     better use $_SESSION['basehref'] in the scripts. */
 define('TL_BASE_HREF', get_home_url(array('force_https' => $tlCfg->force_https)));
+
+clearstatcache();
+if ( file_exists( TL_ABS_PATH . 'custom_config.inc.php' ) )
+{
+  require_once( TL_ABS_PATH . 'custom_config.inc.php' );
+}
 
 
 if( !isset($g_attachments->access_icon) )
@@ -1713,8 +1983,9 @@ $tlCfg->reportsCfg->exec_status = $tlCfg->results['status_label_for_exec_ui'];
 
 
 /** Support for localization */
-//  @TODO schlundus, move the code out of config and do it only once and not always in any include!
-//  @TODO schlundus, a better parsing function should be include
+//  @TODO move the code out of config and do it only once and 
+//  not always in any include!
+//  @TODO a better parsing function should be include
 $serverLanguage = false;
 if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE']))
 {
@@ -1748,7 +2019,7 @@ $tlCfg->results['code_status'] = array_flip($tlCfg->results['status_code']);
 // Enable CSRF global protection
 $tlCfg->csrf_filter_enabled = TRUE;
 
-// --------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------
 /** Converted and derived variables (Users should not modify this section) */
 define('REFRESH_SPEC_TREE',$tlCfg->spec_cfg->automatic_tree_refresh ? 1 : 0);
 define('TL_SORT_TABLE_ENGINE',$g_sort_table_engine);
@@ -1756,18 +2027,9 @@ define("TL_REPOSITORY_MAXFILESIZE", 1024*1024*$tlCfg->repository_max_filesize);
 
 define('TL_XMLEXPORT_HEADER', "<?xml version=\"1.0\" encoding=\"" . $tlCfg->charset . "\"?>\n");
 
-define('TL_THEME_BASE_DIR', $tlCfg->theme_dir);
-define('TL_THEME_IMG_DIR', $tlCfg->theme_dir . 'images/');
-define('TL_THEME_CSS_DIR', $tlCfg->theme_dir . 'css/');
-define('TL_TESTLINK_CSS', TL_THEME_CSS_DIR . TL_CSS_MAIN);
-define('TL_PRINT_CSS', TL_THEME_CSS_DIR . TL_CSS_PRINT);
-define('TL_TREEMENU_CSS', TL_THEME_CSS_DIR . TL_CSS_TREEMENU);
-
-// if you do not want to use this, redefine $tlCfg->custom_css as '' or null
-define('TL_TESTLINK_CUSTOM_CSS', TL_THEME_CSS_DIR . $tlCfg->custom_css);
 
 
-// --------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------
 // when a role is deleted, a new role must be assigned to all users
 // having role to be deleted
 // A right choice seems to be using $g_default_roleid.
@@ -1804,6 +2066,9 @@ $tlCfg->gui->title_separator_1 =  $tlCfg->gui_title_separator_1;
 $tlCfg->gui->title_separator_2 =  $tlCfg->gui_title_separator_2;
 $tlCfg->gui->role_separator_open =  $tlCfg->gui_separator_open;
 $tlCfg->gui->role_separator_close = $tlCfg->gui_separator_close;
+
+$tlCfg->gui->version_separator_open =  $tlCfg->gui_separator_open;
+$tlCfg->gui->version_separator_close = $tlCfg->gui_separator_close;
 
 
 /**
