@@ -3,6 +3,8 @@ TestLink Open Source Project - http://testlink.sourceforge.net/
 @filesource	reqViewRevisionViewer.tpl
 viewer for requirement
 
+@internal revisions
+@since 1.9.10
 *}
 {lang_get var="labels"
           s="requirement_spec,Requirements,scope,status,type,expected_coverage,  
@@ -73,15 +75,8 @@ viewer for requirement
 		</td>
 	</tr>
 	<tr>
-			<td>
-      {include file="$this_template_dir/displayReqCoverageRO.inc.tpl"
-               argsReqCoverage = $gui->reqCoverage}
-      </td>
+			<td>&nbsp;</td>
 	</tr>
-
-  <tr>
-      <td>&nbsp;</td>
-  </tr>
 
 	<tr class="time_stamp_creation">
   		<td >
@@ -89,7 +84,6 @@ viewer for requirement
       		{$labels.by}&nbsp;{$args_req.author|escape}
   		</td>
   </tr>
-
 	{if $args_req.modifier != ""}
   <tr class="time_stamp_creation">
   		<td >

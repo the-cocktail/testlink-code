@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 {config_load file="input_dimensions.conf" section="login"}
 {lang_get var='labels' 
-          s='login_name,password,btn_login,new_user_q,login,demo_usage,lost_password_q,oauth_login'}
+          s='login_name,password,btn_login,new_user_q,login,demo_usage,e_mail,mail,password_again,
+             lost_password_q,demo_mode_suggested_user,demo_mode_suggested_password,old_style_login'}
 <html >
   <head>
     <meta charset="UTF-8">
-    <title>{$labels.login}</title>
+    <title>TestLink · The Cocktail</title>
     <link rel="stylesheet" href="gui/icons/font-awesome-4.5.0/css/font-awesome.min.css">
 
     <link rel="stylesheet" href="gui/themes/default/login/codepen.io/marcobiedermann/css/style.css">
@@ -13,8 +14,7 @@
   <body class="align">
     <div class="site__container">
       <div class="grid__container">
-      <img src="{$tlCfg->theme_dir}images/{$tlCfg->logo_login}"><br>
-      <span>{$tlVersion|escape} </span>
+      <img src="{$tlCfg->theme_dir}images/{$tlCfg->logo_login}">
       </div>
       
       {if $gui->note != ''}
@@ -45,9 +45,6 @@
             <input type="hidden" name="reqURI" value="{$gui->reqURI|escape:'url'}"/>
             <input type="hidden" name="destination" value="{$gui->destination|escape:'url'}"/>
 
-            {if $gui->ssodisable}
-            <input type="hidden" name="ssodisable" value="{$gui->ssodisable}"/>
-            {/if}
 
             <div class="form__field">
               <label for="tl_login"><i class="fa fa-user"></i></label>
@@ -60,16 +57,9 @@
             </div>
 
             <div class="form__field">
-              <input type="submit" value="{$labels.btn_login}">
+              <input type="submit" style="background-color:#EDFFBD;" value="{$labels.btn_login}">
             </div>
 
-            {foreach from=$gui->oauth item=oauth_item}
-                <div class="button">
-                <a style="text-decoration: none; color:#ffffff;" href="{$oauth_item->link}">
-                <img src="{$tlCfg->theme_dir}images/{$oauth_item->icon}" style="height: 42px; vertical-align:middle;">
-                <span style="padding: 10px;">{$labels.oauth_login}{$oauth_item->name}</span></a>
-                </div>
-            {/foreach}
           </form>
 
           <p class="text--center">
@@ -84,6 +74,13 @@
           </p> 
         </div>
       {/if}
+
+      <div>
+        <p class="text--center">
+          <em>TestLink {$tlVersion|escape}</em>
+        </p>
+      </div>
+    </div>
   </div>
 </body>
 </html>

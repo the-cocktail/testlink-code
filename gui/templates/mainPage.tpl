@@ -8,8 +8,6 @@
 {include file="inc_head.tpl" popup="yes" openHead="yes"}
 
 {include file="inc_ext_js.tpl"}
-{include file="bootstrap.inc.tpl"}
-
 <script language="JavaScript" src="{$basehref}gui/niftycube/niftycube.js" type="text/javascript"></script>
 <script type="text/javascript">
 window.onload=function() 
@@ -79,7 +77,7 @@ window.onload=function()
 </script>
 </head>
 
-<body class="testlink">
+<body>
 {if $gui->securityNotes}
   {include file="inc_msg_from_array.tpl" array_of_msg=$gui->securityNotes arg_css_class="warning"}
 {/if}
@@ -89,6 +87,5 @@ window.onload=function()
 
 {* ----- Left Column -------------- *}
 {include file="mainPageLeft.tpl"}
-
 </body>
 </html>

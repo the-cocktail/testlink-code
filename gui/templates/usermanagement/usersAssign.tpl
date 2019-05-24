@@ -71,9 +71,17 @@ function toggleRowByClass(oid,className,displayCheckOn,displayCheckOff,displayVa
 </script>
 
 {if $tlCfg->gui->usersAssign->pagination->enabled}
-  {$ll = $tlCfg->gui->usersAssign->pagination->length}
-  {include file="DataTables.inc.tpl" DataTablesOID="item_view" DataTableslengthMenu=$ll}
+<link rel="stylesheet" type="text/css" href="{$basehref}/third_party/DataTables-1.10.4/media/css/jquery.dataTables.TestLink.css">
+<script type="text/javascript" language="javascript" src="{$basehref}/third_party/DataTables-1.10.4/media/js/jquery.js"></script>
+<script type="text/javascript" language="javascript" src="{$basehref}/third_party/DataTables-1.10.4/media/js/jquery.dataTables.js"></script>
+
+<script type="text/javascript" language="javascript" class="init">
+$(document).ready(function() {
+  $('#item_view').DataTable({ "lengthMenu": [ {$tlCfg->gui->usersAssign->pagination->length} ] });
+} );
+</script></script>
 {/if}
+
 
 </head>
 <body>
@@ -100,25 +108,15 @@ during refresh feature, and then we have a bad refresh on page getting a bug.
 	{/if}>
 	<input type="hidden" name="featureID" value="{$gui->featureID}" />
 	<input type="hidden" name="featureType" value="{$gui->featureType}" />
-
-  {$styleLH="padding: 0px 30px 10px 5px;"}
-  <div class="panel panel-default" style="background-color: #EAEAED;">
-    <div class="panel-body">
-		<table style="border:0;">
+	<div>
+		<table border='0'>
     	{if $gui->featureType == 'testproject'}
-    		<tr>
-          <td class="labelHolder" style="{$styleLH}">{$labels.TestProject}{$gui->accessTypeImg}</td>
-          <td>&nbsp;</td>
+    		<tr><td class="labelHolder">{$labels.TestProject}{$gui->accessTypeImg}</td><td>&nbsp;</td>
     	{else}
+    		<tr><td class="labelHolder">{$labels.TestProject}{$smarty.const.TITLE_SEP}</td><td>{$gui->tproject_name|escape}</td></tr>
     		<tr>
-          <td class="labelHolder" style="{$styleLH}">{$labels.TestProject}{$gui->tprojectAccessTypeImg}</td>
-          <td>{$gui->tproject_name|escape}</td>
-        </tr>
-    		<tr>
-				  <td class="labelHolder" style="{$styleLH}">{$labels.TestPlan}{$gui->accessTypeImg}
-          </td>
+				<td class="labelHolder">{$labels.TestPlan}{$gui->accessTypeImg}</td>
     	{/if}
-
 		    	<td>
             <select id="featureSel" onchange="changeFeature('{$gui->featureType}')">
 		    	   {foreach from=$gui->features item=f}
@@ -131,13 +129,11 @@ during refresh feature, and then we have a bad refresh on page getting a bug.
 		    	   </select>
 		    	</td>
 			<td>
-          {* 
 					<input type="button" value="{$labels.btn_change}" onclick="changeFeature('{$gui->featureType}');"/>
-          *}
 		  </td>
 			</tr>
    		<tr>
-   		<td class="labelHolder" style="{$styleLH}"">{$labels.set_roles_to}</td>{if $gui->featureType == 'testproject'} <td>&nbsp;</td> {/if}
+   		<td class="labelHolder">{$labels.set_roles_to}</td>{if $gui->featureType == 'testproject'} <td>&nbsp;</td> {/if}
       <td>
         <select name="allUsersRole" id="allUsersRole">
 		      {foreach key=role_id item=role from=$gui->optRights}
@@ -148,7 +144,6 @@ during refresh feature, and then we have a bad refresh on page getting a bug.
 			  </select>
       </td>
       <td>
-          &nbsp;
 					<input type="button" value="{$labels.btn_do}" 
 					       onclick="javascript:set_combo_group('usersRoleTable','userRole_',
 					                                           document.getElementById('allUsersRole').value);"/>
@@ -157,10 +152,9 @@ during refresh feature, and then we have a bad refresh on page getting a bug.
 
 		</table>
     </div>
-    </div>
-
+    
     <div id="usersRoleTable">
-	    <table class="common table table-bordered sortable" width="100%" id="item_view">
+	    <table class="common sortable" width="100%" id="item_view">
     	<tr>
     		<th>{$tlImages.sort_hint}{$labels.User}</th>
     		{assign var="featureVerbose" value=$gui->featureType}

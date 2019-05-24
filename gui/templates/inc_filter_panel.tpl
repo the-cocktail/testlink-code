@@ -28,8 +28,7 @@
                         document_id, req_expected_coverage, title,bugs_on_context,
                         status, req_type, req_spec_type, th_tcid, has_relation_type,
                         btn_export_testplan_tree,btn_export_testplan_tree_for_results,
-                        tester_works_with_settings,btn_bulk_remove,btn_bulk_copy,
-						test_grouped_by, parent_child_relation'}
+                        tester_works_with_settings,btn_bulk_remove,btn_bulk_copy'}
 
 {config_load file="input_dimensions.conf" section="treeFilterForm"}
 
@@ -121,18 +120,6 @@
         </tr>
       {/if}
 
-	  {if $control->settings.setting_testsgroupby}
-		<tr>
-			<td>{$labels.test_grouped_by}</td>
-			<td>
-				<select name="setting_testsgroupby" class="chosen-select" onchange="this.form.submit()">
-				{html_options options=$control->settings.setting_testsgroupby.items
-							  selected=$control->settings.setting_testsgroupby.selected}
-				 </select>
-			</td>
-		</tr>
-	  {/if}
-	  
       {if $control->settings.setting_refresh_tree_on_action}
         <tr>
             <td>{$labels.do_auto_update}</td>
@@ -147,24 +134,6 @@
                        name="setting_refresh_tree_on_action"
                        {if $control->settings.setting_refresh_tree_on_action.selected} checked {/if}
                        style="font-size: 90%;" onclick="this.form.submit()"/>
-            </td>
-          </tr>
-      {/if}
-	  
-	  {if $control->settings.setting_get_parent_child_relation}
-        <tr>
-            <td>{$labels.parent_child_relation}</td>
-            <td>
-				<input type="hidden" 
-                      id="hidden_setting_get_parent_child_relation"
-                      name="hidden_setting_get_parent_child_relation" 
-                      value="{$control->settings.setting_get_parent_child_relation.hidden_setting_get_parent_child_relation}" />
-			
-				<input type="checkbox"
-					   id="cbsetting_get_parent_child_relation"
-					   name="setting_get_parent_child_relation"
-					   {if $control->settings.setting_get_parent_child_relation.selected} checked {/if}
-					   style="font-size: 90%;" onclick="this.form.submit()"/>
             </td>
           </tr>
       {/if}
@@ -204,6 +173,13 @@
       </table>
     </div> {* settings *}
   </div> {* settings_panel *}
+
+  <script>
+  jQuery( document ).ready(function() {
+  jQuery(".chosen-select").chosen({ width: "85%" , allow_single_deselect: true});
+  });
+  </script>
+
 {/if} {* display settings *}
 
 {if $control->display_filters}
@@ -538,7 +514,7 @@
     {$labels.caption_nav_filters}
   </div>
 
-  <div id="filters" class="x-panel-body exec_additional_info" style="padding-top: 3px; overflow: visible;">
+  <div id="filters" class="x-panel-body exec_additional_info" style="padding-top: 3px;">
 
   <table class="smallGrey" style="width:98%;">
 
@@ -715,8 +691,7 @@
          onclick="javascript:delete_testers_from_build({$control->settings.setting_build.selected});"
   />
 {/if}
-{*  remove till more time to understand 20190114  *}
-{if false && $control->draw_tc_assignment_bulk_copy_button}
+{if $control->draw_tc_assignment_bulk_copy_button}
   <input type="button" style="font-size: 90%;"
          name="copy_tester_assignments"
          value="{$labels.btn_bulk_copy}"
@@ -725,10 +700,3 @@
 {/if}
 </form>
 <p>
-
-<script>
-jQuery( document ).ready(function() {
-jQuery(".chosen-select").chosen({ width: "85%" , allow_single_deselect: true});
-jQuery('select[data-cfield="list"]').chosen({ width: "85%" , allow_single_deselect: true});
-});
-</script>

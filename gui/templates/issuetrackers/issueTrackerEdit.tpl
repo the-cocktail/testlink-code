@@ -1,13 +1,16 @@
 {*
 TestLink Open Source Project - http://testlink.sourceforge.net/
 @filesource	issueTrackerEdit.tpl
+
+@internal revisions
+@since 1.9.4
 *}
 {$url_args="lib/issuetrackers/issueTrackerEdit.php"}
 {$edit_url="$basehref$url_args"}
 
 {lang_get var='labels'
           s='warning,warning_empty_issuetracker_name,warning_empty_issuetracker_type,
-             show_event_history,th_issuetracker,th_issuetracker_type,config,btn_cancel,show_hide,
+             show_event_history,th_issuetracker,th_issuetracker_type,config,btn_cancel,
              issuetracker_show_cfg_example,issuetracker_cfg_example,used_on_testproject,btn_check_connection,issueTracker_connection_ok,issueTracker_connection_ko'}
 
 {include file="inc_head.tpl" jsValidate="yes" openHead="yes"}
@@ -30,19 +33,7 @@ function validateForm(f)
 function displayITSCfgExample(oid,displayOID)
 {
 	var type;
-	var HTMLTxt;
-  var ztr;
-
-  type = Ext.get(oid).getValue();
-  HTMLTxt = document.getElementById(displayOID).innerText;
-
-  ztr = HTMLTxt.trim();
-  if(ztr.length > 0)
-  {
-    document.getElementById(displayOID).innerHTML = '';
-    return;
-  }  
-
+	type = Ext.get(oid).getValue();
 	Ext.Ajax.request({
 		url: fRoot+'lib/ajax/getissuetrackercfgtemplate.php',
 		method: 'GET',
@@ -62,7 +53,6 @@ function displayITSCfgExample(oid,displayOID)
 	
 }
 </script>
-{include file="bootstrap.inc.tpl"}
 </head>
 
 <body>
@@ -74,21 +64,21 @@ function displayITSCfgExample(oid,displayOID)
 {if $gui->canManage != ""}
   <div class="workBack">
   
+  <div class="action_descr">{$gui->action_descr|escape}
+  	{if $gui->mgt_view_events eq "yes" && $gui->item.id > 0}
+			<img style="margin-left:5px;" class="clickable" src="{$tlImages.info}"
+				 onclick="showEventHistoryFor('{$gui->item.id}','issuetrackers')" 
+				 alt="{$labels.show_event_history}" title="{$labels.show_event_history}"/>
+	{/if}
+  
+  </div><br />
   {include file="inc_feedback.tpl" user_feedback=$gui->user_feedback}
 
-  {$showCheckConnAlert=false}
-  {if $gui->connectionStatus == 'ok'}
-    {$showCheckConnAlert=true}
-    {$connAlert = $labels.issueTracker_connection_ok}
-    {$addClass='success'}
-  {else if $gui->connectionStatus == 'ko'}    
-    {$showCheckConnAlert=true}
-    {$connAlert = $labels.issueTracker_connection_ko}
-    {$addClass='danger'}
-  {/if}
 
-  {if $showCheckConnAlert}
-    <div class="alert alert-{$addClass}" style="width:50%;" role="alert"> {$connAlert} </div>
+  {if $gui->connectionStatus == 'ok'}
+    {$labels.issueTracker_connection_ok}
+  {else if $gui->connectionStatus == 'ko'}    
+    {$labels.issueTracker_connection_ko}
   {/if}
 
   	<form name="edit" method="post" action="{$edit_url}" onSubmit="javascript:return validateForm(this);">
@@ -107,6 +97,7 @@ function displayITSCfgExample(oid,displayOID)
   			<select id="type" name="type">
   				{html_options options=$gui->typeDomain selected=$gui->item.type}
   			</select>
+  			<a href="javascript:displayITSCfgExample('type','cfg_example')">{$labels.issuetracker_show_cfg_example}</a>
 			</td>
   		</tr>
 		
@@ -116,11 +107,7 @@ function displayITSCfgExample(oid,displayOID)
   									 cols="{#ISSUETRACKER_CFG_COLS#}">{$gui->item.cfg}</textarea></td>
   		</tr>
   		<tr>
-  			<th> {$labels.issuetracker_cfg_example}
-          <a href="javascript:displayITSCfgExample('type','cfg_example')">
-            <img src="{$tlImages.eye}" title="{$labels.show_hide}">
-          </a>
-        </th>
+  			<th>{$labels.issuetracker_cfg_example}</th>
   			<td name="cfg_example" id="cfg_example">&nbsp;</td>
   		</tr>
   	</table>

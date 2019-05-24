@@ -4,18 +4,30 @@ TestLink Open Source Project - http://testlink.sourceforge.net/
 
 Purpose: Default TestLink CSS
 
+IMPORTANT:
+NiftyCube rounding package has problems with I.E. 6 if background color is
+assigned using name (example: white) instead of code (example: #FFF)
+
 */
 
 /* ***** GLOBAL HTML ***************************************************************** */
 body, body.testlink {
-	background:  	#EEE!important; 
+	background:  	#EFE;
 	font-family: 	'Trebuchet MS', Arial, Verdana, sans-serif;
 	font-size: 		small;
 	margin:			0px;
 	padding:		0px;
 }
 
-/** 
+body.landing {
+	background:  	#EDFFBD; /* 059 */
+	font-family: 	'Trebuchet MS', Arial, Verdana, sans-serif;
+	font-size: 		small;
+	margin:			0px;
+	padding:		0px;
+}
+
+/**
 use together with #header-wrap, to create a section on top of body
 that remain always visible while rest of body content scrolls,
 giving visual experience that body goes under the section on top
@@ -42,7 +54,7 @@ span, div {
 /* h1.title - To avoid problems with ext js css */
 /* 20080529 - franciscom - font-size reduced */
 h1, h1.title {
-	background:		#059;
+	background:		#708c0b;
 	border: 		1px solid black;
 	color:			white;
 	margin:			0px 0px 4px 0px;
@@ -68,7 +80,7 @@ form
 {
 	margin: 		0px;
 	padding: 		0px;
-} 
+}
 
 /* 20100225 - eloff - BUGID 3217 - Ext removes bullets from all lists, re-add bullets to our lists */
 .workBack ol {
@@ -82,37 +94,36 @@ form
 }
 
 /* ***** Links ***** */
-/* A Visited link is still blue, except if class is btn-primary from bootstrap */
-
-a:not(.btn-primary){
-	color: 			#059;
+/* A Visited link is still blue */
+a:visited, a:link, a:active {
+	color: 			#708c0b;
 	text-decoration: none;
 }
-
 /* A link being hovered over is red*/
 a:hover   {
-	color: 			#900;
+	color: 			#EDFFBD;
 	text-decoration: none;
 }
+
 
 /* ***** Menu bar specific ******************************************* */
 div.menu_title {
-	margin-left:	135px;
-	padding:		3px;
+	float: right;
+	margin-left:	1px;
+	padding: 14px;
 }
 
 div.menu_bar {
-	background: 	#CDE;
-	background-image: url(../images/navbar.gif);
+	background: 	#FFF;
 	border-style:	groove;
 	border-width:	thin;
-	padding: 		1px 5px;
+	padding: 		3px 7px 5px;
 	margin:			0px 3px;
-	
+
 }
 
 select.menu_combo {
-	background: 	#EEE;
+	background: 	#EFE;
 	border-style:	none;
 	font-size:	 	smaller;
 	font-weight:    bold;
@@ -122,7 +133,7 @@ select.menu_combo {
 /* ***** Main page specific ***************************************** */
 
 div.testproject_title{
-	background:		#059;
+	background:		#EDFFBD;
 	border: 		1px solid black;
 	color:			white;
 	font-size:		110%;
@@ -133,7 +144,7 @@ div.testproject_title{
 
 /* **** general classes ************************************* */
 
-/** 
+/**
 use together with body.fixedheader, to create a section on top of body
 that remain always visible while rest of body content scrolls,
 giving visual experience that body goes under the section on top.
@@ -157,7 +168,7 @@ On chrome seems not work
 div.workBack {
 	text-align: 	left;
 	margin: 		3px;
-	background: 	#CDE;
+	background: 	#FFF;
 	padding: 		3px 3px 50px 3px;
 	border-style:	groove;
 	border-width:	thin;
@@ -178,7 +189,7 @@ div.workBack {
 
 span.form_label {
 	font-weight:    bold;
-	width:			200px; 
+	width:			200px;
 	float:			left;
 }
 
@@ -186,7 +197,7 @@ span.form_label {
 
 /* for tree menu */
 div.tree {
-	background: 	#EEE;
+	background: 	#EFE;
 	padding: 		3px;
 	border: 		1px solid #808080;
 	margin:			3px;
@@ -198,7 +209,7 @@ div.groupBtn {
 }
 
 div.vertical_menu {
-	background: 	#EEE;
+	background: 	#EFE;
 	font-size:      90%;
 	margin: 		3px;
 	padding: 		2px;
@@ -320,16 +331,16 @@ span.help
 }
 
 #tlhelp {
-	position: 		absolute; 
-	z-index:		100; 
-	padding:		5px; 
-	right:			50px; 
-	top:			50px; 
-	width: 			500px; 
+	position: 		absolute;
+	z-index:		100;
+	padding:		5px;
+	right:			50px;
+	top:			50px;
+	width: 			500px;
 	height:			auto;
-	background: 	#059;
+	background: 	#EDFFBD;
 	color:			white;
-	font-size:		80%; 
+	font-size:		80%;
 	border: 		medium solid #808080;
 }
 
@@ -378,19 +389,19 @@ span.help
 }
 
 div.messages {
-	background-color:	#059;
+	background-color:	#EDFFBD;
 	color:				white;
 	margin: 			3px;
 	padding:			3px;
 }
 
 div.messages_rounded {
-	background-color:	#059;
+	background-color:	#EDFFBD;
 	color:				white;
 	margin: 			3px;
 	padding:			3px;
     border-style:solid;
-    border-color:#059;
+    border-color:#EDFFBD;
     border-radius: 10px;
 }
 
@@ -411,7 +422,7 @@ span.selected, span.unselected {
 }
 
 span.selected {
-	background:		#059;
+	background:		#EDFFBD;
 	color:			white;
 }
 
@@ -438,7 +449,7 @@ span.unselected a, span.unselected a:visited {
 
 /* ***** Common ********************* */
 table.common {
-	background:     #EEE;
+	background:     #EFE;
 	border: 		1px solid black;
 	margin-bottom:	20px;
 	min-width:		50%;
@@ -446,13 +457,12 @@ table.common {
 
 table.common th, table.simple th, table.simple_tableruler th{
   	overflow:		hidden;
-  	color:			#15428b;
+  	color:			#EDFFBD;
   	font:			bold 11px tahoma,arial,verdana,sans-serif;
   	padding:		5px 3px 4px 5px;
-  	border:			1px solid #99bbe8;
+  	border:			1px solid #EDFFBD;
   	line-height:	15px;
-  	background:		transparent url(../images/white-top-bottom.gif) repeat-x 0 -1px;
-  	background-color: #CDDEF3;
+  	background-color: #FFF;
 }
 
 table.common td,th{
@@ -479,7 +489,7 @@ table.common caption, table.smallGrey caption {
 
 /* ***** Simple Table (often used to show data) ***************** */
 table.simple, table.simple_tableruler {
-	background:     #EEE;
+	background:     #EFE;
 	border: 		thin solid black;
 	font-size:		90%;
 	margin:			5px;
@@ -497,13 +507,13 @@ table.simple_tableruler tr:hover{
     background-color: #CDDEF3 !important;
 }
 
-table.tableruler tbody tr:hover{
+table.tableruler tr:hover{
     background-color: #FFF !important;
 }
 
 /* Used for filters and options settings */
 table.smallGrey {
-	background:     #EEE;
+	background:     #EFE;
 	border: 		1px solid black;
 	font-size:		smaller;
 	margin-bottom:	10px;
@@ -519,7 +529,7 @@ table.invisible {
 }
 
 table.mainTable{
-	background: 	#EEE;
+	background: 	#EFE;
 	border: 		1px double black;
 	min-width:		200px;
 }
@@ -533,7 +543,7 @@ table.mainTable th {
 }
 
 table.link_and_exec {
-	background:     #EEE;
+	background:     #EFE;
 	border: 		1px solid black;
 	margin-bottom:	10px;
 	margin-right:	0px;
@@ -545,7 +555,7 @@ table.link_and_exec th {
 
 /* *****  Table Execution History ********* */
 table.exec_history {
-	background:     #EEE;
+	background:     #EFE;
 	border: 		thin solid black;
 	font-size:		90%;
 	margin:			20px;
@@ -717,7 +727,7 @@ div.resultBox {
 }
 
 div.resultBox img:hover {
-	cursor:		pointer;	
+	cursor:		pointer;
 }
 
 img.arrow {
@@ -731,7 +741,7 @@ div.exec_history {
 }
 
 span.type1 {
-	background:		#059;
+	background:		#EDFFBD;
 	border: 		1px solid black;
 	color:			white;
 	font-size:		110%;
@@ -825,29 +835,29 @@ div.login_form {
     border-radius: 15px;
 }
 
-div.login_form.large { 
-	border-color:#FFF;	
+div.login_form.large {
+	border-color:#FFF;
 	font-size: large;
 }
 
 
-div.login_form.medium { 
+div.login_form.medium {
     border: 4px;
     border-style:solid;
-	border-color:#FFF;	
+	border-color:#FFF;
 	font-size: medium;
 }
 /*
-div.login_form.medium { 
+div.login_form.medium {
     border-style:solid;
-	border-color:#FFF;	
+	border-color:#FFF;
 	font-size: medium;
 }
 */
 
 
 .big_button{
-	width: 80px; height : 30px; 
+	width: 80px; height : 30px;
 }
 
 
@@ -879,7 +889,7 @@ div.login_form.medium {
 
 /* havlatm: @TODO title must be header markup */
 .exec_tc_title {
-	background:		#059;
+	background:		#EDFFBD;
 	color:			white;
 	margin-bottom:	4px;
 	padding: 		3px;
@@ -916,10 +926,10 @@ input.tl-input{
 
 table.mainTable-x th {
   overflow:hidden;
-  color:#15428b;
+  color:#EDFFBD;
   font:bold 11px tahoma,arial,verdana,sans-serif;
   padding:5px 3px 4px 5px;
-  border:1px solid #99bbe8;
+	border:			1px solid #EDFFBD;
   line-height:15px;
   background:transparent url(../images/white-top-bottom.gif) repeat-x 0 -1px;
 }
@@ -935,70 +945,70 @@ th.testlink, td.testlink, tr.testlink td {
 	cursor:pointer;
 }
 
-/* 
+/*
 @since 1.9.6
-@internal notice: 
+@internal notice:
 !important is CRITIC because without it, the alternate row color of ext-js grid will take precedence
 
 @internal revisions
-20121230 - franciscom - used on ext-js table implementation of users view 
+20121230 - franciscom - used on ext-js table implementation of users view
 
 */
-.roleCode9 
+.roleCode9
 {
   background-color: acqua !important;
   color: black;
 }
 
-.roleCode8 
+.roleCode8
 {
   background-color: white !important;
   color: black;
 }
 
-.roleCode7 
+.roleCode7
 {
   background-color: wheat !important;
   color: black;
 }
 
-.roleCode6 
+.roleCode6
 {
   background-color: #FFA !important;
   color: black;
 }
 
-.roleCode5 
+.roleCode5
 {
   background-color: pink !important;
   color: black;
 }
 
-.roleCode4 
+.roleCode4
 {
   background-color: cyan !important;
   color: black;
 }
 
-.roleCode3 
+.roleCode3
 {
   background-color: grey !important;
   color: black;
 }
 
-.roleCode2 
+.roleCode2
 {
   background-color: yellow !important;
   color: black;
 }
 
-.roleCode1 
+.roleCode1
 {
   background-color: yellow !important;
   color: black;
 }
 
-.roleCode0 
+.roleCode0
 {
   background-color: seashell !important;
   color: black;
@@ -1026,9 +1036,9 @@ th.testlink, td.testlink, tr.testlink td {
 /* Taken from Ext JS, and adapted */
 
 .x-tl-panel{border-style:solid;border-color:#99bbe8;border-width:0;}
-.x-tl-panel-header{overflow:hidden;color:#15428b;font:bold 11px tahoma,arial,verdana,sans-serif;
-                   padding:2px 1px 1px 2px;border:1px solid #99bbe8;line-height:15px;
-                   background:transparent url(../images/white-top-bottom.gif) repeat-x 0 -1px;}
+.x-tl-panel-header{overflow:hidden;color:#708c0b;font:bold 11px tahoma,arial,verdana,sans-serif;
+                   padding:4px;border:1px solid #99bbe8;line-height:15px;
+                   background-color: #FFF;}
 .x-tl-panel-body{border:1px solid #99bbe8;border-top:0 none;overflow:hidden;background:white;}
 .x-tl-panel-bbar {border:1px solid #99bbe8;border-top:0 none;overflow:hidden;padding:2px;}
 .x-tl-panel-tbar {border:1px solid #99bbe8;border-top:0 none;overflow:hidden;padding:2px;}
@@ -1036,7 +1046,7 @@ th.testlink, td.testlink, tr.testlink td {
                                                                           border-bottom:0 none;}
 .x-tl-panel-body-noheader,.x-tl-panel-mc .x-tl-panel-body{border-top:1px solid #99bbe8;}
 .x-tl-panel-header{overflow:hidden;}
-.x-tl-panel-tl .x-tl-panel-header{color:#15428b;font:bold 11px tahoma,arial,verdana,sans-serif;
+.x-tl-panel-tl .x-tl-panel-header{color:#EDFFBD;font:bold 11px tahoma,arial,verdana,sans-serif;
                                padding:5px 0 4px 0;border:0 none;background:transparent;}
 .x-tl-panel-tl .x-tl-panel-icon,.x-window-tl .x-tl-panel-icon{padding-left:20px!important;background-repeat:no-repeat;
                                                         background-position:0 4px;}
@@ -1080,32 +1090,17 @@ th.testlink, td.testlink, tr.testlink td {
     text-align:left;
 }
 
-/* From ACE */
-.page-content {
-    margin: 0 0 10px;
-    padding: 8px 8px 24px;
-    position: relative;
+#filter_panel_form .x-tool {
+	display: none;
 }
 
-/* To adjust Bootstrap tables */
-.table {
-  font-size: 12px;
+#filters {
+  padding: 6px;
 }
 
-.table th, .table tr, .table td {
-   height: 10px;
-}
-
-.table .thead-dark th {
-  color: #fff;
-  background-color: #212529;
-  border-color: #32383e;
-}
-
-.table .thead-light th {
-  color: #495057;
-  background-color: #e9ecef;
-  border-color: #dee2e6;
+input[type="button"],
+input[type="submit"] {
+  padding: 3px;
 }
 
 /* ----- END ------------------------------------------------------------------------- */

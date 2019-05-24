@@ -18,7 +18,7 @@ TestLink Open Source Project - http://testlink.sourceforge.net/
 
   <tr>
     <th width="40px"><nobr>
-    {if $edit_enabled && $steps != '' && !is_null($steps) && $args_frozen_version=="no"}
+    {if $edit_enabled && $steps != '' && !is_null($steps)}
       <img class="clickable" src="{$tlImages.reorder}" align="left"
            title="{$inc_steps_labels.show_hide_reorder}"
            onclick="showHideByClass('span','order_info');">
@@ -45,7 +45,7 @@ TestLink Open Source Project - http://testlink.sourceforge.net/
           <img class="clickable" src="{$tlImages.clear_notes}" 
           onclick="javascript:clearTextAreaByClassName('step_note_textarea');" title="{$inc_steps_labels.clear_all_notes}"></th>
 
-      <th>{$inc_steps_labels.step_exec_status}
+      <th>{$inc_steps_labels.exec_result}
        <img class="clickable" src="{$tlImages.reset}" 
           onclick="javascript:clearSelectByClassName('step_status');" title="{$inc_steps_labels.clear_all_status}"></th>
     {/if}    
@@ -63,7 +63,7 @@ TestLink Open Source Project - http://testlink.sourceforge.net/
   <tr id="step_row_{$step_info.step_number}">
     <td style="text-align:left;">
       <span class="order_info" style='display:none'>
-      {if $edit_enabled && $args_frozen_version=="no"}
+      {if $edit_enabled}
         <input type="text" class="step_number{$args_testcase.id}" name="step_set[{$step_info.id}]" id="step_set_{$step_info.id}"
           value="{$step_info.step_number}"
           size="{#STEP_NUMBER_SIZE#}"
@@ -73,14 +73,14 @@ TestLink Open Source Project - http://testlink.sourceforge.net/
       </span>
       {$step_info.step_number}
     </td>
-    <td {if $edit_enabled && $args_frozen_version=="no"} style="cursor:pointer;" onclick="launchEditStep({$step_info.id})" {/if}>{if $gui->stepDesignEditorType == 'none'}{$step_info.actions|nl2br}{else}{$step_info.actions}{/if}
+    <td {if $edit_enabled} style="cursor:pointer;" onclick="launchEditStep({$step_info.id})" {/if}>{if $gui->stepDesignEditorType == 'none'}{$step_info.actions|nl2br}{else}{$step_info.actions}{/if}
     </td>
-    <td {if $edit_enabled && $args_frozen_version=="no"} style="cursor:pointer;" onclick="launchEditStep({$step_info.id})" {/if}>{if $gui->stepDesignEditorType == 'none'}{$step_info.expected_results|nl2br}{else}{$step_info.expected_results}{/if}</td>
+    <td {if $edit_enabled} style="cursor:pointer;" onclick="launchEditStep({$step_info.id})" {/if}>{if $gui->stepDesignEditorType == 'none'}{$step_info.expected_results|nl2br}{else}{$step_info.expected_results}{/if}</td>
     {if $session['testprojectOptions']->automationEnabled}
-    <td {if $edit_enabled && $args_frozen_version=="no"} style="cursor:pointer;" onclick="launchEditStep({$step_info.id})" {/if}>{$gui->execution_types[$step_info.execution_type]}</td>
+    <td {if $edit_enabled} style="cursor:pointer;" onclick="launchEditStep({$step_info.id})" {/if}>{$gui->execution_types[$step_info.execution_type]}</td>
     {/if}
 
-    {if $edit_enabled && $args_frozen_version=="no"}
+    {if $edit_enabled}
     <td class="clickable_icon">
       <img style="border:none;cursor: pointer;"
            title="{$inc_steps_labels.delete_step}"
@@ -106,7 +106,7 @@ TestLink Open Source Project - http://testlink.sourceforge.net/
 
       <td>
         <select class="step_status" name="step_status[{$step_info.id}]" id="step_status_{$step_info.id}">
-          {html_options options=$gui->execStepStatusValues selected=$step_info.execution_status}
+          {html_options options=$gui->execStatusValues selected=$step_info.execution_status}
 
         </select> <br>
         

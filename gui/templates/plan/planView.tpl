@@ -6,6 +6,9 @@ TestLink Open Source Project - http://testlink.sourceforge.net/
 @internal development hint:
 some smarty and javascript variables are created on the inc_*.tpl files.
      
+@internal revisions
+@since 1.9.15
+*}
 {$cfg_section=$smarty.template|basename|replace:".tpl":""}
 {config_load file="input_dimensions.conf" section=$cfg_section}
 
@@ -43,9 +46,15 @@ var del_action=fRoot+'{$deleteAction}';
 </script>
 
 {if $tlCfg->gui->planView->pagination->enabled}
-  {$ll = $tlCfg->gui->planView->pagination->length}
-  {include file="DataTables.inc.tpl" DataTablesOID="item_view"
-                                     DataTableslengthMenu=$ll}
+<link rel="stylesheet" type="text/css" href="{$basehref}/third_party/DataTables-1.10.4/media/css/jquery.dataTables.TestLink.css">
+<script type="text/javascript" language="javascript" src="{$basehref}/third_party/DataTables-1.10.4/media/js/jquery.js"></script>
+<script type="text/javascript" language="javascript" src="{$basehref}/third_party/DataTables-1.10.4/media/js/jquery.dataTables.js"></script>
+
+<script type="text/javascript" language="javascript" class="init">
+$(document).ready(function() {
+  $('#item_view').DataTable({ "lengthMenu": [ {$tlCfg->gui->planView->pagination->length} ] });
+} );
+</script>
 {/if}
 
 
@@ -61,15 +70,6 @@ var del_action=fRoot+'{$deleteAction}';
 {/if}
 
 <div class="workBack">
-{if $gui->grants->testplan_create && $gui->tproject_id > 0 && 
-    count($gui->tplans) > $tlCfg->gui->planView->itemQtyForTopButton}
-   <div class="groupBtn">
-     <form method="post" action="{$createAction}" name="topCreateForm">
-       <input type="submit" name="create_testplan_top" value="{$labels.btn_testplan_create}" />
-     </form>
-   </div>
-{/if}
-
 <div id="testplan_management_list">
 {if $gui->tproject_id <= 0}
   {$labels.error_no_testprojects_present}
@@ -179,7 +179,7 @@ var del_action=fRoot+'{$deleteAction}';
 
  {if $gui->grants->testplan_create && $gui->tproject_id > 0}
  <div class="groupBtn">
-    <form method="post" action="{$createAction}" name="bottomCreateForm">
+    <form method="post" action="{$createAction}">
       <input type="submit" name="create_testplan" value="{$labels.btn_testplan_create}" />
     </form>
   </div>

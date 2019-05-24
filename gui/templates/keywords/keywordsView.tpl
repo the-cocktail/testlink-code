@@ -9,7 +9,7 @@ TestLink Open Source Project - http://testlink.sourceforge.net/
 {lang_get var='labels'
           s='th_notes,th_keyword,th_delete,btn_import,btn_export,
              menu_assign_kw_to_tc,btn_create_keyword,
-             menu_manage_keywords,alt_delete_keyword,tcvqty_with_kw'}
+             menu_manage_keywords,alt_delete_keyword'}
 
 {lang_get s='warning_delete_keyword' var="warning_msg" }
 {lang_get s='delete' var="del_msgbox_title" }
@@ -37,44 +37,25 @@ var del_action = fRoot+'lib/keywords/keywordsEdit.php?tproject_id={$gui->tprojec
       {/if}
     </tr>
     {section name=kwx loop=$gui->keywords}
-      {$kwID=$gui->keywords[kwx]->dbID}
     <tr>
       <td>
         {if $gui->canManage != ""}
           <a href="{$gui->editUrl}&doAction=edit&id={$gui->keywords[kwx]->dbID}">
         {/if}
         {$gui->keywords[kwx]->name|escape}
-
         {if $gui->canManage != ""}
           </a>
         {/if}
-        <span title="{$labels.tcvqty_with_kw}">({$gui->kwOnTCV[$kwID]['tcv_qty']})</span>
       </td>
       <td>{$gui->keywords[kwx]->notes|escape:htmlall|nl2br}</td>
       {if $gui->canManage != ""}
-        {$yesDel = 1}
         <td class="clickable_icon">
-
-            {if $gui->kwExecStatus != '' && 
-                isset($gui->kwExecStatus[$kwID]) &&
-                $gui->kwExecStatus[$kwID]['exec_or_not'] == 'EXECUTED'}
-                {$yesDel = 0}
-            {/if}
-
-            {if $gui->kwFreshStatus != '' && 
-                isset($gui->kwFreshStatus[$kwID]) && 
-                $gui->kwFreshStatus[$kwID]['fresh_or_frozen'] == 'FROZEN'}
-                {$yesDel = 0}
-            {/if}
-
-            {if $yesDel == 1}
             <img style="border:none;cursor: pointer;"
                 alt="{$labels.alt_delete_keyword}" title="{$labels.alt_delete_keyword}"   
                 src="{$tlImages.delete}"           
                onclick="delete_confirmation({$gui->keywords[kwx]->dbID},
                       '{$gui->keywords[kwx]->name|escape:'javascript'|escape}',
                       '{$del_msgbox_title}','{$warning_msg}');" />
-            {/if}          
         </td>
       {/if}
     </tr>
@@ -93,11 +74,11 @@ var del_action = fRoot+'lib/keywords/keywordsEdit.php?tproject_id={$gui->tprojec
                  value="{$labels.btn_create_keyword}" 
                  onclick="doAction.value='create'"/>
     {/if}
-    {if $gui->keywords != '' && $gui->canAssign!=''}
+      {if $gui->keywords != ''}
         <input type="button" id="keyword_assign" name="keyword_assign" 
             value="{$labels.menu_assign_kw_to_tc}" 
               onclick="location.href=fRoot+'lib/general/frmWorkArea.php?feature=keywordsAssign';"/>
-    {/if}    
+      {/if}    
     
     {if $gui->canManage != ""}
       <input type="button" name="do_import" value="{$labels.btn_import}" 

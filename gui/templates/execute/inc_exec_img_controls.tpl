@@ -4,6 +4,8 @@ TestLink Open Source Project - http://testlink.sourceforge.net/
 Purpose: draw execution controls (input for notes and results)
 Author : franciscom
 
+@internal revisions
+@since 1.9.16
 *}	
       {$ResultsStatusCode=$tlCfg->results.status_code}
       {if $args_save_type == 'bulk'}
@@ -12,7 +14,6 @@ Author : franciscom
         {$radio_id_prefix = "statusSingle"}
       {/if}
 
-      {if $gui->grants->execute}
   		<table class="invisible">
   		<tr>
   			<td style="text-align: center;width:80%;">
@@ -81,9 +82,6 @@ Author : franciscom
                  <input type="hidden" name="save_results" id="save_results" value="0">
                  <br />
                  <br />
-                 <button style="display: none;" type="submit" 
-                         id="hidden-submit-button"></button>
-
                  {foreach key=kode item=ikval from=$gui->execStatusIcons}
                    {$in = $ikval.img}
                    <img src="{$tlImages.$in}" title="{$ikval.title}"
@@ -92,8 +90,7 @@ Author : franciscom
                         onclick="document.getElementById('save_button_clicked').value='{$args_tcversion_id}';
                         document.getElementById('statusSingle_{$tcversion_id}').value='{$kode}';
                         document.getElementById('save_results').value=1;
-                        doSubmitForHTML5();
-                        // document.forms['execSetResults'].submit();">&nbsp;
+                        submit();">&nbsp;
                  {/foreach}  
                  <br />
                  <br />
@@ -107,9 +104,8 @@ Author : franciscom
                         id="fastExecNext{$kode}_{$tcversion_id}"
                         onclick="document.getElementById('save_button_clicked').value='{$args_tcversion_id}';
                         document.getElementById('statusSingle_{$tcversion_id}').value='{$kode}';
-                        document.getElementById('save_and_next').value=1;
-                        doSubmitForHTML5();
-                        // document.forms['execSetResults'].submit();">&nbsp;
+                        document.getElementById('save_and_next').value=1;                        
+                        submit();">&nbsp;
                  {/foreach}  
                  <br />
                  <br />
@@ -134,13 +130,6 @@ Author : franciscom
           </td></tr>
         {/if}
   		</table>
-      
-      {else}
-        <input type="submit" name="move2next[{$args_tcversion_id}]" 
-               {$args_input_enable_mgmt}
-               onclick="document.getElementById('save_button_clicked').value={$args_tcversion_id};"
-               value="{$args_labels.btn_next_tcase}" />
-      {/if}
 
       {if $gui->addIssueOp != '' && !is_null($gui->addIssueOp) && 
           !is_null($gui->addIssueOp.type) }  
@@ -260,8 +249,7 @@ Author : franciscom
 
       <tr>
         <td colspan="2">
-          <input type="checkbox" name="addLinkToTL"  id="addLinkToTL"
-                 {if $gui->addLinkToTLChecked} checked {/if} >
+          <input type="checkbox" name="addLinkToTL"  id="addLinkToTL">
           <span class="label">{$args_labels.add_link_to_tlexec}</span>
         </td>
       </tr>
@@ -275,11 +263,6 @@ Author : franciscom
 
 
       <script>
-      function doSubmitForHTML5() 
-      {
-        document.getElementById("hidden-submit-button").click();
-      }
-
       jQuery( document ).ready(function() {
 
       // IMPORTANT

@@ -2,12 +2,14 @@
 TestLink Open Source Project - http://testlink.sourceforge.net/
 
 @filesource	execDashboard.tpl
+@internal revisions
+@since 1.9.10
 *}
 {$title_sep=$smarty.const.TITLE_SEP}
 {$title_sep_type3=$smarty.const.TITLE_SEP_TYPE3}
 {lang_get var='labels'
           s='build_is_closed,test_cases_cannot_be_executed,build,builds_notes,testplan,
-             test_plan_notes,platform,platform_description,restAPIExecParameters'}
+             test_plan_notes,platform,platform_description'}
 
 {$cfg_section=$smarty.template|basename|replace:".tpl":""}
 {config_load file="input_dimensions.conf" section=$cfg_section}
@@ -36,7 +38,7 @@ TestLink Open Source Project - http://testlink.sourceforge.net/
     <br />
   {/if}
 
-  <div style="color: rgb(21, 66, 139);font-weight: bold;font-size: 11px;font-family: tahoma,arial,verdana,sans-serif;">
+  <div style="color: #EDFFBD;font-weight: bold;font-size: 11px;font-family: tahoma,arial,verdana,sans-serif;">
   {$labels.testplan} {$gui->testplan_name|escape}
   </div>
   <div id="testplan_notes" class="exec_additional_info">
@@ -45,7 +47,7 @@ TestLink Open Source Project - http://testlink.sourceforge.net/
   </div>
 
   {if $gui->platform_info.id > 0}
-    <div style="color: rgb(21, 66, 139);font-weight: bold;font-size: 11px;font-family: tahoma,arial,verdana,sans-serif;">
+    <div style="color: #EDFFBD;font-weight: bold;font-size: 11px;font-family: tahoma,arial,verdana,sans-serif;">
     {$labels.platform} {$gui->platform_info.name|escape}
     </div>
     <div id="platform_notes" class="exec_additional_info">
@@ -53,20 +55,13 @@ TestLink Open Source Project - http://testlink.sourceforge.net/
     </div>
   {/if}
 
-  <div style="color: rgb(21, 66, 139);font-weight: bold;font-size: 11px;font-family: tahoma,arial,verdana,sans-serif;">
+  <div style="color: #EDFFBD;font-weight: bold;font-size: 11px;font-family: tahoma,arial,verdana,sans-serif;">
   {$labels.build} {$gui->build_name|escape}
   </div>
   <div id="build_notes" class="exec_additional_info">
   {if $gui->buildEditorType == 'none'}{$gui->build_notes|nl2br}{else}{$gui->build_notes}{/if}
   {if $gui->build_cfields != ''} <div id="cfields_build" class="custom_field_container">{$gui->build_cfields}</div>{/if}
   </div>
-
-  <img class="clickable" src="{$tlImages.cog}" title="{$labels.restAPIExecParameters}"
-       onclick="javascript:toggleShowHide('restAPI','inline');" />
-
-  <div id="restAPI" style='display:none'>
-  {$gui->RESTArgsJSON}  
-  </div>  
 </div>
 </body>
 </html>

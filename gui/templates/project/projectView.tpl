@@ -29,7 +29,7 @@ some variables smarty and javascript are created on the inc_*.tpl files.
           th_name,th_notes,testproject_alt_edit,testproject_alt_active,btn_search_filter,
           th_requirement_feature,testproject_alt_delete,btn_create,public,hint_like_search_on_name,
           testproject_alt_requirement_feature,th_active,th_delete,th_id,btn_reset_filter,
-          th_issuetracker,th_codetracker,th_reqmgrsystem_short,active_click_to_change,inactive_click_to_change,
+          th_issuetracker,th_reqmgrsystem_short,active_click_to_change,inactive_click_to_change,
           click_to_enable,click_to_disable'}
 
 
@@ -42,9 +42,16 @@ var del_action=fRoot+'{$deleteAction}';
 </script>
 
 {if $tlCfg->gui->projectView->pagination->enabled}
-  {$ll = $tlCfg->gui->projectView->pagination->length}
-  {include file="DataTables.inc.tpl" DataTablesOID="item_view"
-                                     DataTableslengthMenu=$ll}
+<link rel="stylesheet" type="text/css" href="{$basehref}/third_party/DataTables-1.10.4/media/css/jquery.dataTables.TestLink.css">
+<script type="text/javascript" language="javascript" src="{$basehref}/third_party/DataTables-1.10.4/media/js/jquery.js"></script>
+<script type="text/javascript" language="javascript" src="{$basehref}/third_party/DataTables-1.10.4/media/js/jquery.dataTables.js"></script>
+
+<script type="text/javascript" language="javascript" class="init">
+$(document).ready(function() {
+  $('#item_view').DataTable({ "lengthMenu": [ {$tlCfg->gui->projectView->pagination->length} ] });
+} );
+</script>
+</script>
 {/if}
 
 </head>
@@ -92,8 +99,7 @@ var del_action=fRoot+'{$deleteAction}';
       <th class="{$noSortableColumnClass}">{$labels.th_notes}</th>
       <th>{$tlImages.sort_hint}{$labels.tcase_id_prefix}</th>
       <th>{$tlImages.sort_hint}{$labels.th_issuetracker}</th>
-      <th>{$tlImages.sort_hint}{$labels.th_codetracker}</th>
-      <th claiss="{$noSortableColumnClass}">{$labels.th_requirement_feature}</th>
+      <th class="{$noSortableColumnClass}">{$labels.th_requirement_feature}</th>
       <th class="icon_cell">{$labels.th_active}</th>
       <th class="icon_cell">{$labels.public}</th>
       {if $gui->canManage == "yes"}
@@ -114,15 +120,12 @@ var del_action=fRoot+'{$deleteAction}';
       <td>
         {if $gui->editorType == 'none'}{$testproject.notes|nl2br}{else}{$testproject.notes}{/if}</td>
       </td>
-      <td width="7%">
+      <td width="10%">
         {$testproject.prefix|escape}
       </td>
       
-      <td width="7%">
+      <td width="10%">
         {$testproject.itstatusImg} &nbsp; {$testproject.itname|escape} 
-      </td>
-      <td width="7%">
-        {$testproject.ctstatusImg} &nbsp; {$testproject.ctname|escape} 
       </td>
       {*
       <td width="10%">

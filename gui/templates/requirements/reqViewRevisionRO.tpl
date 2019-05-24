@@ -1,7 +1,13 @@
 {* 
 TestLink Open Source Project - http://testlink.sourceforge.net/
 @filesource	reqViewRevisionRO.tpl
-Purpose: view requirement with version + revision - READ ONLY
+Purpose: view requirement with version + revision
+         READ ONLY
+
+@internal revisions
+@since 1.9.4
+20110817 - franciscom - TICKET 4702: Requirement View - display log message
+
 *}
 {lang_get var='labels' 
           s='relation_id, relation_type, relation_document, relation_status, relation_project,
@@ -9,31 +15,40 @@ Purpose: view requirement with version + revision - READ ONLY
              relation_destination_doc_id, in, btn_add, img_title_delete_relation, current_req,
              no_records_found,other_versions,version,title_test_case,match_count, warning'}
 
-{$this_template_dir=$smarty.template|dirname}
+{assign var=this_template_dir value=$smarty.template|dirname}
 {config_load file="input_dimensions.conf"}
-{$my_style=""}
+{assign var="my_style" value=""}
 {if $gui->hilite_item_name}
-  {$my_style="background:#059; color:white; margin:0px 0px 4px 0px;padding:3px;"}
+    {assign var="my_style" value="background:#059; color:white; margin:0px 0px 4px 0px;padding:3px;"}
 {/if}
 
 {include file="inc_head.tpl" openHead='yes' jsValidate="yes"}
 {include file="inc_ext_js.tpl"}
 
 <script type="text/javascript">
+{literal}
 Ext.onReady(function(){ 
+{/literal}
 tip4log({$gui->item.target_id});
+{literal}
 });
 
-function tip4log(itemID) {
+/**
+ * 
+ * @since 1.9.4
+ */
+function tip4log(itemID)
+{
 	var fUrl = fRoot+'lib/ajax/getreqlog.php?item_id=';
 	new Ext.ToolTip({
         target: 'tooltip-'+itemID,
         width: 500,
-        autoLoad:{ url: fUrl+itemID },
+        autoLoad:{url: fUrl+itemID},
         dismissDelay: 0,
         trackMouse: true
     });
 }
+{/literal}
 </script>
 
 </head>

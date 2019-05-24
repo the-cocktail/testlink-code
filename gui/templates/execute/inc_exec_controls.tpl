@@ -236,8 +236,7 @@ Author : franciscom
 
       <tr>
         <td colspan="2">
-          <input type="checkbox" name="addLinkToTL"  id="addLinkToTL"
-                 {if $gui->addLinkToTLChecked} checked {/if} >
+          <input type="checkbox" name="addLinkToTL"  id="addLinkToTL">
           <span class="label">{$args_labels.add_link_to_tlexec}</span>
         </td>
       </tr>

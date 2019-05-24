@@ -1,6 +1,6 @@
 {* 
 TestLink Open Source Project - http://testlink.sourceforge.net/
-@file: inc_exec_test_spec.tpl
+$Id: inc_exec_test_spec.tpl,v 1.22.2.1 2010/11/18 15:17:45 mx-julian Exp $
 Purpose: draw execution controls (input for notes and results)
 Author : franciscom
 
@@ -105,7 +105,8 @@ Author : franciscom
     <tr>
       <td colspan="{$tableColspan}">
       {if $args_tcAttachments[$testcase_id] neq null}
-        {include file="attachments.inc.tpl" 
+        {include file="inc_attachments.tpl" 
+                 attach_tableName="nodes_hierarchy" 
                  attach_downloadOnly=true 
                  attach_attachmentInfos=$args_tcAttachments[$testcase_id] 
                  attach_tableClassName="bordered"
@@ -113,18 +114,6 @@ Author : franciscom
       {/if}
       </td>
     </tr>
-
-    {* TestScript Links (if any) *}
-    {if isset($gui->scripts[$tcversion_id]) && !is_null($gui->scripts[$tcversion_id])}
-      <tr style="background-color: #dddddd">
-        {include file="inc_show_scripts_table.tpl"
-         scripts_map=$gui->scripts[$tcversion_id]
-         can_delete=false
-         tcase_id=$tcversion_id
-         tproject_id=$gui->tproject_id
-        }
-      </tr>
-    {/if}
 
     {if isset($args_keywords)}
       <tr>
@@ -155,7 +144,7 @@ Author : franciscom
          {$tlCfg->gui_separator_open}{$req_elem.req_spec_title}{$tlCfg->gui_separator_close}&nbsp;
          <a href="javascript:openLinkedReqWindow({$req_elem.id})"  
             title="{$args_labels.click_to_open}">
-          {$req_elem.req_doc_id|escape}{$tlCfg->gui_title_separator_1}{$req_elem.title|escape} [{$args_labels.version} {$req_elem.version}]
+          {$req_elem.req_doc_id|escape}{$tlCfg->gui_title_separator_1}{$req_elem.title|escape}
          </a>
         </span>
        </td>

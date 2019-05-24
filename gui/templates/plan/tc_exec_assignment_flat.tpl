@@ -3,19 +3,19 @@ TestLink Open Source Project - http://testlink.sourceforge.net/
 
 generate the list of TC that can be removed from a Test Plan 
 
-@filesource tc_exec_assignment_flat.tpl
+@filesource tc_exec_assignment.tpl
 @internal revisions
-
+@since 1.9.14
 *}
 
 {lang_get var="labels" 
-  s="user_bulk_assignment,btn_do,check_uncheck_all_checkboxes,th_id,
+  s='user_bulk_assignment,btn_do,check_uncheck_all_checkboxes,th_id,
      btn_update_selected_tc,show_tcase_spec,can_not_execute,
      send_mail_to_tester,platform,no_testcase_available,chosen_blank_option,
      exec_assign_no_testcase,warning,check_uncheck_children_checkboxes,
      th_test_case,version,assigned_to,assign_to,note_keyword_filter,priority,
-     check_uncheck_all_tc,execution,design,execution_history,btn_apply_assign,
-     btn_save_assign,btn_remove_assignments,remove,btn_send_link,btn_remove_all_users,user_bulk_action"}
+     check_uncheck_all_tc,execution,design,execution_history,
+     remove,user_bulk_remove,btn_send_link'}
 
 {include file="inc_head.tpl" openHead="yes"}
 {include file="inc_jsCheckboxes.tpl"}
@@ -24,22 +24,15 @@ generate the list of TC that can be removed from a Test Plan
 <script type="text/javascript">
 // Escape all messages (string)
 var check_msg="{$labels.exec_assign_no_testcase|escape:'javascript'}";
-var check_user_msg="{$labels.no_user_selected|escape:'javascript'}";
-
 var alert_box_title = "{$labels.warning|escape:'javascript'}";
 
 function check_action_precondition(container_id,action)
 {
-	if(checkbox_count_checked(container_id) <= 0) {
+	if(checkbox_count_checked(container_id) <= 0)
+	{
 		alert_message(alert_box_title,check_msg);
 		return false;
 	}
-  
-  if (jQuery("#bulk_tester_div").val() == 0) {
-    alert_message(alert_box_title,check_user_msg);
-    return false;
-  }
-
 	return true;
 }
 
@@ -135,9 +128,8 @@ function setComboIfCbx(oid,combo_id_prefix,oid4value)
     <br>
 
 		<div>
-      <fieldset>
 			<img src="{$tlImages.user_group}" title="{$labels.user_bulk_assignment}">
-      {$labels.user_bulk_action}<br>
+      {$labels.user_bulk_assignment}<br>
       <select class="chosen-bulk-select" multiple="multiple"
               name="bulk_tester_div[]" id="bulk_tester_div" >
 				{html_options options=$gui->testers selected=0}
@@ -146,29 +138,21 @@ function setComboIfCbx(oid,combo_id_prefix,oid4value)
 				onclick='if(check_action_precondition("tc_exec_assignment","default"))
 						        setComboIfCbx("tc_exec_assignment_cb","tester_for_tcid_",
                                   "bulk_tester_div")'
-				value="{$labels.btn_apply_assign}" />
-			<input type="submit" name="doActionButton" id="doActionButton" value="{$labels.btn_save_assign}" />
+				value="{$labels.btn_do}" />
+			<input type='submit' name='doActionButton' id='doActionButton' value='{$labels.btn_update_selected_tc}' />
       <input type="hidden" name="doAction" id="doAction" value='std' />
-
-      <input type='button' name='bulk_user_remove' id='bulk_user_remove'
-        onclick='if(check_action_precondition("tc_exec_assignment","default"))
-                 { doAction.value="doBulkUserRemove"; tc_exec_assignment.submit(); }'
-        value="{$labels.btn_remove_assignments}" />
 
 			<span style="margin-left:20px;">
         <img src="{$tlImages.email}" title="{$labels.send_mail_to_tester}">
         <input type="checkbox" title="{$labels.send_mail_to_tester}"
           name="send_mail" id="send_mail" {$gui->send_mail_checked} />
 			</span>
-      </fieldset>
-
 		</div>
-    <br>
 
     <div>
-      <input type="submit" name="doRemoveAll" id="doRemoveAll" value="{$labels.btn_remove_all_users}" />
-      <input type="button" name="linkByMail" 
-             id="linkByMail" 
+      <input type='submit' name='doBulkUserRemove' id='doBulkUserRemove' value='{$labels.user_bulk_remove}' />
+      <input type='button' name='linkByMail' 
+             id='linkByMail' 
              onclick="doAction.value='linkByMail';tc_exec_assignment.submit();" 
              value="{$labels.btn_send_link}" />
       

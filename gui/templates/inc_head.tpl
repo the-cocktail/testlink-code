@@ -1,6 +1,6 @@
 {*
 Testlink Open Source Project - http://testlink.sourceforge.net/
-@filesource inc_head.tpl
+$Id: inc_head.tpl,v 1.36 2010/08/28 14:47:54 franciscom Exp $
 Purpose: smarty template - HTML Common Header
 
 
@@ -9,7 +9,8 @@ Critic Smarty Global Variables expected
 editorType: used to understand if code for tinymce need to be loaded 
 
 *}
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset={$pageCharset}" />
 	<meta http-equiv="Content-language" content="en" />
@@ -63,12 +64,11 @@ editorType: used to understand if code for tinymce need to be loaded
 	<script type="text/javascript" src="{$basehref}third_party/prototype/prototype.js" language="javascript"></script>
 
 	<script type="text/javascript" language="javascript">
-	//<!--
+	<!--
 	var fRoot = '{$basehref}';
 	var menuUrl = '{$menuUrl}';
 	var args  = '{$args}';
 	var additionalArgs  = '{$additionalArgs}';
-	var printPreferences = '{$printPreferences}';
 	
 	// To solve problem diplaying help
 	var SP_html_help_file  = '{$SP_html_help_file}';

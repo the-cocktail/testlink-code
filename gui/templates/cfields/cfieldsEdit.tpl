@@ -1,6 +1,7 @@
 {*
 TestLink Open Source Project - http://testlink.sourceforge.net/
-@filesource cfieldsEdit.tpl
+$Id: cfieldsEdit.tpl,v 1.25.2.2 2011/01/08 09:15:56 franciscom Exp $
+
 
 Important Development note:
 Input names:
@@ -8,6 +9,8 @@ Input names:
             cf_show_on_execution
             cf_enable_on_design
             cf_enable_on_execution
+
+            20080809 - franciscom - BUGID 1650
             cf_show_on_testplan_design
             cf_enable_on_testplan_design
 
@@ -18,6 +21,8 @@ As you can see these names are build adding 'cf_' prefix to name
 of columns present on custom fields tables.
 This is done to simplify logic.
 
+
+@internal revisions
 *}
 
 {$cfg_section=$smarty.template|basename|replace:".tpl":"" }
@@ -100,6 +105,7 @@ js_show_on_cfg['testplan_design'] = new Array();  // BUGID 1650 (REQ)
   js_show_on_cfg['design'][{$node_type}]={$cfg_def};
 {/foreach}
 
+// BUGID 1650 (REQ)
 {foreach key=node_type item=cfg_def from=$gui->cfieldCfg->show_on_cfg.testplan_design}
   js_show_on_cfg['testplan_design'][{$node_type}]={$cfg_def};
 {/foreach}
@@ -163,7 +169,7 @@ function configure_cf_attr(id_nodetype,enable_on_cfg,show_on_cfg)
   
   keys2loop[0]='execution';
   keys2loop[1]='design';
-  keys2loop[2]='testplan_design'; 
+  keys2loop[2]='testplan_design'; // BUGID 1650 - 20080809 - franciscom
 
   style_display='';
   for(idx=0;idx < keys2loop.length; idx++)
@@ -428,8 +434,15 @@ function initShowOnExec(id_master,show_on_cfg)
 		</tr>
 
 
-    {* ----------------------------------------------------------------------- *}
+    {* ------------------------------------------------------------------------------- *}
     {*   Execution  *}
+    {* 
+    {if $gui->cfieldCfg->disabled_cf_show_on.execution != ''}
+      {assign var="display_style" value="none"}
+    {else}
+      {assign var="display_style" value=""}
+    {/if}
+    *}
     		<tr id="container_cf_show_on_execution" {$gui->cfieldCfg->cf_show_on.execution.style}>
 			<th style="background:none;">{$labels.show_on_exec}</th>
 			<td>

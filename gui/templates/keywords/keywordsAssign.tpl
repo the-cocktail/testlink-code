@@ -3,8 +3,7 @@ TestLink Open Source Project - http://testlink.sourceforge.net/
 @filesource keywordsAssign.tpl
 *}
 {lang_get var="labels" s='keyword_assignment,keyword_assignment_empty_tsuite,
-                          btn_save,assignToFilteredTestCases,
-                          tcversion_executed_keyword_assignment_blocked'}
+                          btn_save,assignToFilteredTestCases'}
 
 
 {include file="inc_head.tpl" openHead='yes'}
@@ -31,7 +30,7 @@ var {$opt_cfg->js_ot_name} = new OptionTransfer("{$opt_cfg->from->name}","{$opt_
 >
 
 <div class="workBack">
- {include file="inc_update.tpl" result=$sqlResult item=$gui->level action='updated'}
+ {include file="inc_update.tpl" result=$sqlResult item=$level action='updated'}
 
   <h1 class="title">{$labels.keyword_assignment}</h1>
   {if $gui->keyword_assignment_subtitle neq ''}
@@ -51,11 +50,7 @@ var {$opt_cfg->js_ot_name} = new OptionTransfer("{$opt_cfg->from->name}","{$opt_
 
       {include file="opt_transfer.inc.tpl" option_transfer=$opt_cfg}
 	    <br />
-      {if $gui->hasBeenExecuted == 0}
     	<input type="submit" name="assign{$gui->level}" id="assign{$gui->level}" value="{$labels.btn_save}" />
-      {else}
-        {$labels.tcversion_executed_keyword_assignment_blocked}
-      {/if}
     	</form>
     </div>
   {else}
