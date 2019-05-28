@@ -175,7 +175,7 @@ function doAuthorize(&$db,$login,$pwd,$options=null) {
     if ($options->doSessionExistsCheck && 
         isset($_SESSION['currentUser']) && !is_null($_SESSION['currentUser'])) {
       $result['msg'] = lang_get('login_msg_session_exists1') . 
-                       ' <a style="color:white;" href="logout.php">' . 
+                       ' <a href="logout.php">' . 
                        lang_get('logout_link') . '</a>' . lang_get('login_msg_session_exists2');
     } else { 
       // Setting user's session information
@@ -235,7 +235,7 @@ function doSSOClientCertificate(&$dbHandler,$apache_mod_ssl_env,$authCfg=null)
       if (isset($_SESSION['currentUser']) && !is_null($_SESSION['currentUser']))
       {
         $ret['msg'] = lang_get('login_msg_session_exists1') . 
-                      ' <a style="color:white;" href="logout.php">' . 
+                      ' <a href="logout.php">' . 
                       lang_get('logout_link') . '</a>' . 
                       lang_get('login_msg_session_exists2');
       }
@@ -429,7 +429,7 @@ function doSessionSetUp(&$dbHandler,&$userObj) {
   if (isset($_SESSION['currentUser']) && !is_null($_SESSION['currentUser']))
   {
     $ret['msg'] = lang_get('login_msg_session_exists1') . 
-                     ' <a style="color:white;" href="logout.php">' . 
+                     ' <a href="logout.php">' . 
                      lang_get('logout_link') . '</a>' . lang_get('login_msg_session_exists2'); 
   }
   else
